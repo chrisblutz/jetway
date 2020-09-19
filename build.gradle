@@ -1,0 +1,44 @@
+plugins {
+    id 'java'
+}
+
+group 'com.github.chrisblutz'
+version '0.0.1'
+
+sourceCompatibility = 8
+
+repositories {
+    mavenCentral()
+
+    flatDir {
+        dirs 'lib'
+    }
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+
+    compile group: 'com.mchange', name: 'c3p0', version: '0.9.5.5'
+    compile group: 'mysql', name: 'mysql-connector-java', version: '8.0.17'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.11.1'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.11.1'
+    compile group: 'org.apache.xmlbeans', name: 'xmlbeans', version: '2.6.0'
+
+    compile name: 'nasr-aixm'
+}
+
+jar {
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+
+    manifest {
+        attributes(
+                'Implementation-Title': 'Jetway',
+                'Implementation-Version': version,
+                'Main-Class': 'com.github.chrisblutz.jetway.Jetway'
+        )
+    }
+}
+
+tasks.withType(Jar) {
+    destinationDir = file('bin/')
+}

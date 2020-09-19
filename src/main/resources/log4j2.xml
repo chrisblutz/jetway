@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+    <Properties>
+        <Property name="logDirectory">.jetway/logs</Property>
+    </Properties>
+    <Appenders>
+        <File name="FILE" fileName="${logDirectory}/jetway_${date:MM-dd-yyyy_H-mm-ss-SSS}.log" append="false">
+            <PatternLayout pattern="%d{MM-dd-yyyy HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+        </File>
+        <Console name="STDOUT" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{MM-dd-yyyy HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Logger name="  Jetway" level="debug"/>
+        <Logger name="Database" level="debug"/>
+        <Root level="error">
+            <AppenderRef ref="FILE"/>
+            <AppenderRef ref="STDOUT"/>
+        </Root>
+    </Loggers>
+</Configuration>
