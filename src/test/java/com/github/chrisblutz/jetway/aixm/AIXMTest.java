@@ -31,7 +31,7 @@ public class AIXMTest {
 
         Jetway.reset();
         AIXMFiles.registerCustomInputStream("APT_AIXM", AIXMTest.class.getResourceAsStream("/aixm/basic.xml"));
-        Jetway.initialize("mysql -a / -u jetway -p password -s localhost --drop".split(" "));
+        intializeJetway("/");
 
         Airport[] airports = Airport.selectAll(null);
         assertNotNull(airports);
@@ -64,7 +64,7 @@ public class AIXMTest {
 
         Jetway.reset();
         AIXMFiles.registerCustomInputStream("APT_AIXM", AIXMTest.class.getResourceAsStream("/aixm/basic_extension.xml"));
-        Jetway.initialize("mysql -a / -u jetway -p password -s localhost --drop".split(" "));
+        intializeJetway("/");
 
         Airport[] airports = Airport.selectAll(null);
         assertNotNull(airports);
@@ -97,7 +97,7 @@ public class AIXMTest {
 
         Jetway.reset();
         AIXMFiles.registerCustomInputStream("APT_AIXM", AIXMTest.class.getResourceAsStream("/aixm/basic_multiple.xml"));
-        Jetway.initialize("mysql -a / -u jetway -p password -s localhost --drop".split(" "));
+        intializeJetway("/");
 
         Airport[] airports = Airport.selectAll(null);
         assertNotNull(airports);
@@ -173,7 +173,7 @@ public class AIXMTest {
     public void testZIPLoad() {
 
         Jetway.reset();
-        Jetway.initialize("mysql -a test/nasr.zip -u jetway -p password -s localhost --drop".split(" "));
+        intializeJetway("test/nasr.zip");
 
         Airport[] airports = Airport.selectAll(null);
         assertNotNull(airports);
@@ -224,5 +224,17 @@ public class AIXMTest {
         TestObject object = new TestObject();
         AIXMData data = new AIXMData(object);
         data.crawl("InvalidPath");
+    }
+
+    private void intializeJetway(String aixmPath) {
+
+        String user = System.getenv("TEST_USER");
+        String password = System.getenv("TEST_PASSWORD");
+        String server = System.getenv("TEST_SERVER");
+        Jetway.initialize(("mysql -a " + aixmPath +
+                (user != null && !user.isEmpty() ? " -u " + user : "") +
+                (password != null && !password.isEmpty() ? " -p " + password : "") +
+                (server != null && !server.isEmpty() ? " -s " + server : "")
+                + " --drop").split(" "));
     }
 }

@@ -58,8 +58,16 @@ public class AIXMInstance extends AIXMData {
 
             try {
 
-                Object extensionAbstract = ((Object[]) data.getClass().getMethod("getExtensionArray").invoke(data))[0];
-                extension = new AIXMData(extensionAbstract.getClass().getMethod("getAbstract" + entry.getName() + "Extension").invoke(extensionAbstract));
+                Object[] extensionAbstractArray = (Object[]) data.getClass().getMethod("getExtensionArray").invoke(data);
+                if (extensionAbstractArray == null || extensionAbstractArray.length == 0) {
+
+                    extension = AIXMNullData.getInstance();
+
+                } else {
+
+                    Object extensionAbstract = extensionAbstractArray[0];
+                    extension = new AIXMData(extensionAbstract.getClass().getMethod("getAbstract" + entry.getName() + "Extension").invoke(extensionAbstract));
+                }
 
             } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
 
