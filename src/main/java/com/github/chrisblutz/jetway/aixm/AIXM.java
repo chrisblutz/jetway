@@ -35,7 +35,6 @@ import java.util.List;
 public class AIXM {
 
     private static int totalCount = 0;
-    private static int totalPropertiesTraversed = 0, totalPropertiesCount = 0, propertiesPercentIncrement = 0;
 
     /**
      * This method begins the load sequence for all AIXM features
@@ -69,7 +68,6 @@ public class AIXM {
 
         // Reset count of entries
         totalCount = 0;
-        totalPropertiesTraversed = 0;
 
         // Record start time
         long startTime = System.currentTimeMillis();
@@ -77,8 +75,6 @@ public class AIXM {
         // Load AIXM properties from file
         JetwayLog.getJetwayLogger().info("Loading AIXM file into memory...");
         final SubscriberFileComponentPropertyType[] properties = AIXMFiles.loadAIXMFile(rootEntry.getRootPath());
-        totalPropertiesCount = properties.length;
-        propertiesPercentIncrement = totalPropertiesCount / 10;
 
         // Find all possible AIXM features that may be in this file
         JetwayLog.getJetwayLogger().info("Retrieving all possible features for this file...");
@@ -100,19 +96,11 @@ public class AIXM {
         // Print stats
         JetwayLog.getJetwayLogger().info(new FormattedMessage("Generated %,d entries in %,.3f seconds.", totalCount, totalParseTime));
         JetwayLog.getJetwayLogger().info(new FormattedMessage("Complete load time was %,.3f seconds.", totalTime));
-
-        JetwayLog.getDatabaseLogger().info("Closing database connection...");
-        Database.getManager().closeConnection();
     }
 
     private static void loadAll(SubscriberFileComponentPropertyType[] properties, List<FeatureEntry> possibleEntries) {
 
         for (SubscriberFileComponentPropertyType property : properties) {
-
-            totalPropertiesTraversed++;
-            // Every 1000 properties, print a progress report
-            if (totalPropertiesTraversed % propertiesPercentIncrement == 0 && totalPropertiesTraversed / propertiesPercentIncrement != 10)
-                JetwayLog.getJetwayLogger().info(new FormattedMessage("Progress: %d%% - %,d/%,d (%,d feature instances generated)", (totalPropertiesTraversed / propertiesPercentIncrement) * 10, totalPropertiesTraversed, totalPropertiesCount, totalCount));
 
             try {
 
@@ -144,8 +132,6 @@ public class AIXM {
                 throw exception;
             }
         }
-
-        JetwayLog.getJetwayLogger().info(new FormattedMessage("Progress: %d%% - %,d/%,d (%,d feature instances generated)", (totalPropertiesTraversed / propertiesPercentIncrement) * 10, totalPropertiesTraversed, totalPropertiesCount, totalCount));
     }
 
     private static void fillInData(AIXMIdentifiedFeature feature, AIXMInstance instance, Object featureInstance) throws IllegalAccessException {

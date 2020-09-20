@@ -17,6 +17,8 @@ package com.github.chrisblutz.jetway.aixm.crawling;
 
 import com.github.chrisblutz.jetway.aixm.mappings.FeatureEntry;
 
+import java.lang.reflect.InvocationTargetException;
+
 /**
  * This class represents a special type of {@link AIXMData} that
  * contains the full feature (i.e. {@code AirportHeliport}) and has
@@ -59,7 +61,7 @@ public class AIXMInstance extends AIXMData {
                 Object extensionAbstract = ((Object[]) data.getClass().getMethod("getExtensionArray").invoke(data))[0];
                 extension = new AIXMData(extensionAbstract.getClass().getMethod("getAbstract" + entry.getName() + "Extension").invoke(extensionAbstract));
 
-            } catch (Exception e) {
+            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
 
                 // No extension exists, so set the extension to the null data instance
                 extension = AIXMNullData.getInstance();

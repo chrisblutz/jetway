@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.chrisblutz.jetway.aixm.crawling.conversion;
+package com.github.chrisblutz.jetway.conversion;
 
 import org.apache.xmlbeans.XmlAnySimpleType;
 
@@ -51,13 +51,19 @@ public class BasicConverter<T> implements Converter<T> {
     public T convert(Object value) {
 
         String string = getDefaultTypeAsString(value);
-        if (string == null) {
+        return convert(string);
+    }
+
+    @Override
+    public T convert(String value) {
+
+        if (value == null) {
 
             return defaultValue;
 
         } else {
 
-            return converter.convert(string);
+            return converter.convert(value);
         }
     }
 

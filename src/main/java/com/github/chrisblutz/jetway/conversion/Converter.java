@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.chrisblutz.jetway.aixm.crawling.conversion;
+package com.github.chrisblutz.jetway.conversion;
 
 /**
  * This interface defines the basic structure of a class
@@ -37,6 +37,17 @@ public interface Converter<T> {
      * not possible
      */
     T convert(Object value);
+
+    /**
+     * This method converts {@link String} into the conversion type.
+     * <p>
+     * If conversion is not possible, {@code null} should be returned.
+     *
+     * @param value the {@link String} to convert
+     * @return The converted value, or {@code null} if conversion is
+     * not possible
+     */
+    T convert(String value);
 
     /**
      * This method returns the {@link Class} of the objects

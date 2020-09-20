@@ -15,9 +15,16 @@
  */
 package com.github.chrisblutz.jetway.database.managers;
 
+import com.github.chrisblutz.jetway.database.SchemaManager;
 import com.github.chrisblutz.jetway.database.mappings.SchemaTable;
+import com.github.chrisblutz.jetway.database.queries.DatabaseResult;
+import com.github.chrisblutz.jetway.database.queries.MultiQuery;
+import com.github.chrisblutz.jetway.database.queries.Query;
+import com.github.chrisblutz.jetway.database.queries.SingleQuery;
 
 import java.text.MessageFormat;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * This class defines the framework for database managers
@@ -178,6 +185,18 @@ public abstract class DatabaseManager {
     public abstract boolean insertEntry(SchemaTable table, Object value);
 
     /**
+     * This method executes a {@link Query} on the database and returns the
+     * set of results obtained.
+     * <p>
+     * The order of results is not necessarily guaranteed.
+     *
+     * @param table the table to query from
+     * @param query the {@link Query} to run
+     * @return The set of results from the query
+     */
+    public abstract DatabaseResult runQuery(SchemaTable table, Query query);
+
+    /**
      * This utility method provides a wrapper for {@link MessageFormat#format(String, Object...)}
      * to simplify query-building.
      *
@@ -189,5 +208,39 @@ public abstract class DatabaseManager {
     protected String format(String format, Object... arguments) {
 
         return MessageFormat.format(format, arguments);
+    }
+
+    /**
+     * This method compiles a set of all of the tables
+     * referenced in the conditions of a {@link Query}.
+     *
+     * @param query the {@link Query} to check
+     * @return A {@link Set} containing all referenced {@link SchemaTable}s
+     */
+    protected Set<SchemaTable> getReferencedTables(Query query) {
+
+        Set<SchemaTable> tables = new HashSet<>();
+        buildReferencedTablesSet(query, tables);
+        return tables;
+    }
+
+    private void buildReferencedTablesSet(Query query, Set<SchemaTable> tables) {
+
+        if (query instanceof MultiQuery) {
+
+            for (Query subQuery : ((MultiQuery) query).getQueries())
+                buildReferencedTablesSet(subQuery, tables);
+
+        } else if (query instanceof SingleQuery) {
+
+            Class<?> feature = ((SingleQuery) query).getFeature();
+            SchemaTable table = SchemaManager.get(feature);
+            tables.add(table);
+
+            while (table.hasForeignKey()) {
+                table = table.getForeignTable();
+                tables.add(table);
+            }
+        }
     }
 }

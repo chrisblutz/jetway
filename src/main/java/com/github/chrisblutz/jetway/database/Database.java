@@ -20,6 +20,8 @@ import com.github.chrisblutz.jetway.database.exceptions.DatabaseException;
 import com.github.chrisblutz.jetway.database.managers.DatabaseManager;
 import com.github.chrisblutz.jetway.database.managers.MySQLDataManager;
 import com.github.chrisblutz.jetway.database.mappings.SchemaTable;
+import com.github.chrisblutz.jetway.database.queries.DatabaseResult;
+import com.github.chrisblutz.jetway.database.queries.Query;
 import com.github.chrisblutz.jetway.database.utils.DatabaseVerification;
 import com.github.chrisblutz.jetway.logging.JetwayLog;
 
@@ -200,6 +202,72 @@ public class Database {
 
                 JetwayLog.getDatabaseLogger().warn("Failed to set database up to drop tables.");
             }
+        }
+    }
+
+    /**
+     * This method selects a single instance of the specified feature that
+     * fit the {@link Query} provided.  The specific feature returned if
+     * multiple exist is database manager-specific.
+     * <p>
+     * There is no guarantee that the feature returned will be the first one in the
+     * database, and there is no guarantee that this method will return the same
+     * feature twice when running the same query.
+     * <p>
+     * If an error occurs while selecting an instance or no instances exist
+     * fitting the {@link Query}, {@code null} will be returned.
+     *
+     * @param type  the feature type to select
+     * @param query the {@link Query} to execute
+     * @param <T>   the feature type
+     * @return the feature instance selected, or {@code null} if none were selected
+     */
+    public static <T> T select(Class<T> type, Query query) {
+
+        SchemaTable table = SchemaManager.get(type);
+        DatabaseResult result = getManager().runQuery(table, query);
+        try {
+
+            // Return a single instance
+            return result.construct(type, table);
+
+        } catch (IllegalAccessException | InstantiationException e) {
+
+            DatabaseException exception = new DatabaseException("An error occurred while selecting a feature of type '" + type.getSimpleName() + "'.", e);
+            JetwayLog.getDatabaseLogger().warn(exception.getMessage(), exception);
+            return null;
+        }
+    }
+
+    /**
+     * This method selects all instances of the specified feature that
+     * fit the {@link Query} provided.
+     * <p>
+     * The order of the array returned is not guaranteed.
+     * <p>
+     * If an error occurs while selecting the instances or no instances exist,
+     * an empty array will be returned.
+     *
+     * @param type  the feature type to select
+     * @param query the {@link Query} to execute
+     * @param <T>   the feature type
+     * @return the array of features selected
+     */
+    public static <T> T[] selectAll(Class<T> type, Query query) {
+
+        SchemaTable table = SchemaManager.get(type);
+        DatabaseResult result = getManager().runQuery(table, query);
+
+        try {
+
+            // Build results into an array
+            return result.constructAll(type, table);
+
+        } catch (IllegalAccessException | InstantiationException e) {
+
+            DatabaseException exception = new DatabaseException("An error occurred while selecting features of type '" + type.getSimpleName() + "'.", e);
+            JetwayLog.getDatabaseLogger().warn(exception.getMessage(), exception);
+            return result.getEmptyArray(type);
         }
     }
 

@@ -16,10 +16,11 @@
 package com.github.chrisblutz.jetway.aixm.crawling;
 
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMAttribute;
-import com.github.chrisblutz.jetway.aixm.crawling.conversion.DataConversion;
 import com.github.chrisblutz.jetway.aixm.exceptions.AIXMException;
+import com.github.chrisblutz.jetway.conversion.DataConversion;
 import com.github.chrisblutz.jetway.logging.JetwayLog;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -61,7 +62,7 @@ public class AIXMData {
     /**
      * This method converts the underlying AIXM data into
      * the requested type using one of the
-     * {@link com.github.chrisblutz.jetway.aixm.crawling.conversion.Converter Converter}
+     * {@link com.github.chrisblutz.jetway.conversion.Converter Converter}
      * instances registered via the {@link DataConversion} class.
      * <p>
      * This method can return {@code null} if one of the following is true:
@@ -142,7 +143,7 @@ public class AIXMData {
 
             return initialResult;
 
-        } catch (Exception e) {
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
 
             AIXMException exception = new AIXMException("An error occurred while crawling to '" + path + "'.", e);
             JetwayLog.getJetwayLogger().error(exception.getMessage(), exception);

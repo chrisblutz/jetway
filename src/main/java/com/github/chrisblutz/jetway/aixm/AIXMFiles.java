@@ -68,7 +68,8 @@ public class AIXMFiles {
 
             // Close input stream after loading
             is.close();
-            outerZipStream.close();
+            if (outerZipStream != null)
+                outerZipStream.close();
 
             // Extract array of properties and return
             return doc.getSubscriberFile().getMemberArray();

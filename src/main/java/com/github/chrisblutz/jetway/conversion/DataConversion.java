@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.chrisblutz.jetway.aixm.crawling.conversion;
+package com.github.chrisblutz.jetway.conversion;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -52,6 +52,28 @@ public class DataConversion {
                     return converter.convert(data);
                 }
             }
+        }
+
+        // If no converter was found, return null
+        return null;
+    }
+
+    /**
+     * This method converts the specified {@link String} to the requested type
+     * using one of the registered {@link Converter} instances.
+     * <p>
+     * If no converter is found, this method returns {@code null}.
+     *
+     * @param data      the {@link String} to convert
+     * @param typeClass the type to convert to
+     * @return The data converted to the specified type, or {@code null}
+     */
+    public static Object getFromString(String data, Class<?> typeClass) {
+
+        // Find the correct converter for the type and convert
+        if (converterMap.containsKey(typeClass)) {
+            Converter<?> converter = converterMap.get(typeClass);
+            return converter.convert(data);
         }
 
         // If no converter was found, return null

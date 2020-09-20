@@ -15,9 +15,12 @@
  */
 package com.github.chrisblutz.jetway.database.managers;
 
+import com.github.chrisblutz.jetway.conversion.DataConversion;
 import com.github.chrisblutz.jetway.database.DatabaseType;
+import com.github.chrisblutz.jetway.database.SchemaManager;
 import com.github.chrisblutz.jetway.database.exceptions.DatabaseException;
 import com.github.chrisblutz.jetway.database.mappings.SchemaTable;
+import com.github.chrisblutz.jetway.database.queries.*;
 import com.github.chrisblutz.jetway.logging.JetwayLog;
 import com.mysql.cj.jdbc.MysqlDataSource;
 
@@ -26,6 +29,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.*;
 
 /**
  * This class handles databases using MySQL.
@@ -306,6 +310,187 @@ public class MySQLDataManager extends DatabaseManager {
 
         String query = format("REPLACE INTO {0} VALUES ({1});", table.getTableName(), getValuesAsSQL(table, value));
         return execute(query);
+    }
+
+    @Override
+    public DatabaseResult runQuery(SchemaTable table, Query query) {
+
+        String queryString = buildFullQuery(table, query);
+        System.out.println(queryString);
+        Statement statement = executeWithResult(queryString);
+
+        DatabaseResult result = new DatabaseResult();
+
+        if (statement == null)
+            return result;
+
+        try {
+
+            ResultSet set = statement.getResultSet();
+            while (set.next()) {
+
+                Map<String, Object> currentResult = new HashMap<>();
+
+                for (String attr : table.getAttributes()) {
+
+                    Field f = table.getField(attr);
+                    currentResult.put(attr, getFromResultSetAsFieldType(set, attr, f.getType()));
+                }
+
+                result.add(currentResult);
+            }
+
+            return result;
+
+        } catch (SQLException e) {
+
+            DatabaseException exception = new DatabaseException("An error occurred while selecting information from table '" + table.getTableName() + "'.", e);
+            JetwayLog.getDatabaseLogger().warn(exception.getMessage(), exception);
+            return result;
+        }
+    }
+
+    private String buildFullQuery(SchemaTable table, Query query) {
+
+        String queryString = "SELECT " + table.getTableName() + ".* FROM ";
+
+        Set<SchemaTable> referencedTables = getReferencedTables(query);
+        // Make sure selection table is included
+        referencedTables.add(table);
+
+        Set<String> tableNames = getTableNames(referencedTables);
+        queryString += String.join(", ", tableNames);
+
+        // Track if a "WHERE" has been inserted in the query yet
+        boolean where = false;
+        if (referencedTables.size() > 1) {
+
+            Set<String> joinConditions = getJoinConditions(referencedTables);
+            queryString += " WHERE " + String.join(" AND ", joinConditions);
+            where = true;
+        }
+
+        String whereString = buildQuery(query);
+        if (whereString != null) {
+            if (where)
+                queryString += " AND ";
+            else
+                queryString += " WHERE ";
+
+            queryString += "(" + where + ")";
+        }
+
+        return queryString + ";";
+    }
+
+    private Set<String> getTableNames(Set<SchemaTable> referencedTables) {
+
+        Set<String> names = new HashSet<>();
+
+        for (SchemaTable table : referencedTables)
+            names.add(table.getTableName());
+
+        return names;
+    }
+
+    private Set<String> getJoinConditions(Set<SchemaTable> referencedTables) {
+
+        Set<String> joinConditions = new HashSet<>();
+
+        for (SchemaTable table : referencedTables) {
+            if (table.hasForeignKey()) {
+                SchemaTable foreignTable = table.getForeignTable();
+                joinConditions.add(table.getTableName() + "." + table.getForeignKey() + " = " + foreignTable.getTableName() + "." + foreignTable.getPrimaryKey());
+            }
+        }
+
+        return joinConditions;
+    }
+
+    private String buildQuery(Query query) {
+
+        if (query == null)
+            return null;
+        if (query instanceof AndQuery)
+            return buildNestedQuery(((AndQuery) query).getQueries(), "AND");
+        else if (query instanceof OrQuery)
+            return buildNestedQuery(((OrQuery) query).getQueries(), "OR");
+        else if (query instanceof SingleQuery)
+            return buildSingleQuery((SingleQuery) query);
+        else {
+            // Unrecognized query type
+            JetwayLog.getDatabaseLogger().warn("Invalid query type found: " + query.getClass().getName());
+            return null;
+        }
+    }
+
+    private String buildNestedQuery(List<Query> queries, String keyword) {
+
+        List<String> parts = new ArrayList<>();
+        for (Query query : queries) {
+
+            if (query instanceof AndQuery)
+                parts.add("(" + buildNestedQuery(((AndQuery) query).getQueries(), "AND") + ")");
+            else if (query instanceof OrQuery)
+                parts.add("(" + buildNestedQuery(((OrQuery) query).getQueries(), "OR") + ")");
+            else if (query instanceof SingleQuery)
+                parts.add(buildSingleQuery((SingleQuery) query));
+            else {
+                // Unrecognized query type
+                JetwayLog.getDatabaseLogger().warn("Invalid query type found: " + query.getClass().getName());
+            }
+        }
+        return String.join(" " + keyword + " ", parts);
+    }
+
+    private String buildSingleQuery(SingleQuery query) {
+
+        SchemaTable table = SchemaManager.get(query.getFeature());
+        String attr = table.getTableName() + "." + query.getAttribute();
+        String expected = formatAsSQLTypeStandalone(table.getAttributeType(query.getAttribute()), query.getExpectedValue());
+        switch (query.getOperation()) {
+            case EQUALS:
+                return attr + " = " + expected;
+            case NOT_EQUALS:
+                return attr + " <> " + expected;
+            case GREATER_THAN:
+                return attr + " > " + expected;
+            case GREATER_THAN_EQUALS:
+                return attr + " >= " + expected;
+            case LESS_THAN:
+                return attr + " < " + expected;
+            case LESS_THAN_EQUALS:
+                return attr + " <= " + expected;
+            case LIKE:
+                return attr + " LIKE " + expected;
+            default:
+                // Invalid operation, shouldn't happen as operation is Enum type
+                JetwayLog.getDatabaseLogger().warn("Invalid query operation found: " + query.getOperation().name());
+                return null;
+        }
+    }
+
+    private Object getFromResultSetAsFieldType(ResultSet set, String column, Class<?> type) throws SQLException {
+
+        if (set.getObject(column) == null)
+            return null;
+
+        if (type == String.class)
+            return set.getString(column);
+        else if (type == Short.class)
+            return set.getShort(column);
+        else if (type == Integer.class)
+            return set.getInt(column);
+        else if (type == Long.class)
+            return set.getLong(column);
+        else if (type == Float.class)
+            return set.getFloat(column);
+        else if (type == Double.class)
+            return set.getDouble(column);
+        else if (type == Boolean.class)
+            return set.getBoolean(column);
+        else
+            return DataConversion.getFromString(set.getString(column), type);
     }
 
     private String getValuesAsSQL(SchemaTable table, Object value) {

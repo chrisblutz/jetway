@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faa:SubscriberFile gml:id="Subscriber-0000000" validFrom="2020-08-13T00:00:00.000-04:00" AIXMVersion="AIXM5.1"
+                    SubscriberFileType="APT"
+                    xsi:schemaLocation="http://www.faa.gov/aixm5.1 ../AIXM/extension/SubscriberFile-AIXM.xsd"
+                    xmlns:faa="http://www.faa.gov/aixm5.1"
+                    xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xmlns:aixm="http://www.aixm.aero/schema/5.1"
+>
+    <faa:Member>
+        <aixm:AirportHeliport gml:id="AH_0000001">
+            <aixm:timeSlice>
+                <aixm:AirportHeliportTimeSlice gml:id="AIRPORT_HELIPORT_TS_0000001">
+                    <aixm:interpretation>BASELINE</aixm:interpretation>
+                    <aixm:designator>TST1</aixm:designator>
+                    <aixm:name>TEST AIRPORT 1</aixm:name>
+                    <aixm:locationIndicatorICAO>KTS1</aixm:locationIndicatorICAO>
+                    <aixm:type>AH</aixm:type>
+                    <aixm:privateUse>NO</aixm:privateUse>
+                    <aixm:controlType>CIVIL</aixm:controlType>
+                    <aixm:fieldElevation uom="FT">19.5</aixm:fieldElevation>
+                    <aixm:magneticVariation>07</aixm:magneticVariation>
+                    <aixm:dateMagneticVariation>2000</aixm:dateMagneticVariation>
+                    <aixm:windDirectionIndicator>YES</aixm:windDirectionIndicator>
+                    <aixm:servedCity>
+                        <aixm:City gml:id="AIRPORT_HELIPORT_CITY_PROPERTY_0000001">
+                            <aixm:name>TEST CITY 1</aixm:name>
+                        </aixm:City>
+                    </aixm:servedCity>
+                    <aixm:ARP>
+                        <aixm:ElevatedPoint gml:id="AIRPORT_HELIPORT_ELEVATED_POINT_ARP_0000001" srsName="urn:ogc:def:crs:OGC:1.3:CRS83">
+                            <gml:pos>-170.1234 50.5678</gml:pos>
+                        </aixm:ElevatedPoint>
+                    </aixm:ARP>
+                </aixm:AirportHeliportTimeSlice>
+            </aixm:timeSlice>
+        </aixm:AirportHeliport>
+    </faa:Member>
+    <faa:Member>
+        <aixm:AirportHeliport gml:id="AH_0000002">
+            <aixm:timeSlice>
+                <aixm:AirportHeliportTimeSlice gml:id="AIRPORT_HELIPORT_TS_0000002">
+                    <aixm:interpretation>BASELINE</aixm:interpretation>
+                    <aixm:designator>TST2</aixm:designator>
+                    <aixm:name>TEST AIRPORT 2</aixm:name>
+                    <aixm:locationIndicatorICAO>KTS2</aixm:locationIndicatorICAO>
+                    <aixm:type>AH</aixm:type>
+                    <aixm:privateUse>NO</aixm:privateUse>
+                    <aixm:controlType>CIVIL</aixm:controlType>
+                    <aixm:fieldElevation uom="FT">10.0</aixm:fieldElevation>
+                    <aixm:magneticVariation>07</aixm:magneticVariation>
+                    <aixm:dateMagneticVariation>2000</aixm:dateMagneticVariation>
+                    <aixm:windDirectionIndicator>YES</aixm:windDirectionIndicator>
+                    <aixm:servedCity>
+                        <aixm:City gml:id="AIRPORT_HELIPORT_CITY_PROPERTY_0000001">
+                            <aixm:name>TEST CITY 2</aixm:name>
+                        </aixm:City>
+                    </aixm:servedCity>
+                    <aixm:ARP>
+                        <aixm:ElevatedPoint gml:id="AIRPORT_HELIPORT_ELEVATED_POINT_ARP_0000001" srsName="urn:ogc:def:crs:OGC:1.3:CRS83">
+                            <gml:pos>120.4321 -20.8765</gml:pos>
+                        </aixm:ElevatedPoint>
+                    </aixm:ARP>
+                </aixm:AirportHeliportTimeSlice>
+            </aixm:timeSlice>
+        </aixm:AirportHeliport>
+    </faa:Member>
+</faa:SubscriberFile>

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faa:SubscriberFile gml:id="Subscriber-0000000" validFrom="2020-08-13T00:00:00.000-04:00" AIXMVersion="AIXM5.1"
+                    SubscriberFileType="APT"
+                    xsi:schemaLocation="http://www.faa.gov/aixm5.1 ../AIXM/extension/SubscriberFile-AIXM.xsd"
+                    xmlns:faa="http://www.faa.gov/aixm5.1" xmlns:apt="http://www.faa.gov/aixm5.1/apt"
+                    xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xmlns:aixm="http://www.aixm.aero/schema/5.1"
+>
+    <faa:Member>
+        <aixm:AirportHeliport gml:id="AH_0000001">
+            <aixm:timeSlice>
+                <aixm:AirportHeliportTimeSlice gml:id="AIRPORT_HELIPORT_TS_0000001">
+                    <aixm:interpretation>BASELINE</aixm:interpretation>
+                    <aixm:designator>TST</aixm:designator>
+                    <aixm:name>TEST AIRPORT</aixm:name>
+                    <aixm:locationIndicatorICAO>KTST</aixm:locationIndicatorICAO>
+                    <aixm:type>AH</aixm:type>
+                    <aixm:privateUse>NO</aixm:privateUse>
+                    <aixm:controlType>CIVIL</aixm:controlType>
+                    <aixm:fieldElevation uom="FT">19.5</aixm:fieldElevation>
+                    <aixm:magneticVariation>07</aixm:magneticVariation>
+                    <aixm:dateMagneticVariation>2000</aixm:dateMagneticVariation>
+                    <aixm:windDirectionIndicator>YES</aixm:windDirectionIndicator>
+                    <aixm:servedCity>
+                        <aixm:City gml:id="AIRPORT_HELIPORT_CITY_PROPERTY_0000001">
+                            <aixm:name>TEST CITY</aixm:name>
+                        </aixm:City>
+                    </aixm:servedCity>
+                    <aixm:ARP>
+                        <aixm:ElevatedPoint gml:id="AIRPORT_HELIPORT_ELEVATED_POINT_ARP_0000001" srsName="urn:ogc:def:crs:OGC:1.3:CRS83">
+                            <gml:pos>-170.1234 50.5678</gml:pos>
+                        </aixm:ElevatedPoint>
+                    </aixm:ARP>
+                    <aixm:extension>
+                        <apt:AirportHeliportExtension gml:id="AIRPORT_HELIPORT_EXTENSION_0000001">
+                            <apt:airportSiteNumber>50000.*A</apt:airportSiteNumber>
+                            <apt:faaDistrictOrFieldOfficeCode>NONE</apt:faaDistrictOrFieldOfficeCode>
+                            <apt:administativeArea>AK</apt:administativeArea>
+                            <apt:locationDescription>00W</apt:locationDescription>
+                            <apt:ownershipType>PU</apt:ownershipType>
+                            <apt:referencePointDeterminationMethod>E</apt:referencePointDeterminationMethod>
+                            <apt:elevationDeterminationMethod>S</apt:elevationDeterminationMethod>
+                            <apt:aeronauticalSectionalChart>TEST CHART</apt:aeronauticalSectionalChart>
+                            <apt:countyName>TEST COUNTY</apt:countyName>
+                            <apt:countyStatePostOfficeCode>AK</apt:countyStatePostOfficeCode>
+                            <apt:landSize>234</apt:landSize>
+                            <apt:statusCode>O</apt:statusCode>
+                            <apt:arffCertClassCode>I</apt:arffCertClassCode>
+                            <apt:arffCertOneCharacterCode>B</apt:arffCertOneCharacterCode>
+                            <apt:arffCertOneCharacterCode2>S</apt:arffCertOneCharacterCode2>
+                            <apt:arffCertDate>04/2005</apt:arffCertDate>
+                            <apt:npiasFederalAgreementsCode>N</apt:npiasFederalAgreementsCode>
+                            <apt:analysisDetermination>NO OBJECTION</apt:analysisDetermination>
+                            <apt:numberOfSingleEngineAircraft>001</apt:numberOfSingleEngineAircraft>
+                            <apt:numberOfMultiEngineAircraft>002</apt:numberOfMultiEngineAircraft>
+                            <apt:numberOfJetEngineAircraft>003</apt:numberOfJetEngineAircraft>
+                            <apt:numberOfHelicopter>004</apt:numberOfHelicopter>
+                            <apt:numberOfOperationalGlider>005</apt:numberOfOperationalGlider>
+                            <apt:numberOfMilitaryAircraft>006</apt:numberOfMilitaryAircraft>
+                            <apt:numberOfUltralightAircraft>007</apt:numberOfUltralightAircraft>
+                            <apt:inspectionMethod>F</apt:inspectionMethod>
+                            <apt:inspectionAgency>F</apt:inspectionAgency>
+                            <apt:lastInspectionDate>2019-07-27</apt:lastInspectionDate>
+                            <apt:dateOflastInfoRequestCompleted>1991-01-08</apt:dateOflastInfoRequestCompleted>
+                            <apt:lightingSchedule>SEE RMK</apt:lightingSchedule>
+                            <apt:beaconLightingSchedule>SS-SR</apt:beaconLightingSchedule>
+                            <apt:trafficControlTowerOnAirport>NO</apt:trafficControlTowerOnAirport>
+                            <apt:segmentedCircleMarkerOnAirport>Y</apt:segmentedCircleMarkerOnAirport>
+                            <apt:markerLensColor>CG</apt:markerLensColor>
+                            <apt:commercialServices>000104</apt:commercialServices>
+                            <apt:airTaxiOperations>000000</apt:airTaxiOperations>
+                            <apt:generalAviationLocalOperations>000000</apt:generalAviationLocalOperations>
+                            <apt:generalAviationItinerantOperations>000100</apt:generalAviationItinerantOperations>
+                            <apt:militaryAircraftOperations>000028</apt:militaryAircraftOperations>
+                            <apt:annualOperationEndDate>2019-06-30</apt:annualOperationEndDate>
+                            <apt:transientStorageFacilities>HGR</apt:transientStorageFacilities>
+                            <apt:otherAvailableAirportServices>CARGO</apt:otherAvailableAirportServices>
+                            <apt:airportAttendanceScheduleSequenceNumber>1</apt:airportAttendanceScheduleSequenceNumber>
+                            <apt:airportAttendanceSchedule>ALL/ALL/0800-1600</apt:airportAttendanceSchedule>
+                            <apt:designatedAsIntlAptOfEntry>NO</apt:designatedAsIntlAptOfEntry>
+                            <apt:designatedAsLandingAirport>NO</apt:designatedAsLandingAirport>
+                            <apt:grantsMilitarylanding>YES</apt:grantsMilitarylanding>
+                            <apt:stateName>TEST STATE</apt:stateName>
+                            <apt:faaRegionCode>AAL</apt:faaRegionCode>
+                        </apt:AirportHeliportExtension>
+                    </aixm:extension>
+                </aixm:AirportHeliportTimeSlice>
+            </aixm:timeSlice>
+        </aixm:AirportHeliport>
+    </faa:Member>
+</faa:SubscriberFile>

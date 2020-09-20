@@ -24,9 +24,7 @@ import com.github.chrisblutz.jetway.logging.JetwayLog;
 import com.github.chrisblutz.jetway.utils.TypeUtils;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This class represents a schema for a database table, based on
@@ -40,6 +38,7 @@ public class SchemaTable {
     private String tableName;
     private final Map<String, Field> fieldMap = new HashMap<>();
     private final Map<String, DatabaseType> typeMap = new HashMap<>();
+    private final List<SchemaTable> childTables = new ArrayList<>();
     private String primaryKey, foreignKey;
     private Class<?> foreignClass;
 
