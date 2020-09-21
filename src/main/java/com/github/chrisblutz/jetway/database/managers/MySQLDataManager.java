@@ -316,7 +316,6 @@ public class MySQLDataManager extends DatabaseManager {
     public DatabaseResult runQuery(SchemaTable table, Query query) {
 
         String queryString = buildFullQuery(table, query);
-        System.out.println(queryString);
         Statement statement = executeWithResult(queryString);
 
         DatabaseResult result = new DatabaseResult();

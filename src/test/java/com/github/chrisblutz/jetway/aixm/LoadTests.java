@@ -16,55 +16,45 @@
 package com.github.chrisblutz.jetway.aixm;
 
 import com.github.chrisblutz.jetway.Jetway;
-import com.github.chrisblutz.jetway.aixm.crawling.AIXMData;
-import com.github.chrisblutz.jetway.aixm.exceptions.AIXMException;
-import com.github.chrisblutz.jetway.aixm.utils.TestObject;
+import com.github.chrisblutz.jetway.aixm.utils.TestAssertions;
 import com.github.chrisblutz.jetway.features.Airport;
+import com.github.chrisblutz.jetway.features.Runway;
+import com.github.chrisblutz.jetway.features.RunwayDirection;
+import com.github.chrisblutz.jetway.features.RunwayEnd;
+import com.github.chrisblutz.jetway.logging.JetwayLog;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class AIXMTest {
+public class LoadTests {
+
+    @Before
+    public void beforeAll() {
+
+        JetwayLog.setLoggingEnabled(false);
+        Jetway.reset();
+    }
 
     @Test
     public void testBasicLoad() {
 
-        Jetway.reset();
-        AIXMFiles.registerCustomInputStream("APT_AIXM", AIXMTest.class.getResourceAsStream("/aixm/basic.xml"));
-        intializeJetway("/");
+        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/basic.xml"));
+        initializeJetway("/");
 
         Airport[] airports = Airport.selectAll(null);
         assertNotNull(airports);
         assertEquals(1, airports.length);
 
         Airport airport = airports[0];
-        assertEquals("AH_0000001", airport.id);
-        assertEquals("TEST AIRPORT", airport.name);
-        assertEquals("TST", airport.iataDesignator);
-        assertEquals("KTST", airport.icao);
-        assertNull(airport.siteNumber);
-        assertEquals(19.5, airport.fieldElevation, 0);
-        assertNull(airport.landArea);
-        assertEquals(50.5678, airport.latitude, 0);
-        assertEquals(-170.1234, airport.longitude, 0);
-        assertNull(airport.county);
-        assertNull(airport.state);
-        assertEquals("TEST CITY", airport.servedCity);
-        assertNull(airport.numberOfSingleEngineAircraft);
-        assertNull(airport.numberOfMultiEngineAircraft);
-        assertNull(airport.numberOfJetEngineAircraft);
-        assertNull(airport.numberOfHelicopters);
-        assertNull(airport.numberOfGliders);
-        assertNull(airport.numberOfMilitaryAircraft);
-        assertNull(airport.numberOfUltralightAircraft);
+        TestAssertions.basicAirportNoExtension(airport);
     }
 
     @Test
     public void testBasicExtensionLoad() {
 
-        Jetway.reset();
-        AIXMFiles.registerCustomInputStream("APT_AIXM", AIXMTest.class.getResourceAsStream("/aixm/basic_extension.xml"));
-        intializeJetway("/");
+        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/basic_extension.xml"));
+        initializeJetway("/");
 
         Airport[] airports = Airport.selectAll(null);
         assertNotNull(airports);
@@ -95,9 +85,8 @@ public class AIXMTest {
     @Test
     public void testMultipleLoad() {
 
-        Jetway.reset();
-        AIXMFiles.registerCustomInputStream("APT_AIXM", AIXMTest.class.getResourceAsStream("/aixm/basic_multiple.xml"));
-        intializeJetway("/");
+        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/basic_multiple.xml"));
+        initializeJetway("/");
 
         Airport[] airports = Airport.selectAll(null);
         assertNotNull(airports);
@@ -144,89 +133,115 @@ public class AIXMTest {
         assertNull(airport2.numberOfGliders);
         assertNull(airport2.numberOfMilitaryAircraft);
         assertNull(airport2.numberOfUltralightAircraft);
-
-        Airport airport = Airport.select(null);
-        assertNotNull(airports);
-
-        assertEquals("AH_0000001", airport.id);
-        assertEquals("TEST AIRPORT 1", airport.name);
-        assertEquals("TST1", airport.iataDesignator);
-        assertEquals("KTS1", airport.icao);
-        assertNull(airport.siteNumber);
-        assertEquals(19.5, airport.fieldElevation, 0);
-        assertNull(airport.landArea);
-        assertEquals(50.5678, airport.latitude, 0);
-        assertEquals(-170.1234, airport.longitude, 0);
-        assertNull(airport.county);
-        assertNull(airport.state);
-        assertEquals("TEST CITY 1", airport.servedCity);
-        assertNull(airport.numberOfSingleEngineAircraft);
-        assertNull(airport.numberOfMultiEngineAircraft);
-        assertNull(airport.numberOfJetEngineAircraft);
-        assertNull(airport.numberOfHelicopters);
-        assertNull(airport.numberOfGliders);
-        assertNull(airport.numberOfMilitaryAircraft);
-        assertNull(airport.numberOfUltralightAircraft);
     }
 
     @Test
-    public void testZIPLoad() {
+    public void testNestedLoad() {
 
-        Jetway.reset();
-        intializeJetway("test/nasr.zip");
+        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/nested.xml"));
+        initializeJetway("/");
 
         Airport[] airports = Airport.selectAll(null);
         assertNotNull(airports);
         assertEquals(1, airports.length);
 
         Airport airport = airports[0];
-        assertEquals("AH_0000001", airport.id);
-        assertEquals("TEST AIRPORT", airport.name);
-        assertEquals("TST", airport.iataDesignator);
-        assertEquals("KTST", airport.icao);
-        assertNull(airport.siteNumber);
-        assertEquals(19.5, airport.fieldElevation, 0);
-        assertNull(airport.landArea);
-        assertEquals(50.5678, airport.latitude, 0);
-        assertEquals(-170.1234, airport.longitude, 0);
-        assertNull(airport.county);
-        assertNull(airport.state);
-        assertEquals("TEST CITY", airport.servedCity);
-        assertNull(airport.numberOfSingleEngineAircraft);
-        assertNull(airport.numberOfMultiEngineAircraft);
-        assertNull(airport.numberOfJetEngineAircraft);
-        assertNull(airport.numberOfHelicopters);
-        assertNull(airport.numberOfGliders);
-        assertNull(airport.numberOfMilitaryAircraft);
-        assertNull(airport.numberOfUltralightAircraft);
+        TestAssertions.basicAirportNoExtension(airport);
+
+        Runway[] runways = airport.getRunways();
+        assertNotNull(runways);
+        assertEquals(1, runways.length);
+
+        Runway runway = runways[0];
+        TestAssertions.basicRunway(runway, airport.id);
+
+        RunwayEnd[] runwayEnds = runway.getRunwayEnds();
+        assertNotNull(runwayEnds);
+        assertEquals(1, runwayEnds.length);
+
+        RunwayEnd runwayEnd = runwayEnds[0];
+        TestAssertions.basicRunwayEnd(runwayEnd, runway.id);
+
+        RunwayDirection[] runwayDirections = runwayEnd.getRunwayDirections();
+        assertNotNull(runwayDirections);
+        assertEquals(1, runwayDirections.length);
+
+        RunwayDirection runwayDirection = runwayDirections[0];
+        TestAssertions.basicRunwayDirection(runwayDirection, runwayEnd.id);
     }
 
     @Test
-    public void testDataCrawl() {
+    public void testNestedLoadSelections() {
 
-        TestObject object = new TestObject();
-        AIXMData data = new AIXMData(object);
+        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/nested.xml"));
+        initializeJetway("/");
 
-        assertEquals(true, data.crawl("Boolean").get(Boolean.class));
-        assertEquals((byte) 5, data.crawl("Byte").get(Byte.class));
-        assertEquals('_', data.crawl("Character").get(Character.class));
-        assertEquals(1.234d, data.crawl("Double").get(Double.class));
-        assertEquals(5.678f, data.crawl("Float").get(Float.class));
-        assertEquals(1234567, data.crawl("Integer").get(Integer.class));
-        assertEquals(123456789L, data.crawl("Long").get(Long.class));
-        assertEquals("Value", data.crawl("String").get(String.class));
-        assertEquals((short) 12345, data.crawl("Short").get(Short.class));
+        Airport[] airports = Airport.selectAll(null);
+        assertNotNull(airports);
+        assertEquals(1, airports.length);
+
+        Airport airport = airports[0];
+        TestAssertions.basicAirportNoExtension(airport);
+
+        Runway[] runways = Runway.selectAll(null);
+        assertNotNull(runways);
+        assertEquals(1, runways.length);
+
+        Runway runway = runways[0];
+        TestAssertions.basicRunway(runway, airport.id);
+
+        RunwayEnd[] runwayEnds = RunwayEnd.selectAll(null);
+        assertNotNull(runwayEnds);
+        assertEquals(1, runwayEnds.length);
+
+        RunwayEnd runwayEnd = runwayEnds[0];
+        TestAssertions.basicRunwayEnd(runwayEnd, runway.id);
+
+        RunwayDirection[] runwayDirections = RunwayDirection.selectAll(null);
+        assertNotNull(runwayDirections);
+        assertEquals(1, runwayDirections.length);
+
+        RunwayDirection runwayDirection = runwayDirections[0];
+        TestAssertions.basicRunwayDirection(runwayDirection, runwayEnd.id);
     }
 
-    @Test(expected = AIXMException.class)
-    public void testInvalidDataPath() {
+    @Test
+    public void testNestedLoadSingleSelections() {
 
-        TestObject object = new TestObject();
-        AIXMData data = new AIXMData(object);
-        data.crawl("InvalidPath");
+        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/nested.xml"));
+        initializeJetway("/");
+
+        Airport airport = Airport.select(null);
+        assertNotNull(airport);
+        TestAssertions.basicAirportNoExtension(airport);
+
+        Runway runway = Runway.select(null);
+        assertNotNull(runway);
+        TestAssertions.basicRunway(runway, airport.id);
+
+        RunwayEnd runwayEnd = RunwayEnd.select(null);
+        assertNotNull(runwayEnd);
+        TestAssertions.basicRunwayEnd(runwayEnd, runway.id);
+
+        RunwayDirection runwayDirection = RunwayDirection.select(null);
+        assertNotNull(runwayDirection);
+        TestAssertions.basicRunwayDirection(runwayDirection, runwayEnd.id);
     }
 
-    private void intializeJetway(String aixmPath) {
+    @Test
+    public void testZIPLoad() {
+
+        initializeJetway("test/nasr.zip");
+
+        Airport[] airports = Airport.selectAll(null);
+        assertNotNull(airports);
+        assertEquals(1, airports.length);
+
+        Airport airport = airports[0];
+        TestAssertions.basicAirportNoExtension(airport);
+    }
+
+    private void initializeJetway(String aixmPath) {
 
         String user = System.getenv("TEST_USER");
         String password = System.getenv("TEST_PASSWORD");

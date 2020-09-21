@@ -16,8 +16,10 @@
 package com.github.chrisblutz.jetway.logging;
 
 import com.github.chrisblutz.jetway.database.utils.DatabaseVerification;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
 
 /**
  * This class handles the loggers for Jetway.
@@ -36,10 +38,17 @@ public class JetwayLog {
      */
     public static Logger getJetwayLogger() {
 
+        return getJetwayLogger(true);
+    }
+
+    private static Logger getJetwayLogger(boolean logInfo) {
+
         if (jetwayLogger == null) {
 
             jetwayLogger = LogManager.getLogger("  Jetway");
-            logSystemInformation();
+            
+            if (logInfo)
+                logSystemInformation();
         }
 
         return jetwayLogger;
@@ -62,6 +71,20 @@ public class JetwayLog {
         }
 
         return databaseLogger;
+    }
+
+    /**
+     * This method sets whether logging is enabled via
+     * Jetway's loggers.
+     *
+     * @param enable {@code true} to enable, {@code false} otherwise
+     */
+    public static void setLoggingEnabled(boolean enable) {
+
+        Level level = enable ? Level.DEBUG : Level.OFF;
+        Configurator.setLevel(getJetwayLogger(false).getName(), level);
+        Configurator.setLevel(getDatabaseLogger().getName(), level);
+        Configurator.setRootLevel(level);
     }
 
     private static void logSystemInformation() {
