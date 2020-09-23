@@ -108,7 +108,7 @@ public class Runway {
      * @param query the {@link Query} to use
      * @return The array of runway ends
      */
-    public RunwayEnd[] getRunways(Query query) {
+    public RunwayEnd[] getRunwayEnds(Query query) {
 
         Query fullQuery = query.and(Query.whereEquals(RunwayEnd.class, RunwayEnd.RUNWAY_ID, id));
         return RunwayEnd.selectAll(fullQuery);

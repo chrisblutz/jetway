@@ -18,6 +18,7 @@ package com.github.chrisblutz.jetway.testing;
 import com.github.chrisblutz.jetway.Jetway;
 import com.github.chrisblutz.jetway.aixm.AIXMFeatureManager;
 import com.github.chrisblutz.jetway.aixm.exceptions.AIXMFeatureException;
+import com.github.chrisblutz.jetway.database.SchemaManager;
 import com.github.chrisblutz.jetway.testing.features.*;
 import com.github.chrisblutz.jetway.aixm.mappings.FeatureEntry;
 import com.github.chrisblutz.jetway.aixm.mappings.FeatureMapping;
@@ -70,6 +71,12 @@ public class FeatureTests {
 
         AIXMFeatureManager.registerFeatureType(RootFeature.class);
         AIXMFeatureManager.registerFeatureType(InvalidParentIdFeature.class);
+    }
+
+    @Test(expected = AIXMFeatureException.class)
+    public void testPrimitiveTypeFieldFeature() {
+
+        SchemaManager.registerFeatureType(PrimitiveTypeFieldFeature.class);
     }
 
     @Test
