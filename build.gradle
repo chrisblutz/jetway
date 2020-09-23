@@ -39,6 +39,12 @@ jar {
     }
 }
 
+test {
+    testLogging {
+        events "passed", "skipped", "failed", "standardOut", "standardError"
+    }
+}
+
 tasks.withType(Jar) {
     destinationDir = file('bin/')
 }

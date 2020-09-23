@@ -376,7 +376,7 @@ public class MySQLDataManager extends DatabaseManager {
             else
                 queryString += " WHERE ";
 
-            queryString += "(" + where + ")";
+            queryString += "(" + whereString + ")";
         }
 
         return queryString + ";";
