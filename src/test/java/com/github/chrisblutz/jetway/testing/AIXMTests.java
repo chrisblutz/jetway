@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.chrisblutz.jetway.aixm;
+package com.github.chrisblutz.jetway.testing;
 
 import com.github.chrisblutz.jetway.Jetway;
 import com.github.chrisblutz.jetway.aixm.crawling.AIXMData;
 import com.github.chrisblutz.jetway.aixm.exceptions.AIXMException;
-import com.github.chrisblutz.jetway.aixm.utils.TestObject;
+import com.github.chrisblutz.jetway.testing.utils.TestObject;
 import com.github.chrisblutz.jetway.conversion.DefaultConverters;
 import com.github.chrisblutz.jetway.logging.JetwayLog;
 import org.junit.Before;

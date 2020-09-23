@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.chrisblutz.jetway.aixm;
+package com.github.chrisblutz.jetway.testing;
 
 import com.github.chrisblutz.jetway.Jetway;
+import com.github.chrisblutz.jetway.aixm.AIXMFiles;
 import com.github.chrisblutz.jetway.database.queries.Query;
 import com.github.chrisblutz.jetway.features.Airport;
 import com.github.chrisblutz.jetway.logging.JetwayLog;

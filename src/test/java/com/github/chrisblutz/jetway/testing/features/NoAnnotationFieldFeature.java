@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.chrisblutz.jetway.aixm.features;
+package com.github.chrisblutz.jetway.testing.features;
 
-import com.github.chrisblutz.jetway.aixm.annotations.AIXMAttribute;
+import com.github.chrisblutz.jetway.aixm.annotations.AIXMFeature;
+import com.github.chrisblutz.jetway.aixm.annotations.AIXMRoot;
 
-public class NoAnnotationFeature {
+@AIXMFeature(name = "TestFeature", id = "FEATURE")
+@AIXMRoot("ROOT")
+public class NoAnnotationFieldFeature {
 
-    @AIXMAttribute("Path")
     public String path;
 }

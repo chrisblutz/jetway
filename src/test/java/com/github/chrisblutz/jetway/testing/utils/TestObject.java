@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.chrisblutz.jetway.aixm.utils;
+package com.github.chrisblutz.jetway.testing.utils;
 
 import aero.aixm.v5.CodeYesNoType;
 import aero.aixm.v5.impl.CodeYesNoTypeImpl;

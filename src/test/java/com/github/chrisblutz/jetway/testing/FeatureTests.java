@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.chrisblutz.jetway.aixm;
+package com.github.chrisblutz.jetway.testing;
 
 import com.github.chrisblutz.jetway.Jetway;
+import com.github.chrisblutz.jetway.aixm.AIXMFeatureManager;
 import com.github.chrisblutz.jetway.aixm.exceptions.AIXMFeatureException;
-import com.github.chrisblutz.jetway.aixm.features.*;
+import com.github.chrisblutz.jetway.testing.features.*;
 import com.github.chrisblutz.jetway.aixm.mappings.FeatureEntry;
 import com.github.chrisblutz.jetway.aixm.mappings.FeatureMapping;
 import com.github.chrisblutz.jetway.logging.JetwayLog;
