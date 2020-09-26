@@ -22,7 +22,6 @@ import com.github.chrisblutz.jetway.database.exceptions.DatabaseException;
 import com.github.chrisblutz.jetway.database.mappings.SchemaTable;
 import com.github.chrisblutz.jetway.database.queries.*;
 import com.github.chrisblutz.jetway.logging.JetwayLog;
-import com.mysql.cj.jdbc.MysqlDataSource;
 
 import java.lang.reflect.Field;
 import java.sql.Connection;
@@ -32,76 +31,64 @@ import java.sql.Statement;
 import java.util.*;
 
 /**
- * This class handles databases using MySQL.
+ * This class manages SQL database connections, and is
+ * extended by specific database manager classes to offer
+ * manager-specific functionality (like type definitions, etc.).
  *
  * @author Christopher Lutz
  */
-public class MySQLDataManager extends DatabaseManager {
-
-    private final MysqlDataSource dataSource;
-    private Connection connection;
+public abstract class SQLDatabaseManager extends DatabaseManager {
 
     /**
-     * Creates a new instance of this database manager
+     * This field defines the name of the Jetway version table in the database.
      */
-    public MySQLDataManager() {
+    protected static final String VERSION_TABLE = "jetway_version";
+    /**
+     * This field defines the name of the column containing the version of
+     * Jetway used to generate the database.
+     */
+    protected static final String VERSION_COLUMN = "version";
 
-        dataSource = new MysqlDataSource();
-    }
+    /**
+     * This method retrieves the SQL {@link Connection} to the database.
+     *
+     * @return The {@link Connection} to the database
+     */
+    protected abstract Connection getConnection();
 
-    @Override
-    public String getCommandLineIdentifier() {
+    /**
+     * This method gets the SQL type that should be used to store values
+     * of the specified {@link DatabaseType}.
+     *
+     * @param type the database type
+     * @return The SQL type used to store values
+     */
+    protected abstract String getSQLType(DatabaseType type);
 
-        return "mysql";
-    }
-
-    @Override
-    public void setServer(String server) {
-
-        dataSource.setServerName(server);
-    }
-
-    @Override
-    public void setDatabaseName() {
-
-        dataSource.setDatabaseName(DATABASE_NAME);
-    }
-
-    @Override
-    public void setUser(String user) {
-
-        dataSource.setUser(user);
-    }
-
-    @Override
-    public void setPassword(String password) {
-
-        dataSource.setPassword(password);
-    }
-
-    @Override
-    public boolean setupConnection() {
-
-        try {
-
-            dataSource.setServerTimezone("UTC");
-            connection = dataSource.getConnection();
-            return true;
-
-        } catch (SQLException e) {
-
-            DatabaseException exception = new DatabaseException("An error occurred while connecting to the database.", e);
-            JetwayLog.getDatabaseLogger().error(exception.getMessage(), exception);
-            throw exception;
-        }
-    }
+    /**
+     * This method converts the specified {@link Object}, which is a
+     * value of the specified {@link DatabaseType}, to the {@link String}
+     * representation of the SQL value.
+     * <p>
+     * These values are used in SQL {@code INSERT} statements, so they
+     * should include all necessary punctuation or delimiters (i.e.
+     * quotation marks for string values, etc.").
+     *
+     * @param type  the {@link DatabaseType} of the value
+     * @param value the value itself
+     * @return The value formatted as a SQL type
+     */
+    protected abstract String formatAsSQLType(DatabaseType type, Object value);
 
     @Override
     public boolean createDatabase() {
 
+        // Create database unless it already exists
         JetwayLog.getDatabaseLogger().info("Setting up database '" + DATABASE_NAME + "' if it doesn't exist already...");
         boolean create = execute("CREATE DATABASE IF NOT EXISTS " + DATABASE_NAME + ";");
-        JetwayLog.getDatabaseLogger().info("Setting up MySQL to use '" + DATABASE_NAME + "'...");
+
+        // Set SQL manager to use the Jetway database
+        JetwayLog.getDatabaseLogger().info("Setting up SQL to use database '" + DATABASE_NAME + "'...");
         boolean use = execute("USE " + DATABASE_NAME + ";");
         return create && use;
     }
@@ -111,12 +98,12 @@ public class MySQLDataManager extends DatabaseManager {
 
         try {
 
-            if (connection != null)
-                connection.close();
+            if (getConnection() != null)
+                getConnection().close();
 
         } catch (SQLException e) {
 
-            DatabaseException exception = new DatabaseException("An error occurred while closing the connection to the database.", e);
+            DatabaseException exception = new DatabaseException("An error occurred while closing the connection to the SQL database.", e);
             JetwayLog.getDatabaseLogger().error(exception.getMessage(), exception);
             throw exception;
         }
@@ -125,15 +112,64 @@ public class MySQLDataManager extends DatabaseManager {
     @Override
     public String getJetwayVersion() {
 
-        // Check to make sure that jetway_version table exists
+        // Check that version table exists in the database
         if (!checkVersionTableExists()) {
             JetwayLog.getDatabaseLogger().info("Jetway version table does not exist, defaulting to 'null' version.");
             return null;
         }
 
-        // Select the current version from jetway_version
+        // Select the current version from the version table
+        return getVersionFromVersionTable();
+    }
+
+    private boolean checkVersionTableExists() {
+
+        // Check INFORMATION_SCHEMA to see if version table exists
+        JetwayLog.getDatabaseLogger().info("Checking to see if Jetway version table exists...");
+        String query = "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES;";
+        Statement statement = executeWithResult(query);
+
+        // If statement is null (i.e. something went wrong during execution, return false
+        if (statement == null)
+            return false;
+
+        return checkResultsForTable(statement);
+    }
+
+    private boolean checkResultsForTable(Statement statement) {
+
+        try {
+
+            // Search through available table names for the version table name
+            ResultSet resultSet = statement.getResultSet();
+
+            boolean exists = false;
+            while (resultSet.next()) {
+                String column = resultSet.getString("TABLE_NAME");
+
+                // If column name is found, set exists to true
+                if (column.equals(VERSION_TABLE)) {
+                    exists = true;
+                    break;
+                }
+            }
+
+            statement.close();
+            return exists;
+
+        } catch (SQLException e) {
+
+            DatabaseException exception = new DatabaseException("An error occurred while checking if Jetway version data exists.", e);
+            JetwayLog.getDatabaseLogger().error(exception.getMessage(), exception);
+            throw exception;
+        }
+    }
+
+    private String getVersionFromVersionTable() {
+
+        // Select the current version from the version table
         JetwayLog.getDatabaseLogger().info("Retrieving Jetway version from database...");
-        String query = "SELECT version FROM jetway_version;";
+        String query = "SELECT " + VERSION_COLUMN + " FROM " + VERSION_TABLE + ";";
         Statement statement = executeWithResult(query);
 
         // If statement is null (i.e. something went wrong during execution, return null
@@ -150,9 +186,9 @@ public class MySQLDataManager extends DatabaseManager {
                 return null;
             }
 
-            String version = resultSet.getString("version");
-            statement.close();
+            String version = resultSet.getString(VERSION_COLUMN);
 
+            statement.close();
             return version;
 
         } catch (SQLException e) {
@@ -163,60 +199,23 @@ public class MySQLDataManager extends DatabaseManager {
         }
     }
 
-    private boolean checkVersionTableExists() {
-
-        // Check INFORMATION_SCHEMA to see if jetway_version table exists
-        JetwayLog.getDatabaseLogger().info("Checking to see if Jetway version table exists...");
-        String query = "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES;";
-        Statement statement = executeWithResult(query);
-
-        // If statement is null (i.e. something went wrong during execution, return false
-        if (statement == null)
-            return false;
-
-        try {
-
-            // Search through available table names
-            boolean exists = false;
-            ResultSet resultSet = statement.getResultSet();
-            String column;
-            while (resultSet.next()) {
-                column = resultSet.getString("TABLE_NAME");
-
-                if (column.equals("jetway_version")) {
-                    exists = true;
-                    break;
-                }
-            }
-
-            statement.close();
-
-            return exists;
-
-        } catch (SQLException e) {
-
-            DatabaseException exception = new DatabaseException("An error occurred while checking if Jetway version data exists.", e);
-            JetwayLog.getDatabaseLogger().error(exception.getMessage(), exception);
-            throw exception;
-        }
-    }
-
     @Override
     public boolean setJetwayVersion(String version) {
 
-        // Drop the jetway_version table if it exists
+        // Drop the version table if it exists
         JetwayLog.getDatabaseLogger().info("Dropping Jetway version table if it exists...");
-        String dropQuery = "DROP TABLE IF EXISTS jetway_version;";
+        String dropQuery = "DROP TABLE IF EXISTS " + VERSION_TABLE + ";";
         boolean drop = execute(dropQuery);
 
         // Recreate the jetway_version table
-        JetwayLog.getDatabaseLogger().info("Recreating Jetway version table with 'version' column...");
-        String createQuery = "CREATE TABLE IF NOT EXISTS jetway_version (\n\tversion VARCHAR(50) NOT NULL,\n\tPRIMARY KEY(version));";
+        JetwayLog.getDatabaseLogger().info("Recreating Jetway version table with '" + VERSION_COLUMN + "' column...");
+        String createQuery = "CREATE TABLE IF NOT EXISTS " + VERSION_TABLE + " (\n\t" + VERSION_COLUMN +
+                " VARCHAR(50) NOT NULL,\n\tPRIMARY KEY(" + VERSION_COLUMN + "));";
         boolean create = execute(createQuery);
 
         // Insert current version into jetway_version table
         JetwayLog.getDatabaseLogger().info("Storing Jetway version in database...");
-        String insertQuery = format("INSERT INTO jetway_version VALUES ({0});", formatAsSQLTypeStandalone(DatabaseType.STRING, version));
+        String insertQuery = format("INSERT INTO " + VERSION_TABLE + " VALUES ({0});", formatAsSQLType(DatabaseType.STRING, version));
         boolean insert = execute(insertQuery);
 
         return drop && create && insert;
@@ -226,22 +225,6 @@ public class MySQLDataManager extends DatabaseManager {
     public boolean buildTable(SchemaTable table) {
 
         String query = format("CREATE TABLE IF NOT EXISTS {0} (\n{1}\n);", table.getTableName(), getAttributesAsSQL(table));
-        return execute(query);
-    }
-
-    @Override
-    public boolean dropTable(SchemaTable table) {
-
-        String query = format("DROP TABLE IF EXISTS {0};", table.getTableName());
-        return execute(query);
-    }
-
-    @Override
-    public boolean setForDrops(boolean isDropping) {
-
-        // Disable or enable foreign key checks so that tables can be dropped in bulk
-        JetwayLog.getDatabaseLogger().info("Turning MySQL foreign key checks " + (isDropping ? "off" : "on") + "...");
-        String query = format("SET FOREIGN_KEY_CHECKS = {0};", isDropping ? 0 : 1);
         return execute(query);
     }
 
@@ -286,23 +269,11 @@ public class MySQLDataManager extends DatabaseManager {
         return attributes.toString();
     }
 
-    private String getSQLType(DatabaseType type) {
+    @Override
+    public boolean dropTable(SchemaTable table) {
 
-        switch (type) {
-            case INTEGER:
-                return "INTEGER";
-            case FLOAT:
-                return "FLOAT";
-            case DOUBLE:
-                return "DOUBLE PRECISION";
-            case STRING:
-                return "VARCHAR(255)";
-            case BOOLEAN:
-                return "BIT";
-            case TEXT:
-            default:
-                return "TEXT";
-        }
+        String query = format("DROP TABLE IF EXISTS {0};", table.getTableName());
+        return execute(query);
     }
 
     @Override
@@ -312,10 +283,55 @@ public class MySQLDataManager extends DatabaseManager {
         return execute(query);
     }
 
+    private String getValuesAsSQL(SchemaTable table, Object value) {
+
+        // Start with primary key value
+        String primary = table.getPrimaryKey();
+        StringBuilder values = new StringBuilder(formatAttributeAsSQLType(table, primary, value));
+
+        // Append foreign key value if this table has one
+        if (table.hasForeignKey())
+            values.append(format(", {0}", formatAttributeAsSQLType(table, table.getForeignKey(), value)));
+
+        // Append all further attributes as long as they are not special (i.e. primary or foreign keys)
+        for (String attribute : table.getAttributes()) {
+
+            if (table.isSpecialKey(attribute))
+                continue;
+
+            values.append(format(", {0}", formatAttributeAsSQLType(table, attribute, value)));
+        }
+
+        return values.toString();
+    }
+
+    private String formatAttributeAsSQLType(SchemaTable table, String attribute, Object value) {
+
+        try {
+
+            Field field = table.getField(attribute);
+            Object attributeValue = field.get(value);
+
+            // If value is null, return NULL
+            if (attributeValue == null)
+                return "NULL";
+
+            // Format object
+            DatabaseType type = table.getAttributeType(attribute);
+            return formatAsSQLType(type, attributeValue);
+
+        } catch (IllegalAccessException e) {
+
+            DatabaseException exception = new DatabaseException("An error occurred while retrieving information from the field for column '" + attribute + "'.", e);
+            JetwayLog.getDatabaseLogger().error(exception.getMessage(), exception);
+            throw exception;
+        }
+    }
+
     @Override
     public DatabaseResult runQuery(SchemaTable table, Query query, Sort sort) {
 
-        String queryString = buildFullQuery(table, query, sort);
+        String queryString = buildQueryAsString(table, query, sort);
         Statement statement = executeWithResult(queryString);
 
         DatabaseResult result = new DatabaseResult();
@@ -325,20 +341,23 @@ public class MySQLDataManager extends DatabaseManager {
 
         try {
 
+            // Fill in the result mapping using each row of the result set
             ResultSet set = statement.getResultSet();
             while (set.next()) {
 
                 Map<String, Object> currentResult = new HashMap<>();
 
+                // Fill in the map using all attributes in the table
                 for (String attr : table.getAttributes()) {
 
                     Field f = table.getField(attr);
-                    currentResult.put(attr, getFromResultSetAsFieldType(set, attr, f.getType()));
+                    currentResult.put(attr, getObjectFromResultSetAsType(set, attr, f.getType()));
                 }
 
                 result.add(currentResult);
             }
 
+            statement.close();
             return result;
 
         } catch (SQLException e) {
@@ -349,7 +368,7 @@ public class MySQLDataManager extends DatabaseManager {
         }
     }
 
-    private String buildFullQuery(SchemaTable table, Query query, Sort sort) {
+    private String buildQueryAsString(SchemaTable table, Query query, Sort sort) {
 
         String queryString = "SELECT " + table.getTableName() + ".* FROM ";
 
@@ -379,25 +398,30 @@ public class MySQLDataManager extends DatabaseManager {
             queryString += "(" + whereString + ")";
         }
 
-        if (sort != null) {
-
-            queryString += " ORDER BY ";
-            queryString += sort.getTable().getTableName() + "." + sort.getAttribute();
-            queryString += " ";
-
-            switch (sort.getOrder()) {
-
-                case ASCENDING:
-                    queryString += "ASC";
-                    break;
-
-                case DESCENDING:
-                    queryString += "DESC";
-                    break;
-            }
-        }
+        if (sort != null)
+            queryString += " " + buildSortAsString(sort);
 
         return queryString + ";";
+    }
+
+    private String buildSortAsString(Sort sort) {
+
+        String sortString = "ORDER BY ";
+        sortString += sort.getTable().getTableName() + "." + sort.getAttribute();
+        sortString += " ";
+
+        switch (sort.getOrder()) {
+
+            case ASCENDING:
+                sortString += "ASC";
+                break;
+
+            case DESCENDING:
+                sortString += "DESC";
+                break;
+        }
+
+        return sortString;
     }
 
     private Set<String> getTableNames(Set<SchemaTable> referencedTables) {
@@ -417,7 +441,8 @@ public class MySQLDataManager extends DatabaseManager {
         for (SchemaTable table : referencedTables) {
             if (table.hasForeignKey()) {
                 SchemaTable foreignTable = table.getForeignTable();
-                joinConditions.add(table.getTableName() + "." + table.getForeignKey() + " = " + foreignTable.getTableName() + "." + foreignTable.getPrimaryKey());
+                joinConditions.add(table.getTableName() + "." + table.getForeignKey() + " = " +
+                        foreignTable.getTableName() + "." + foreignTable.getPrimaryKey());
             }
         }
 
@@ -464,7 +489,7 @@ public class MySQLDataManager extends DatabaseManager {
 
         SchemaTable table = SchemaManager.get(query.getFeature());
         String attr = table.getTableName() + "." + query.getAttribute();
-        String expected = formatAsSQLTypeStandalone(table.getAttributeType(query.getAttribute()), query.getExpectedValue());
+        String expected = formatAsSQLType(table.getAttributeType(query.getAttribute()), query.getExpectedValue());
         switch (query.getOperation()) {
             case EQUALS:
                 return attr + " = " + expected;
@@ -479,7 +504,7 @@ public class MySQLDataManager extends DatabaseManager {
             case LESS_THAN_EQUALS:
                 return attr + " <= " + expected;
             case LIKE:
-                return attr + " LIKE " + expected;
+                return attr + " LIKE " + expected; // TODO allow database managers to define LIKE delimiters
             default:
                 // Invalid operation, shouldn't happen as operation is Enum type
                 JetwayLog.getDatabaseLogger().warn("Invalid query operation found: " + query.getOperation().name());
@@ -487,7 +512,7 @@ public class MySQLDataManager extends DatabaseManager {
         }
     }
 
-    private Object getFromResultSetAsFieldType(ResultSet set, String column, Class<?> type) throws SQLException {
+    private Object getObjectFromResultSetAsType(ResultSet set, String column, Class<?> type) throws SQLException {
 
         if (set.getObject(column) == null)
             return null;
@@ -510,74 +535,21 @@ public class MySQLDataManager extends DatabaseManager {
             return DataConversion.getFromString(set.getString(column), type);
     }
 
-    private String getValuesAsSQL(SchemaTable table, Object value) {
-
-        // Start with primary key value
-        String primary = table.getPrimaryKey();
-        StringBuilder values = new StringBuilder(formatAsSQLType(table, primary, value));
-
-        // Append foreign key value if this table has one
-        if (table.hasForeignKey())
-            values.append(format(", {0}", formatAsSQLType(table, table.getForeignKey(), value)));
-
-        // Append all further attributes as long as they are not special (i.e. primary or foreign keys)
-        for (String attribute : table.getAttributes()) {
-
-            if (table.isSpecialKey(attribute))
-                continue;
-
-            values.append(format(", {0}", formatAsSQLType(table, attribute, value)));
-        }
-
-        return values.toString();
-    }
-
-    private String formatAsSQLType(SchemaTable table, String attribute, Object value) {
+    /**
+     * This method executes a SQL query and returns
+     * if the operation was successful or not.  It
+     * ignores the results of the execution, so if
+     * results are needed, use {@link #executeWithResult(String)}.
+     *
+     * @param query the query to run
+     * @return {@code true} if the query succeeded, {@code false} otherwise
+     */
+    protected boolean execute(String query) {
 
         try {
 
-            Field field = table.getField(attribute);
-            Object attributeValue = field.get(value);
-
-            // If value is null, return NULL
-            if (attributeValue == null)
-                return "NULL";
-
-            // Format object
-            DatabaseType type = table.getAttributeType(attribute);
-            return formatAsSQLTypeStandalone(type, attributeValue);
-
-        } catch (IllegalAccessException e) {
-
-            DatabaseException exception = new DatabaseException("An error occurred while retrieving information from the field for column '" + attribute + "'.", e);
-            JetwayLog.getDatabaseLogger().error(exception.getMessage(), exception);
-            throw exception;
-        }
-    }
-
-    private String formatAsSQLTypeStandalone(DatabaseType type, Object value) {
-
-        switch (type) {
-
-            case INTEGER:
-            case FLOAT:
-            case DOUBLE:
-                return value.toString();
-            case STRING:
-            case TEXT:
-                return "\"" + value.toString().replace("\"", "\\\"") + "\"";
-            case BOOLEAN:
-                return (Boolean) value ? "1" : "0";
-            default:
-                return "NULL";
-        }
-    }
-
-    private boolean execute(String query) {
-
-        try {
-
-            Statement statement = connection.createStatement();
+            // Execute the query and ignore the results
+            Statement statement = getConnection().createStatement();
             statement.execute(query);
             statement.close();
             return true;
@@ -589,11 +561,23 @@ public class MySQLDataManager extends DatabaseManager {
         }
     }
 
-    private Statement executeWithResult(String query) {
+    /**
+     * This method executes a SQL query and returns the
+     * resulting {@link Statement}.
+     * <p>
+     * It is the responsibility of the caller to close the
+     * {@link Statement} when it is no longer needed, as
+     * this method leaves it open for further operations.
+     *
+     * @param query the query to run
+     * @return The resulting {@link Statement}
+     */
+    protected Statement executeWithResult(String query) {
 
         try {
 
-            Statement statement = connection.createStatement();
+            // Execute the query and return the results
+            Statement statement = getConnection().createStatement();
             statement.execute(query);
 
             return statement;

@@ -36,9 +36,9 @@ import java.util.Set;
 public abstract class DatabaseManager {
 
     /**
-     * This field defines the name to be used for the Jetway database
+     * This field defines the name to be used for the Jetway database.
      */
-    public static final String DATABASE_NAME = "jetway";
+    protected static final String DATABASE_NAME = "jetway";
 
     /**
      * This method gets the command-line identifier used to
@@ -156,7 +156,7 @@ public abstract class DatabaseManager {
      * managers to set themselves up for dropping multiple
      * tables at once.
      * <p>
-     * For instance, {@link MySQLDataManager} uses this method
+     * For instance, {@link MySQLDatabaseManager} uses this method
      * to disable/re-enable foreign key checks that would normally
      * prohibit bulk table dropping.
      *
