@@ -21,4 +21,4 @@ cache:
 before_install:
   - chmod +x gradlew
 script:
-  - ./gradlew check --stacktrace --info
+  - ./gradlew check --stacktrace

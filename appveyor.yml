@@ -1,0 +1,9 @@
+version: '{branch}-{build}'
+environment:
+  TEST_SERVER: 127.0.0.1
+  TEST_USER: root
+  TEST_PASSWORD: Password12!
+services: mysql
+build: off
+test_script:
+- ps: ./gradlew check --stacktrace
