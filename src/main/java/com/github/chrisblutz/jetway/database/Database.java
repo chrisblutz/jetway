@@ -22,6 +22,7 @@ import com.github.chrisblutz.jetway.database.managers.MySQLDataManager;
 import com.github.chrisblutz.jetway.database.mappings.SchemaTable;
 import com.github.chrisblutz.jetway.database.queries.DatabaseResult;
 import com.github.chrisblutz.jetway.database.queries.Query;
+import com.github.chrisblutz.jetway.database.queries.Sort;
 import com.github.chrisblutz.jetway.database.utils.DatabaseVerification;
 import com.github.chrisblutz.jetway.logging.JetwayLog;
 
@@ -225,7 +226,7 @@ public class Database {
     public static <T> T select(Class<T> type, Query query) {
 
         SchemaTable table = SchemaManager.get(type);
-        DatabaseResult result = getManager().runQuery(table, query);
+        DatabaseResult result = getManager().runQuery(table, query, null);
         try {
 
             // Return a single instance
@@ -243,7 +244,8 @@ public class Database {
      * This method selects all instances of the specified feature that
      * fit the {@link Query} provided.
      * <p>
-     * The order of the array returned is not guaranteed.
+     * The order of the array returned is not guaranteed and may vary
+     * by database manager.
      * <p>
      * If an error occurs while selecting the instances or no instances exist,
      * an empty array will be returned.
@@ -255,8 +257,27 @@ public class Database {
      */
     public static <T> T[] selectAll(Class<T> type, Query query) {
 
+        return selectAll(type, query, null);
+    }
+
+    /**
+     * This method selects all instances of the specified feature that
+     * fit the {@link Query} provided, sorted based on the defined
+     * {@link Sort} instance.
+     * <p>
+     * If an error occurs while selecting the instances or no instances exist,
+     * an empty array will be returned.
+     *
+     * @param type  the feature type to select
+     * @param query the {@link Query} to execute
+     * @param sort  the {@link Sort} defining the order to use
+     * @param <T>   the feature type
+     * @return the array of features selected
+     */
+    public static <T> T[] selectAll(Class<T> type, Query query, Sort sort) {
+
         SchemaTable table = SchemaManager.get(type);
-        DatabaseResult result = getManager().runQuery(table, query);
+        DatabaseResult result = getManager().runQuery(table, query, sort);
 
         try {
 

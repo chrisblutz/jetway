@@ -313,9 +313,9 @@ public class MySQLDataManager extends DatabaseManager {
     }
 
     @Override
-    public DatabaseResult runQuery(SchemaTable table, Query query) {
+    public DatabaseResult runQuery(SchemaTable table, Query query, Sort sort) {
 
-        String queryString = buildFullQuery(table, query);
+        String queryString = buildFullQuery(table, query, sort);
         Statement statement = executeWithResult(queryString);
 
         DatabaseResult result = new DatabaseResult();
@@ -349,7 +349,7 @@ public class MySQLDataManager extends DatabaseManager {
         }
     }
 
-    private String buildFullQuery(SchemaTable table, Query query) {
+    private String buildFullQuery(SchemaTable table, Query query, Sort sort) {
 
         String queryString = "SELECT " + table.getTableName() + ".* FROM ";
 
@@ -377,6 +377,24 @@ public class MySQLDataManager extends DatabaseManager {
                 queryString += " WHERE ";
 
             queryString += "(" + whereString + ")";
+        }
+
+        if (sort != null) {
+
+            queryString += " ORDER BY ";
+            queryString += sort.getTable().getTableName() + "." + sort.getAttribute();
+            queryString += " ";
+
+            switch (sort.getOrder()) {
+
+                case ASCENDING:
+                    queryString += "ASC";
+                    break;
+
+                case DESCENDING:
+                    queryString += "DESC";
+                    break;
+            }
         }
 
         return queryString + ";";

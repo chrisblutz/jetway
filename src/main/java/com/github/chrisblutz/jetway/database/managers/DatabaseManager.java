@@ -17,10 +17,7 @@ package com.github.chrisblutz.jetway.database.managers;
 
 import com.github.chrisblutz.jetway.database.SchemaManager;
 import com.github.chrisblutz.jetway.database.mappings.SchemaTable;
-import com.github.chrisblutz.jetway.database.queries.DatabaseResult;
-import com.github.chrisblutz.jetway.database.queries.MultiQuery;
-import com.github.chrisblutz.jetway.database.queries.Query;
-import com.github.chrisblutz.jetway.database.queries.SingleQuery;
+import com.github.chrisblutz.jetway.database.queries.*;
 
 import java.text.MessageFormat;
 import java.util.HashSet;
@@ -188,13 +185,16 @@ public abstract class DatabaseManager {
      * This method executes a {@link Query} on the database and returns the
      * set of results obtained.
      * <p>
-     * The order of results is not necessarily guaranteed.
+     * The order of results is defined by the specified {@link Sort} instance,
+     * unless that instance is {@code null}, in which case the order
+     * of the results is not guaranteed.
      *
      * @param table the table to query from
      * @param query the {@link Query} to run
+     * @param sort  the {@link Sort} defining the order to use
      * @return The set of results from the query
      */
-    public abstract DatabaseResult runQuery(SchemaTable table, Query query);
+    public abstract DatabaseResult runQuery(SchemaTable table, Query query, Sort sort);
 
     /**
      * This utility method provides a wrapper for {@link MessageFormat#format(String, Object...)}

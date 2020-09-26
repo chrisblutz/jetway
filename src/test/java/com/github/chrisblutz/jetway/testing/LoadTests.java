@@ -17,12 +17,13 @@ package com.github.chrisblutz.jetway.testing;
 
 import com.github.chrisblutz.jetway.Jetway;
 import com.github.chrisblutz.jetway.aixm.AIXMFiles;
-import com.github.chrisblutz.jetway.testing.utils.TestAssertions;
 import com.github.chrisblutz.jetway.features.Airport;
 import com.github.chrisblutz.jetway.features.Runway;
 import com.github.chrisblutz.jetway.features.RunwayDirection;
 import com.github.chrisblutz.jetway.features.RunwayEnd;
 import com.github.chrisblutz.jetway.logging.JetwayLog;
+import com.github.chrisblutz.jetway.testing.utils.JetwayTesting;
+import com.github.chrisblutz.jetway.testing.utils.TestAssertions;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -41,7 +42,7 @@ public class LoadTests {
     public void testBasicLoad() {
 
         AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/basic.xml"));
-        initializeJetway("/");
+        JetwayTesting.initializeJetway("/");
 
         Airport[] airports = Airport.selectAll(null);
         assertNotNull(airports);
@@ -55,7 +56,7 @@ public class LoadTests {
     public void testBasicExtensionLoad() {
 
         AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/basic_extension.xml"));
-        initializeJetway("/");
+        JetwayTesting.initializeJetway("/");
 
         Airport[] airports = Airport.selectAll(null);
         assertNotNull(airports);
@@ -87,7 +88,7 @@ public class LoadTests {
     public void testMultipleLoad() {
 
         AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/basic_multiple.xml"));
-        initializeJetway("/");
+        JetwayTesting.initializeJetway("/");
 
         Airport[] airports = Airport.selectAll(null);
         assertNotNull(airports);
@@ -140,7 +141,7 @@ public class LoadTests {
     public void testNestedLoad() {
 
         AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/nested.xml"));
-        initializeJetway("/");
+        JetwayTesting.initializeJetway("/");
 
         Airport[] airports = Airport.selectAll(null);
         assertNotNull(airports);
@@ -175,7 +176,7 @@ public class LoadTests {
     public void testNestedLoadSelections() {
 
         AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/nested.xml"));
-        initializeJetway("/");
+        JetwayTesting.initializeJetway("/");
 
         Airport[] airports = Airport.selectAll(null);
         assertNotNull(airports);
@@ -210,7 +211,7 @@ public class LoadTests {
     public void testNestedLoadSingleSelections() {
 
         AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/nested.xml"));
-        initializeJetway("/");
+        JetwayTesting.initializeJetway("/");
 
         Airport airport = Airport.select(null);
         assertNotNull(airport);
@@ -232,7 +233,7 @@ public class LoadTests {
     @Test
     public void testZIPLoad() {
 
-        initializeJetway("test/nasr.zip");
+        JetwayTesting.initializeJetway("test/nasr.zip");
 
         Airport[] airports = Airport.selectAll(null);
         assertNotNull(airports);
@@ -240,17 +241,5 @@ public class LoadTests {
 
         Airport airport = airports[0];
         TestAssertions.basicAirportNoExtension(airport);
-    }
-
-    private void initializeJetway(String aixmPath) {
-
-        String user = System.getenv("TEST_USER");
-        String password = System.getenv("TEST_PASSWORD");
-        String server = System.getenv("TEST_SERVER");
-        Jetway.initialize(("mysql -a " + aixmPath +
-                (user != null && !user.isEmpty() ? " -u " + user : "") +
-                (password != null && !password.isEmpty() ? " -p " + password : "") +
-                (server != null && !server.isEmpty() ? " -s " + server : "")
-                + " --drop").split(" "));
     }
 }

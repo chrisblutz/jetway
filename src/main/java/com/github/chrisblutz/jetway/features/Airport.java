@@ -24,6 +24,7 @@ import com.github.chrisblutz.jetway.database.DatabaseType;
 import com.github.chrisblutz.jetway.database.annotations.DatabaseColumn;
 import com.github.chrisblutz.jetway.database.annotations.DatabaseTable;
 import com.github.chrisblutz.jetway.database.queries.Query;
+import com.github.chrisblutz.jetway.database.queries.Sort;
 
 /**
  * An {@code Airport} represents an airport or a
@@ -237,5 +238,26 @@ public class Airport {
     public static Airport[] selectAll(Query query) {
 
         return Database.selectAll(Airport.class, query);
+    }
+
+    /**
+     * This method selects all airports from the database
+     * based on the {@link Query}, sorting based on the
+     * defined {@link Sort} instance.
+     * <p>
+     * Passing a {@code null} {@link Query} to this method
+     * is interpreted as a selection of all airports.
+     * <p>
+     * Passing a {@code null} {@link Sort} to this method
+     * returns results in a database manager-specific
+     * order that is not guaranteed to be consistent.
+     *
+     * @param query the {@link Query} to use
+     * @param sort  the {@link Sort} defining the order to use
+     * @return The selected airports
+     */
+    public static Airport[] selectAll(Query query, Sort sort) {
+
+        return Database.selectAll(Airport.class, query, sort);
     }
 }

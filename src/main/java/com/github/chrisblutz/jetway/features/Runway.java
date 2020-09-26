@@ -24,6 +24,7 @@ import com.github.chrisblutz.jetway.database.DatabaseType;
 import com.github.chrisblutz.jetway.database.annotations.DatabaseColumn;
 import com.github.chrisblutz.jetway.database.annotations.DatabaseTable;
 import com.github.chrisblutz.jetway.database.queries.Query;
+import com.github.chrisblutz.jetway.database.queries.Sort;
 
 /**
  * A {@code Runway} represents a runway or a helipad at
@@ -145,5 +146,26 @@ public class Runway {
     public static Runway[] selectAll(Query query) {
 
         return Database.selectAll(Runway.class, query);
+    }
+
+    /**
+     * This method selects all runways from the database
+     * based on the {@link Query}, sorting based on the
+     * defined {@link Sort} instance.
+     * <p>
+     * Passing a {@code null} {@link Query} to this method
+     * is interpreted as a selection of all runways.
+     * <p>
+     * Passing a {@code null} {@link Sort} to this method
+     * returns results in a database manager-specific
+     * order that is not guaranteed to be consistent.
+     *
+     * @param query the {@link Query} to use
+     * @param sort  the {@link Sort} defining the order to use
+     * @return The selected runways
+     */
+    public static Runway[] selectAll(Query query, Sort sort) {
+
+        return Database.selectAll(Runway.class, query, sort);
     }
 }
