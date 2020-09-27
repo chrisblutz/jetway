@@ -455,19 +455,22 @@ public abstract class SQLDatabaseManager extends DatabaseManager {
 
     private String buildQuery(Query query) {
 
+        String result;
         if (query == null)
-            return null;
-        if (query instanceof AndQuery)
-            return buildNestedQuery(((AndQuery) query).getQueries(), "AND");
+            result = null;
+        else if (query instanceof AndQuery)
+            result = buildNestedQuery(((AndQuery) query).getQueries(), "AND");
         else if (query instanceof OrQuery)
-            return buildNestedQuery(((OrQuery) query).getQueries(), "OR");
+            result = buildNestedQuery(((OrQuery) query).getQueries(), "OR");
         else if (query instanceof SingleQuery)
-            return buildSingleQuery((SingleQuery) query);
+            result = buildSingleQuery((SingleQuery) query);
         else {
             // Unrecognized query type
             JetwayLog.getDatabaseLogger().warn("Invalid query type found: " + query.getClass().getName());
-            return null;
+            result = null;
         }
+
+        return result;
     }
 
     private String buildNestedQuery(List<Query> queries, String keyword) {
@@ -494,6 +497,7 @@ public abstract class SQLDatabaseManager extends DatabaseManager {
         SchemaTable table = SchemaManager.get(query.getFeature());
         String attr = table.getTableName() + "." + query.getAttribute();
         String expected = formatAsSQLType(table.getAttributeType(query.getAttribute()), query.getExpectedValue());
+
         switch (query.getOperation()) {
             case EQUALS:
                 return attr + " = " + expected;
@@ -521,22 +525,25 @@ public abstract class SQLDatabaseManager extends DatabaseManager {
         if (set.getObject(column) == null)
             return null;
 
+        Object result;
         if (type == String.class)
-            return set.getString(column);
+            result = set.getString(column);
         else if (type == Short.class)
-            return set.getShort(column);
+            result = set.getShort(column);
         else if (type == Integer.class)
-            return set.getInt(column);
+            result = set.getInt(column);
         else if (type == Long.class)
-            return set.getLong(column);
+            result = set.getLong(column);
         else if (type == Float.class)
-            return set.getFloat(column);
+            result = set.getFloat(column);
         else if (type == Double.class)
-            return set.getDouble(column);
+            result = set.getDouble(column);
         else if (type == Boolean.class)
-            return set.getBoolean(column);
+            result = set.getBoolean(column);
         else
-            return DataConversion.getFromString(set.getString(column), type);
+            result = DataConversion.getFromString(set.getString(column), type);
+
+        return result;
     }
 
     /**
