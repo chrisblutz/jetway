@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'jacoco'
 }
 
 group 'com.github.chrisblutz'
@@ -39,12 +40,24 @@ jar {
     }
 }
 
+tasks.withType(Jar) {
+    destinationDir = file('bin/')
+}
+
 test {
     testLogging {
         events "passed", "skipped", "failed", "standardOut", "standardError"
     }
+
+    finalizedBy jacocoTestReport
 }
 
-tasks.withType(Jar) {
-    destinationDir = file('bin/')
+jacocoTestReport {
+    dependsOn test
+
+    reports {
+        xml.enabled true
+        csv.enabled false
+        html.enabled false
+    }
 }
