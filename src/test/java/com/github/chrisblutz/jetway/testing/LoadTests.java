@@ -28,6 +28,12 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+/**
+ * This class handles testing of basic AIXM feature-loading
+ * functionality.
+ *
+ * @author Christopher Lutz
+ */
 public class LoadTests {
 
     private static Airport[] validationAirportsRebuildInitial, validationAirportsRebuildFinal;
@@ -37,6 +43,9 @@ public class LoadTests {
     private static RunwayEnd[] validationRunwayEndsNoExtension;
     private static RunwayDirection[] validationRunwayDirectionsNoExtension;
 
+    /**
+     * This method resets Jetway before each test.
+     */
     @Before
     public void beforeAll() {
 
@@ -44,6 +53,10 @@ public class LoadTests {
         Jetway.reset();
     }
 
+    /**
+     * This method tests the loading of a basic {@link Airport}
+     * with no AIXM extension.
+     */
     @Test
     public void testBasicLoad() {
 
@@ -54,6 +67,10 @@ public class LoadTests {
         JetwayAssertions.assertFeatures(airports, validationAirportsNoExtension, 0);
     }
 
+    /**
+     * This method tests the loading of a basic {@link Airport}
+     * with an AIXM extension.
+     */
     @Test
     public void testBasicExtensionLoad() {
 
@@ -64,6 +81,10 @@ public class LoadTests {
         JetwayAssertions.assertFeatures(airports, validationAirportsExtension, 0);
     }
 
+    /**
+     * This method tests the loading of multiple {@link Airport}
+     * instances with no AIXM extensions.
+     */
     @Test
     public void testMultipleLoad() {
 
@@ -74,6 +95,11 @@ public class LoadTests {
         JetwayAssertions.assertFeatures(airports, validationAirportsMultiple, 0, 1);
     }
 
+    /**
+     * This method tests the loading of nested features
+     * with no AIXM extensions, retrieving child features
+     * directly from their parent features.
+     */
     @Test
     public void testNestedLoad() {
 
@@ -93,6 +119,11 @@ public class LoadTests {
         JetwayAssertions.assertFeaturesIfChild(runwayDirections, validationRunwayDirectionsNoExtension, runwayEnds[0]);
     }
 
+    /**
+     * This method tests the loading of nested features
+     * with no AIXM extensions, retrieving child features
+     * using the feature's {@code selectAll()} method.
+     */
     @Test
     public void testNestedLoadSelections() {
 
@@ -112,6 +143,11 @@ public class LoadTests {
         JetwayAssertions.assertFeatures(runwayDirections, validationRunwayDirectionsNoExtension, 0, 1);
     }
 
+    /**
+     * This method tests the loading of nested features
+     * with no AIXM extensions, retrieving child features
+     * using the feature's {@code select()} method.
+     */
     @Test
     public void testNestedLoadSingleSelections() {
 
@@ -131,6 +167,10 @@ public class LoadTests {
         JetwayAssertions.assertFeatureOneOf(runwayDirection, validationRunwayDirectionsNoExtension);
     }
 
+    /**
+     * This method tests the loading of a basic {@link Airport}
+     * with no AIXM extension from an AIXM ZIP file.
+     */
     @Test
     public void testZIPLoad() {
 
@@ -140,6 +180,11 @@ public class LoadTests {
         JetwayAssertions.assertFeatures(airports, validationAirportsNoExtension, 0);
     }
 
+    /**
+     * This method tests the database preservation
+     * feature when the current and database Jetway
+     * versions match.
+     */
     @Test
     public void testNoRebuildRequired() {
 
@@ -166,6 +211,11 @@ public class LoadTests {
         System.clearProperty("FORCE_JETWAY_VERSION");
     }
 
+    /**
+     * This method tests the database preservation
+     * feature when the current and database Jetway
+     * versions do not match.
+     */
     @Test
     public void testRebuildRequired() {
 
@@ -195,6 +245,11 @@ public class LoadTests {
         System.clearProperty("FORCE_JETWAY_VERSION");
     }
 
+    /**
+     * This method tests the database preservation
+     * feature when the current Jetway version is
+     * null.
+     */
     @Test
     public void testRebuildRequiredNullVersion() {
 
@@ -221,6 +276,10 @@ public class LoadTests {
         JetwayAssertions.assertFeatures(airports, validationAirportsRebuildFinal, 0);
     }
 
+    /**
+     * This method tests the database preservation
+     * feature when the CLI option to rebuild is set.
+     */
     @Test
     public void testRebuildRequiredCLI() {
 
@@ -248,6 +307,11 @@ public class LoadTests {
         System.clearProperty("FORCE_JETWAY_VERSION");
     }
 
+    /**
+     * This method sets up the features
+     * needed for validation during assertions
+     * in {@link JetwayAssertions} methods.
+     */
     @BeforeClass
     public static void setupValidationFeatures() {
 

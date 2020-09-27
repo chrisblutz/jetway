@@ -18,9 +18,20 @@ package com.github.chrisblutz.jetway.testing.features;
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMFeature;
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMRoot;
 
+/**
+ * This class is used when testing for
+ * unannotated attribute fields.
+ *
+ * @author Christopher lutz
+ */
 @AIXMFeature(name = "TestFeature", id = "FEATURE")
 @AIXMRoot("ROOT")
 public class NoAnnotationFieldFeature {
 
+    /**
+     * This attribute should not be registered
+     * because it is not annotated with
+     * {@link com.github.chrisblutz.jetway.aixm.annotations.AIXMAttribute}.
+     */
     public String path;
 }

@@ -20,15 +20,31 @@ import com.github.chrisblutz.jetway.aixm.annotations.AIXMFeature;
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMId;
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMParent;
 
+/**
+ * This class is used when testing for
+ * invalid parent ID types.
+ *
+ * @author Christopher lutz
+ */
 @AIXMFeature(name = "TestFeature", id = "FEATURE", parent = RootFeature.class)
 public class InvalidParentIdFeature {
 
+    /**
+     * This ID should cause an error because it is not
+     * of type {@code String}.
+     */
     @AIXMId
     public String id;
 
+    /**
+     * This attribute should not affect the test.
+     */
     @AIXMParent
     public int parentId;
 
+    /**
+     * This attribute should not affect the test.
+     */
     @AIXMAttribute("Path")
     public String path;
 }

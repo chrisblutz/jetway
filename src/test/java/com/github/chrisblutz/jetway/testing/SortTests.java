@@ -27,12 +27,147 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+/**
+ * This class handles testing of {@link Sort}
+ * functionality.
+ *
+ * @author Christopher Lutz
+ */
 public class SortTests {
 
     private static Airport[] validationAirports;
 
+    /**
+     * This method resets Jetway before each test
+     */
+    @Before
+    public void beforeAll() {
+
+        JetwayLog.setLoggingEnabled(false);
+        Jetway.reset();
+    }
+
+    /**
+     * This method ensures that all features in the {@code sorting_basic.xml}
+     * file are correctly recognized by Jetway.  This allows for easier
+     * bug-finding when errors arise.  If this test fails, the error is most
+     * likely in the loader itself.  If other tests fail when this one passes,
+     * the error is most likely in the sorting functionality.
+     */
+    @Test
+    public void testAll() {
+
+        // Make sure assertions are correct by selecting all
+
+        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/sorting_basic.xml"));
+        JetwayTesting.initializeJetway();
+
+        Airport[] airports = Airport.selectAll(null);
+        JetwayAssertions.assertFeatures(airports, validationAirports, 0, 1, 2, 3, 4);
+    }
+
+    /**
+     * This method tests sorting by a string column.
+     */
+    @Test
+    public void testSortStringAll() {
+
+        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/sorting_basic.xml"));
+        JetwayTesting.initializeJetway();
+
+        // Sorting by NAME ascending
+
+        Sort sort = Sort.by(Airport.class, Airport.NAME, Sort.Order.ASCENDING);
+        Airport[] airports = Airport.selectAll(null, sort);
+        JetwayAssertions.assertFeaturesOrdered(airports, validationAirports, 1, 0, 2, 4, 3);
+
+        // Sorting by NAME descending
+
+        sort = Sort.by(Airport.class, Airport.NAME, Sort.Order.DESCENDING);
+        airports = Airport.selectAll(null, sort);
+        JetwayAssertions.assertFeaturesOrdered(airports, validationAirports, 3, 4, 2, 0, 1);
+    }
+
+    /**
+     * This method tests sorting by a numeric column.
+     */
+    @Test
+    public void testSortNumericAll() {
+
+        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/sorting_basic.xml"));
+        JetwayTesting.initializeJetway();
+
+        // Sorting by LATITUDE ascending
+
+        Sort sort = Sort.by(Airport.class, Airport.LATITUDE, Sort.Order.ASCENDING);
+        Airport[] airports = Airport.selectAll(null, sort);
+        JetwayAssertions.assertFeaturesOrdered(airports, validationAirports, 2, 1, 4, 3, 0);
+
+        // Sorting by LATITUDE descending
+
+        sort = Sort.by(Airport.class, Airport.LATITUDE, Sort.Order.DESCENDING);
+        airports = Airport.selectAll(null, sort);
+        JetwayAssertions.assertFeaturesOrdered(airports, validationAirports, 0, 3, 4, 1, 2);
+    }
+
+    /**
+     * This method tests sorting by a string column
+     * while also selecting a specific {@link Query}.
+     */
+    @Test
+    public void testSortStringWithQuery() {
+
+
+        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/sorting_basic.xml"));
+        JetwayTesting.initializeJetway();
+
+        Query query = Query.whereGreaterThan(Airport.class, Airport.FIELD_ELEVATION, 10);
+
+        // Sorting by NAME ascending where FIELD_ELEVATION > 10
+
+        Sort sort = Sort.by(Airport.class, Airport.NAME, Sort.Order.ASCENDING);
+        Airport[] airports = Airport.selectAll(query, sort);
+        JetwayAssertions.assertFeaturesOrdered(airports, validationAirports, 1, 2, 4, 3);
+
+        // Sorting by NAME descending where FIELD_ELEVATION > 10
+
+        sort = Sort.by(Airport.class, Airport.NAME, Sort.Order.DESCENDING);
+        airports = Airport.selectAll(query, sort);
+        JetwayAssertions.assertFeaturesOrdered(airports, validationAirports, 3, 4, 2, 1);
+    }
+
+    /**
+     * This method tests sorting by a numeric column
+     * while also selecting a specific {@link Query}.
+     */
+    @Test
+    public void testSortNumericWithQuery() {
+
+        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/sorting_basic.xml"));
+        JetwayTesting.initializeJetway();
+
+        Query query = Query.whereLessThanEquals(Airport.class, Airport.FIELD_ELEVATION, 16);
+
+        // Sorting by LATITUDE ascending where FIELD_ELEVATION <= 16
+
+        Sort sort = Sort.by(Airport.class, Airport.LATITUDE, Sort.Order.ASCENDING);
+        Airport[] airports = Airport.selectAll(query, sort);
+        JetwayAssertions.assertFeaturesOrdered(airports, validationAirports, 2, 1, 3, 0);
+
+        // Sorting by LATITUDE descending where FIELD_ELEVATION <= 16
+
+        sort = Sort.by(Airport.class, Airport.LATITUDE, Sort.Order.DESCENDING);
+        airports = Airport.selectAll(query, sort);
+        JetwayAssertions.assertFeaturesOrdered(airports, validationAirports, 0, 3, 1, 2);
+    }
+
+    /**
+     * This method sets up the features
+     * needed for validation during assertions
+     * in {@link JetwayAssertions} methods.
+     */
     @BeforeClass
-    public static void setupValidationAirports() {
+    public static void setupValidationFeatures() {
 
         Airport airport1 = new Airport();
         airport1.id = "AH_0000001";
@@ -85,105 +220,5 @@ public class SortTests {
         airport5.icao = "KTST";
 
         validationAirports = new Airport[]{airport1, airport2, airport3, airport4, airport5};
-    }
-
-    @Before
-    public void beforeAll() {
-
-        JetwayLog.setLoggingEnabled(false);
-        Jetway.reset();
-    }
-
-    @Test
-    public void testAll() {
-
-        // Make sure assertions are correct by selecting all
-
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/sorting_basic.xml"));
-        JetwayTesting.initializeJetway();
-
-        Airport[] airports = Airport.selectAll(null);
-        JetwayAssertions.assertFeatures(airports, validationAirports, 0, 1, 2, 3, 4);
-    }
-
-    @Test
-    public void testSortStringAll() {
-
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/sorting_basic.xml"));
-        JetwayTesting.initializeJetway();
-
-        // Sorting by NAME ascending
-
-        Sort sort = Sort.by(Airport.class, Airport.NAME, Sort.Order.ASCENDING);
-        Airport[] airports = Airport.selectAll(null, sort);
-        JetwayAssertions.assertFeaturesOrdered(airports, validationAirports, 1, 0, 2, 4, 3);
-
-        // Sorting by NAME descending
-
-        sort = Sort.by(Airport.class, Airport.NAME, Sort.Order.DESCENDING);
-        airports = Airport.selectAll(null, sort);
-        JetwayAssertions.assertFeaturesOrdered(airports, validationAirports, 3, 4, 2, 0, 1);
-    }
-
-    @Test
-    public void testSortNumericAll() {
-
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/sorting_basic.xml"));
-        JetwayTesting.initializeJetway();
-
-        // Sorting by LATITUDE ascending
-
-        Sort sort = Sort.by(Airport.class, Airport.LATITUDE, Sort.Order.ASCENDING);
-        Airport[] airports = Airport.selectAll(null, sort);
-        JetwayAssertions.assertFeaturesOrdered(airports, validationAirports, 2, 1, 4, 3, 0);
-
-        // Sorting by LATITUDE descending
-
-        sort = Sort.by(Airport.class, Airport.LATITUDE, Sort.Order.DESCENDING);
-        airports = Airport.selectAll(null, sort);
-        JetwayAssertions.assertFeaturesOrdered(airports, validationAirports, 0, 3, 4, 1, 2);
-    }
-
-    @Test
-    public void testSortStringWithQuery() {
-
-
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/sorting_basic.xml"));
-        JetwayTesting.initializeJetway();
-
-        Query query = Query.whereGreaterThan(Airport.class, Airport.FIELD_ELEVATION, 10);
-
-        // Sorting by NAME ascending where FIELD_ELEVATION > 10
-
-        Sort sort = Sort.by(Airport.class, Airport.NAME, Sort.Order.ASCENDING);
-        Airport[] airports = Airport.selectAll(query, sort);
-        JetwayAssertions.assertFeaturesOrdered(airports, validationAirports, 1, 2, 4, 3);
-
-        // Sorting by NAME descending where FIELD_ELEVATION > 10
-
-        sort = Sort.by(Airport.class, Airport.NAME, Sort.Order.DESCENDING);
-        airports = Airport.selectAll(query, sort);
-        JetwayAssertions.assertFeaturesOrdered(airports, validationAirports, 3, 4, 2, 1);
-    }
-
-    @Test
-    public void testSortNumericWithQuery() {
-
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/sorting_basic.xml"));
-        JetwayTesting.initializeJetway();
-
-        Query query = Query.whereLessThanEquals(Airport.class, Airport.FIELD_ELEVATION, 16);
-
-        // Sorting by LATITUDE ascending where FIELD_ELEVATION <= 16
-
-        Sort sort = Sort.by(Airport.class, Airport.LATITUDE, Sort.Order.ASCENDING);
-        Airport[] airports = Airport.selectAll(query, sort);
-        JetwayAssertions.assertFeaturesOrdered(airports, validationAirports, 2, 1, 3, 0);
-
-        // Sorting by LATITUDE descending where FIELD_ELEVATION <= 16
-
-        sort = Sort.by(Airport.class, Airport.LATITUDE, Sort.Order.DESCENDING);
-        airports = Airport.selectAll(query, sort);
-        JetwayAssertions.assertFeaturesOrdered(airports, validationAirports, 0, 3, 1, 2);
     }
 }

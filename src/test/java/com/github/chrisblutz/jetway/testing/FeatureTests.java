@@ -18,11 +18,11 @@ package com.github.chrisblutz.jetway.testing;
 import com.github.chrisblutz.jetway.Jetway;
 import com.github.chrisblutz.jetway.aixm.AIXMFeatureManager;
 import com.github.chrisblutz.jetway.aixm.exceptions.AIXMFeatureException;
-import com.github.chrisblutz.jetway.database.SchemaManager;
-import com.github.chrisblutz.jetway.testing.features.*;
 import com.github.chrisblutz.jetway.aixm.mappings.FeatureEntry;
 import com.github.chrisblutz.jetway.aixm.mappings.FeatureMapping;
+import com.github.chrisblutz.jetway.database.SchemaManager;
 import com.github.chrisblutz.jetway.logging.JetwayLog;
+import com.github.chrisblutz.jetway.testing.features.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -30,8 +30,17 @@ import java.lang.reflect.Field;
 
 import static org.junit.Assert.*;
 
+/**
+ * This class handles testing of feature
+ * registration functionality.
+ *
+ * @author Christopher Lutz
+ */
 public class FeatureTests {
 
+    /**
+     * This method resets Jetway before each test.
+     */
     @Before
     public void beforeAll() {
 
@@ -39,6 +48,9 @@ public class FeatureTests {
         Jetway.reset();
     }
 
+    /**
+     * This method tests that unannotated features are not registered.
+     */
     @Test
     public void testNonAnnotatedFeature() {
 
@@ -46,6 +58,9 @@ public class FeatureTests {
         assertNull(AIXMFeatureManager.get(NoAnnotationFeature.class));
     }
 
+    /**
+     * This method tests that unannotated fields are not registered.
+     */
     @Test
     public void testNonAnnotatedFieldFeature() {
 
@@ -54,18 +69,30 @@ public class FeatureTests {
         assertEquals(0, entry.getMapping().getFields().size());
     }
 
+    /**
+     * This method tests that orphaned features (no parent and not root)
+     * throw exceptions when registered.
+     */
     @Test(expected = AIXMFeatureException.class)
     public void testOrphanedFeature() {
 
         AIXMFeatureManager.registerFeatureType(OrphanFeature.class);
     }
 
+    /**
+     * This method tests that features with the wrong ID type
+     * throw exceptions when registered.
+     */
     @Test(expected = AIXMFeatureException.class)
     public void testInvalidIdFeature() {
 
         AIXMFeatureManager.registerFeatureType(InvalidIdFeature.class);
     }
 
+    /**
+     * This method tests that features with the wrong parent ID type
+     * throw exceptions when registered.
+     */
     @Test(expected = AIXMFeatureException.class)
     public void testInvalidParentIdFeature() {
 
@@ -73,12 +100,24 @@ public class FeatureTests {
         AIXMFeatureManager.registerFeatureType(InvalidParentIdFeature.class);
     }
 
+    /**
+     * This method tests that features with primitive type fields
+     * (which are declared as attributes) throw exceptions when
+     * registered.
+     */
     @Test(expected = AIXMFeatureException.class)
     public void testPrimitiveTypeFieldFeature() {
 
         SchemaManager.registerFeatureType(PrimitiveTypeFieldFeature.class);
     }
 
+    /**
+     * This method tests that features marked as root features
+     * are registered as such.
+     *
+     * @throws NoSuchFieldException if either attribute field is not found
+     *                              (this should never happen)
+     */
     @Test
     public void testRootFeature() throws NoSuchFieldException {
 

@@ -20,13 +20,24 @@ import com.github.chrisblutz.jetway.aixm.annotations.AIXMFeature;
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMId;
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMRoot;
 
+/**
+ * This class is used when testing root features.
+ *
+ * @author Christopher lutz
+ */
 @AIXMFeature(name = "TestFeature", id = "FEATURE")
 @AIXMRoot("ROOT")
 public class RootFeature {
 
+    /**
+     * This attribute should not affect the test.
+     */
     @AIXMId
     public String id;
 
+    /**
+     * This attribute should not affect the test.
+     */
     @AIXMAttribute("Path")
     public String path;
 }

@@ -15,7 +15,18 @@
  */
 package com.github.chrisblutz.jetway.features;
 
+/**
+ * This interface represents a generic AIXM feature
+ * which has a unique ID.
+ *
+ * @author Christopher Lutz
+ */
 public interface Feature {
 
+    /**
+     * This method returns the unique ID for this feature.
+     *
+     * @return The unique ID for this feature
+     */
     String getId();
 }

@@ -18,16 +18,26 @@ package com.github.chrisblutz.jetway.testing;
 import com.github.chrisblutz.jetway.Jetway;
 import com.github.chrisblutz.jetway.aixm.crawling.AIXMData;
 import com.github.chrisblutz.jetway.aixm.exceptions.AIXMException;
-import com.github.chrisblutz.jetway.testing.aixm.TestObject;
 import com.github.chrisblutz.jetway.conversion.DefaultConverters;
 import com.github.chrisblutz.jetway.logging.JetwayLog;
+import com.github.chrisblutz.jetway.testing.aixm.TestObject;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
+/**
+ * This class handles testing of AIXM data conversion
+ * and crawling.
+ *
+ * @author Christopher Lutz
+ */
 public class AIXMTests {
 
+    /**
+     * This method resets Jetway before each test
+     * and registers data converters.
+     */
     @Before
     public void beforeAll() {
 
@@ -36,6 +46,10 @@ public class AIXMTests {
         DefaultConverters.registerAll();
     }
 
+    /**
+     * This method tests the crawling/conversion
+     * functionality for {@link AIXMData} instances.
+     */
     @Test
     public void testDataCrawl() {
 
@@ -53,6 +67,10 @@ public class AIXMTests {
         assertEquals((short) 12345, data.crawl("Short").get(Short.class));
     }
 
+    /**
+     * This method tests that crawling to an invalid path throws
+     * and exception.
+     */
     @Test(expected = AIXMException.class)
     public void testInvalidDataPath() {
 

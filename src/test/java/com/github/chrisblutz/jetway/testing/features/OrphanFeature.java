@@ -18,9 +18,18 @@ package com.github.chrisblutz.jetway.testing.features;
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMAttribute;
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMFeature;
 
+/**
+ * This class is used when testing for
+ * orphan features (no parent and not root).
+ *
+ * @author Christopher lutz
+ */
 @AIXMFeature(name = "TestFeature", id = "FEATURE")
 public class OrphanFeature {
 
+    /**
+     * This attribute should not affect the test.
+     */
     @AIXMAttribute("Path")
     public String path;
 }

@@ -17,8 +17,17 @@ package com.github.chrisblutz.jetway.testing.features;
 
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMAttribute;
 
+/**
+ * This class is used when testing for
+ * unannotated features.
+ *
+ * @author Christopher lutz
+ */
 public class NoAnnotationFeature {
 
+    /**
+     * This attribute should not affect the test.
+     */
     @AIXMAttribute("Path")
     public String path;
 }

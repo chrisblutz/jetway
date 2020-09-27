@@ -19,19 +19,61 @@ import com.github.chrisblutz.jetway.features.*;
 
 import static org.junit.Assert.*;
 
+/**
+ * This class provides utility methods for running
+ * JUnit assertions on {@link Feature} instances.
+ *
+ * @author Christopher Lutz
+ */
 public class JetwayAssertions {
 
+    /**
+     * This method checks that the given features match the expected features
+     * as specified by the indices given.
+     * <p>
+     * For example, let {@code values} be {@code [0, 2, 8]}, {@code expected}'
+     * be {@code [0, 2, 5, 8, 13]}, and {@code expectedIndices} by {@link [0, 1, 3]}.
+     * <p>
+     * The actual expected features are those selected by the {@code expectedIndices} array.
+     * So for the example that would be {@code [0, 2, 8]}, since those are the values
+     * at the indices in {@code expectedIndices}.  Since the given {@code values} array
+     * matches our expected values, this assertion would succeed.
+     *
+     * @param values          the actual features
+     * @param expected        the expected features
+     * @param expectedIndices the indices of features to check for
+     * @param <T>             the feature type
+     */
     public static <T extends Feature> void assertFeaturesOrdered(T[] values, T[] expected, int... expectedIndices) {
 
         assertNotNull(values);
         assertEquals(expectedIndices.length, values.length);
 
+        // Check that each index matches its expected value
         for (int i = 0; i < expectedIndices.length; i++) {
 
             assertFeature(values[i], expected[expectedIndices[i]]);
         }
     }
 
+    /**
+     * This method checks that the given features match the expected features
+     * as specified by the indices given, regardless of order
+     * <p>
+     * For example, let {@code values} be {@code [8, 0, 2]}, {@code expected}'
+     * be {@code [0, 2, 5, 8, 13]}, and {@code expectedIndices} by {@link [0, 1, 3]}.
+     * <p>
+     * The actual expected features are those selected by the {@code expectedIndices} array.
+     * So for the example that would be {@code [0, 2, 8]}, since those are the values
+     * at the indices in {@code expectedIndices}.  Since the values in the given {@code values}
+     * array matches our expected values (even though the order does not),
+     * this assertion would succeed.
+     *
+     * @param values          the actual features
+     * @param expected        the expected features
+     * @param expectedIndices the indices of features to check for
+     * @param <T>             the feature type
+     */
     public static <T extends Feature> void assertFeatures(T[] values, T[] expected, int... expectedIndices) {
 
         assertNotNull(values);
@@ -43,9 +85,11 @@ public class JetwayAssertions {
 
             for (int i = 0; i < expectedIndices.length; i++) {
 
+                // If feature has already been found, continue
                 if (foundArray[i])
                     continue;
 
+                // Check if feature matches
                 if (assertFeatureChecked(feature, expected[expectedIndices[i]])) {
                     foundArray[i] = true;
                     break;
@@ -115,6 +159,14 @@ public class JetwayAssertions {
         }
     }
 
+    /**
+     * This method checks if the given feature is in the
+     * provided array of features.
+     *
+     * @param value    the actual feature
+     * @param expected the array of expected features
+     * @param <T>      the feature type
+     */
     public static <T extends Feature> void assertFeatureOneOf(T value, T[] expected) {
 
         assertNotNull(value);
@@ -134,6 +186,19 @@ public class JetwayAssertions {
         assertTrue(found);
     }
 
+    /**
+     * This method first checks if the actual feature's ID matches the ID
+     * of the expected feature.  If it does, it then runs all of the assertions
+     * on that feature using {@link #assertFeature(Feature, Feature)}.
+     * <p>
+     * If the ID does not match, this method returns {@code false} and no
+     * assertions are run.
+     *
+     * @param value    the actual value
+     * @param expected the expected value
+     * @param <T>      the feature type
+     * @return {@code true} if the features matched, {@code false} otherwise
+     */
     public static <T extends Feature> boolean assertFeatureChecked(T value, T expected) {
 
         // Check that the current feature is the feature being checked for
@@ -144,6 +209,14 @@ public class JetwayAssertions {
         return true;
     }
 
+    /**
+     * This method checks that all internal values
+     * in an actual feature match those of the expected feature.
+     *
+     * @param value    the actual feature
+     * @param expected the expected feature
+     * @param <T>      the feature type
+     */
     public static <T extends Feature> void assertFeature(T value, T expected) {
 
         if (value instanceof Airport && expected instanceof Airport) {

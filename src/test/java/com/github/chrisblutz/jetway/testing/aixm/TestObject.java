@@ -20,8 +20,20 @@ import aero.aixm.v5.impl.CodeYesNoTypeImpl;
 import org.apache.xmlbeans.XmlAnySimpleType;
 import org.apache.xmlbeans.impl.values.XmlAnySimpleTypeImpl;
 
+/**
+ * This class is used for testing of AIXM data conversion
+ * and retrieval.
+ *
+ * @author Christopher Lutz
+ */
 public class TestObject {
 
+    /**
+     * This is a test method to for testing
+     * AIXM type to {@code Boolean} conversion.
+     *
+     * @return The AIXM type
+     */
     public CodeYesNoType getBoolean() {
 
         return new CodeYesNoTypeImpl(null) {
@@ -34,6 +46,12 @@ public class TestObject {
         };
     }
 
+    /**
+     * This is a test method to for testing
+     * AIXM type to {@code Byte} conversion.
+     *
+     * @return The AIXM type
+     */
     public XmlAnySimpleType getByte() {
 
         return new XmlAnySimpleTypeImpl() {
@@ -46,6 +64,12 @@ public class TestObject {
         };
     }
 
+    /**
+     * This is a test method to for testing
+     * AIXM type to {@code Character} conversion.
+     *
+     * @return The AIXM type
+     */
     public XmlAnySimpleType getCharacter() {
 
         return new XmlAnySimpleTypeImpl() {
@@ -58,6 +82,12 @@ public class TestObject {
         };
     }
 
+    /**
+     * This is a test method to for testing
+     * AIXM type to {@code Double} conversion.
+     *
+     * @return The AIXM type
+     */
     public XmlAnySimpleType getDouble() {
 
         return new XmlAnySimpleTypeImpl() {
@@ -70,6 +100,12 @@ public class TestObject {
         };
     }
 
+    /**
+     * This is a test method to for testing
+     * AIXM type to {@code Float} conversion.
+     *
+     * @return The AIXM type
+     */
     public XmlAnySimpleType getFloat() {
 
         return new XmlAnySimpleTypeImpl() {
@@ -82,6 +118,12 @@ public class TestObject {
         };
     }
 
+    /**
+     * This is a test method to for testing
+     * AIXM type to {@code Integer} conversion.
+     *
+     * @return The AIXM type
+     */
     public XmlAnySimpleType getInteger() {
 
         return new XmlAnySimpleTypeImpl() {
@@ -94,6 +136,12 @@ public class TestObject {
         };
     }
 
+    /**
+     * This is a test method to for testing
+     * AIXM type to {@code Long} conversion.
+     *
+     * @return The AIXM type
+     */
     public XmlAnySimpleType getLong() {
 
         return new XmlAnySimpleTypeImpl() {
@@ -106,6 +154,12 @@ public class TestObject {
         };
     }
 
+    /**
+     * This is a test method to for testing
+     * AIXM type to {@code String} conversion.
+     *
+     * @return The AIXM type
+     */
     public XmlAnySimpleType getString() {
 
         return new XmlAnySimpleTypeImpl() {
@@ -118,6 +172,12 @@ public class TestObject {
         };
     }
 
+    /**
+     * This is a test method to for testing
+     * AIXM type to {@code Short} conversion.
+     *
+     * @return The AIXM type
+     */
     public XmlAnySimpleType getShort() {
 
         return new XmlAnySimpleTypeImpl() {

@@ -15,7 +15,19 @@
  */
 package com.github.chrisblutz.jetway.features;
 
+/**
+ * This interface represents an AIXM feature
+ * that is nested within another feature, such as
+ * {@link Runway} (nested inside {@link Airport}).
+ *
+ * @author Christopher Lutz
+ */
 public interface NestedFeature extends Feature {
 
+    /**
+     * This method retrieves the unique ID of the parent feature.
+     *
+     * @return The unique ID of the parent feature
+     */
     String getParentId();
 }

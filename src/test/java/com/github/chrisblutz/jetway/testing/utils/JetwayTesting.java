@@ -17,23 +17,62 @@ package com.github.chrisblutz.jetway.testing.utils;
 
 import com.github.chrisblutz.jetway.Jetway;
 
+import java.io.InputStream;
+
+/**
+ * This method provides general-purpose
+ * utility methods for Jetway unit tests.
+ *
+ * @author Christopher Lutz
+ */
 public class JetwayTesting {
 
+    /**
+     * This method initializes Jetway and forces
+     * it to rebuild the database.  It assumes that
+     * a custom AIXM stream has been set using
+     * {@link com.github.chrisblutz.jetway.aixm.AIXMFiles#registerCustomInputStream(String, InputStream)}
+     */
     public static void initializeJetway() {
 
         initializeJetway("/", true);
     }
 
+    /**
+     * This method initializes Jetway and forces it to rebuild
+     * the database if {@code rebuild} is {@code true}.  It
+     * assumes that a custom AIXM stream has been set using
+     * {@link com.github.chrisblutz.jetway.aixm.AIXMFiles#registerCustomInputStream(String, InputStream)}
+     *
+     * @param rebuild if {@code true}, the Jetway database will be force-rebuilt.
+     *                If {@code false}, Jetway will handle loading normally.
+     */
     public static void initializeJetway(boolean rebuild) {
 
         initializeJetway("/", rebuild);
     }
 
+    /**
+     * This method initializes Jetway and forces it to
+     * rebuild the database.  It also sets the AIXM
+     * file path to the specified path.
+     *
+     * @param aixmPath the AIXM file path
+     */
     public static void initializeJetway(String aixmPath) {
 
         initializeJetway(aixmPath, true);
     }
 
+    /**
+     * This method initializes Jetway and  and forces it to
+     * rebuild the database if {@code rebuild} is {@code true}.
+     * It also sets the AIXM file path to the specified path.
+     *
+     * @param aixmPath the AIXM file path
+     * @param rebuild  if {@code true}, the Jetway database will be force-rebuilt.
+     *                 If {@code false}, Jetway will handle loading normally.
+     */
     public static void initializeJetway(String aixmPath, boolean rebuild) {
 
         String user = System.getenv("TEST_USER");

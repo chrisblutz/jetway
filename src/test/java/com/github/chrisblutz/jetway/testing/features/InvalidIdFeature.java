@@ -20,13 +20,26 @@ import com.github.chrisblutz.jetway.aixm.annotations.AIXMFeature;
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMId;
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMRoot;
 
+/**
+ * This class is used when testing for
+ * invalid ID types.
+ *
+ * @author Christopher lutz
+ */
 @AIXMFeature(name = "TestFeature", id = "FEATURE")
 @AIXMRoot("ROOT")
 public class InvalidIdFeature {
 
+    /**
+     * This ID should cause an error because it is not
+     * of type {@code String}.
+     */
     @AIXMId
     public int id;
 
+    /**
+     * This attribute should not affect the test.
+     */
     @AIXMAttribute("Path")
     public String path;
 }

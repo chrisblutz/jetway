@@ -19,12 +19,25 @@ import com.github.chrisblutz.jetway.database.DatabaseType;
 import com.github.chrisblutz.jetway.database.annotations.DatabaseColumn;
 import com.github.chrisblutz.jetway.database.annotations.DatabaseTable;
 
+/**
+ * This class is used when testing for attributes
+ * declared as primitive types.
+ *
+ * @author Christopher lutz
+ */
 @DatabaseTable("Table")
 public class PrimitiveTypeFieldFeature {
 
+    /**
+     * This attribute should not affect the test.
+     */
     @DatabaseColumn(name = "id", type = DatabaseType.STRING, primary = true)
     public String id;
 
+    /**
+     * This attribute should cause an error
+     * because is is a primitive type.
+     */
     @DatabaseColumn(name = "Test", type = DatabaseType.DOUBLE)
     public double test;
 }
