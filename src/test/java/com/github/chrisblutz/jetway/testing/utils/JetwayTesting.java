@@ -21,10 +21,20 @@ public class JetwayTesting {
 
     public static void initializeJetway() {
 
-        initializeJetway("/");
+        initializeJetway("/", true);
+    }
+
+    public static void initializeJetway(boolean rebuild) {
+
+        initializeJetway("/", rebuild);
     }
 
     public static void initializeJetway(String aixmPath) {
+
+        initializeJetway(aixmPath, true);
+    }
+
+    public static void initializeJetway(String aixmPath, boolean rebuild) {
 
         String user = System.getenv("TEST_USER");
         String password = System.getenv("TEST_PASSWORD");
@@ -33,6 +43,6 @@ public class JetwayTesting {
                 (user != null && !user.isEmpty() ? " -u " + user : "") +
                 (password != null && !password.isEmpty() ? " -p " + password : "") +
                 (server != null && !server.isEmpty() ? " -s " + server : "")
-                + " --drop").split(" "));
+                + (rebuild ? " --rebuild" : "")).split(" "));
     }
 }

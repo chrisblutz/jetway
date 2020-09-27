@@ -20,7 +20,7 @@ import com.github.chrisblutz.jetway.aixm.AIXMFiles;
 import com.github.chrisblutz.jetway.database.queries.Query;
 import com.github.chrisblutz.jetway.features.Airport;
 import com.github.chrisblutz.jetway.logging.JetwayLog;
-import com.github.chrisblutz.jetway.testing.utils.AirportAssertions;
+import com.github.chrisblutz.jetway.testing.utils.JetwayAssertions;
 import com.github.chrisblutz.jetway.testing.utils.JetwayTesting;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -29,6 +29,232 @@ import org.junit.Test;
 public class QueryTests {
 
     private static Airport[] validationAirports;
+
+    @Before
+    public void beforeAll() {
+
+        JetwayLog.setLoggingEnabled(false);
+        Jetway.reset();
+    }
+
+    @Test
+    public void testAll() {
+
+        // Make sure assertions are correct by selecting all
+
+        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/database_basic.xml"));
+        JetwayTesting.initializeJetway();
+
+        Airport[] airports = Airport.selectAll(null);
+        JetwayAssertions.assertFeatures(airports, validationAirports, 0, 1, 2, 3, 4);
+    }
+
+    @Test
+    public void testEquals() {
+
+        // Checking SERVED_CITY = "FIRST CITY"
+
+        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/database_basic.xml"));
+        JetwayTesting.initializeJetway();
+
+        Query query = Query.whereEquals(Airport.class, Airport.SERVED_CITY, "FIRST CITY");
+        Airport[] airports = Airport.selectAll(query);
+        JetwayAssertions.assertFeatures(airports, validationAirports, 0, 2);
+    }
+
+    @Test
+    public void testNotEquals() {
+
+        // Checking SERVED_CITY != "FIRST CITY"
+
+        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/database_basic.xml"));
+        JetwayTesting.initializeJetway();
+
+        Query query = Query.whereNotEquals(Airport.class, Airport.SERVED_CITY, "FIRST CITY");
+        Airport[] airports = Airport.selectAll(query);
+        JetwayAssertions.assertFeatures(airports, validationAirports, 1, 3, 4);
+    }
+
+    @Test
+    public void testGreaterThan() {
+
+        // Checking FIELD_ELEVATION > 14
+
+        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/database_basic.xml"));
+        JetwayTesting.initializeJetway();
+
+        Query query = Query.whereGreaterThan(Airport.class, Airport.FIELD_ELEVATION, 14);
+        Airport[] airports = Airport.selectAll(query);
+        JetwayAssertions.assertFeatures(airports, validationAirports, 3, 4);
+    }
+
+    @Test
+    public void testGreaterThanEquals() {
+
+        // Checking FIELD_ELEVATION >= 14
+
+        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/database_basic.xml"));
+        JetwayTesting.initializeJetway();
+
+        Query query = Query.whereGreaterThanEquals(Airport.class, Airport.FIELD_ELEVATION, 14);
+        Airport[] airports = Airport.selectAll(query);
+        JetwayAssertions.assertFeatures(airports, validationAirports, 2, 3, 4);
+    }
+
+    @Test
+    public void testLessThan() {
+
+        // Checking FIELD_ELEVATION < 14
+
+        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/database_basic.xml"));
+        JetwayTesting.initializeJetway();
+
+        Query query = Query.whereLessThan(Airport.class, Airport.FIELD_ELEVATION, 14);
+        Airport[] airports = Airport.selectAll(query);
+        JetwayAssertions.assertFeatures(airports, validationAirports, 0, 1);
+    }
+
+    @Test
+    public void testLessThanEquals() {
+
+        // Checking FIELD_ELEVATION <= 14
+
+        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/database_basic.xml"));
+        JetwayTesting.initializeJetway();
+
+        Query query = Query.whereLessThanEquals(Airport.class, Airport.FIELD_ELEVATION, 14);
+        Airport[] airports = Airport.selectAll(query);
+        JetwayAssertions.assertFeatures(airports, validationAirports, 0, 1, 2);
+    }
+
+    @Test
+    public void testLike() {
+
+        // Checking NAME LIKE "%INTL"
+
+        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/database_basic.xml"));
+        JetwayTesting.initializeJetway();
+
+        Query query = Query.whereLike(Airport.class, Airport.NAME, "%INTL");
+        Airport[] airports = Airport.selectAll(query);
+        JetwayAssertions.assertFeatures(airports, validationAirports, 0, 3);
+    }
+
+    @Test
+    public void testAnd() {
+
+        // Check FIELD_ELEVATION > 12 AND LATITUDE < 50
+
+        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/database_basic.xml"));
+        JetwayTesting.initializeJetway();
+
+        Query firstQuery = Query.whereGreaterThan(Airport.class, Airport.FIELD_ELEVATION, 12);
+        Query secondQuery = Query.whereLessThan(Airport.class, Airport.LATITUDE, 50);
+
+        // Check "and" on first
+        Query query = firstQuery.and(secondQuery);
+        Airport[] airports = Airport.selectAll(query);
+        JetwayAssertions.assertFeatures(airports, validationAirports, 2, 3);
+
+        // Check "and" on second (other way round)
+        query = secondQuery.and(firstQuery);
+        airports = Airport.selectAll(query);
+        JetwayAssertions.assertFeatures(airports, validationAirports, 2, 3);
+    }
+
+    @Test
+    public void testOr() {
+
+        // Check FIELD_ELEVATION < 12 OR LATITUDE > 46
+
+        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/database_basic.xml"));
+        JetwayTesting.initializeJetway();
+
+        Query firstQuery = Query.whereLessThan(Airport.class, Airport.FIELD_ELEVATION, 12);
+        Query secondQuery = Query.whereGreaterThan(Airport.class, Airport.LATITUDE, 46);
+
+        // Check "or" on first
+        Query query = firstQuery.or(secondQuery);
+        Airport[] airports = Airport.selectAll(query);
+        JetwayAssertions.assertFeatures(airports, validationAirports, 0, 3, 4);
+
+        // Check "or" on second (other way round)
+        query = secondQuery.or(firstQuery);
+        airports = Airport.selectAll(query);
+        JetwayAssertions.assertFeatures(airports, validationAirports, 0, 3, 4);
+    }
+
+    @Test
+    public void testAndAnd() {
+
+        // Check (FIELD_ELEVATION >= 12 AND LATITUDE < 50) AND LONGITUDE > -170
+
+        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/database_basic.xml"));
+        JetwayTesting.initializeJetway();
+
+        Query firstQuery = Query.whereGreaterThanEquals(Airport.class, Airport.FIELD_ELEVATION, 12);
+        Query secondQuery = Query.whereLessThan(Airport.class, Airport.LATITUDE, 50);
+        Query thirdQuery = Query.whereGreaterThan(Airport.class, Airport.LONGITUDE, -170);
+
+        Query andQuery = firstQuery.and(secondQuery);
+        Query query = andQuery.and(thirdQuery);
+        Airport[] airports = Airport.selectAll(query);
+        JetwayAssertions.assertFeatures(airports, validationAirports, 1, 2);
+    }
+
+    @Test
+    public void testAndOr() {
+
+        // Check (FIELD_ELEVATION > 12 AND LATITUDE < 50) OR LONGITUDE > -160
+
+        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/database_basic.xml"));
+        JetwayTesting.initializeJetway();
+
+        Query firstQuery = Query.whereGreaterThan(Airport.class, Airport.FIELD_ELEVATION, 12);
+        Query secondQuery = Query.whereLessThan(Airport.class, Airport.LATITUDE, 50);
+        Query thirdQuery = Query.whereGreaterThan(Airport.class, Airport.LONGITUDE, -160);
+
+        Query andQuery = firstQuery.and(secondQuery);
+        Query query = andQuery.or(thirdQuery);
+        Airport[] airports = Airport.selectAll(query);
+        JetwayAssertions.assertFeatures(airports, validationAirports, 0, 2, 3);
+    }
+
+    @Test
+    public void testOrAnd() {
+
+        // Check (FIELD_ELEVATION < 12 OR LATITUDE > 44) AND SERVED_CITY = "FIRST CITY"
+
+        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/database_basic.xml"));
+        JetwayTesting.initializeJetway();
+
+        Query firstQuery = Query.whereLessThan(Airport.class, Airport.FIELD_ELEVATION, 12);
+        Query secondQuery = Query.whereGreaterThan(Airport.class, Airport.LATITUDE, 44);
+        Query thirdQuery = Query.whereEquals(Airport.class, Airport.SERVED_CITY, "FIRST CITY");
+
+        Query orQuery = firstQuery.or(secondQuery);
+        Query query = orQuery.and(thirdQuery);
+        Airport[] airports = Airport.selectAll(query);
+        JetwayAssertions.assertFeatures(airports, validationAirports, 0, 2);
+    }
+
+    @Test
+    public void testOrOr() {
+
+        // Check (FIELD_ELEVATION < 12 OR LATITUDE > 48) OR SERVED_CITY = "FIRST CITY"
+
+        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/database_basic.xml"));
+        JetwayTesting.initializeJetway();
+
+        Query firstQuery = Query.whereLessThan(Airport.class, Airport.FIELD_ELEVATION, 12);
+        Query secondQuery = Query.whereGreaterThan(Airport.class, Airport.LATITUDE, 48);
+        Query thirdQuery = Query.whereEquals(Airport.class, Airport.SERVED_CITY, "FIRST CITY");
+
+        Query orQuery = firstQuery.or(secondQuery);
+        Query query = orQuery.or(thirdQuery);
+        Airport[] airports = Airport.selectAll(query);
+        JetwayAssertions.assertFeatures(airports, validationAirports, 0, 2, 4);
+    }
 
     @BeforeClass
     public static void setupValidationAirports() {
@@ -84,231 +310,5 @@ public class QueryTests {
         airport5.icao = "KTST";
 
         validationAirports = new Airport[]{airport1, airport2, airport3, airport4, airport5};
-    }
-
-    @Before
-    public void beforeAll() {
-
-        JetwayLog.setLoggingEnabled(false);
-        Jetway.reset();
-    }
-
-    @Test
-    public void testAll() {
-
-        // Make sure assertions are correct by selecting all
-
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/database_basic.xml"));
-        JetwayTesting.initializeJetway();
-
-        Airport[] airports = Airport.selectAll(null);
-        AirportAssertions.assertAirports(airports, validationAirports, 0, 1, 2, 3, 4);
-    }
-
-    @Test
-    public void testEquals() {
-
-        // Checking SERVED_CITY = "FIRST CITY"
-
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/database_basic.xml"));
-        JetwayTesting.initializeJetway();
-
-        Query query = Query.whereEquals(Airport.class, Airport.SERVED_CITY, "FIRST CITY");
-        Airport[] airports = Airport.selectAll(query);
-        AirportAssertions.assertAirports(airports, validationAirports, 0, 2);
-    }
-
-    @Test
-    public void testNotEquals() {
-
-        // Checking SERVED_CITY != "FIRST CITY"
-
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/database_basic.xml"));
-        JetwayTesting.initializeJetway();
-
-        Query query = Query.whereNotEquals(Airport.class, Airport.SERVED_CITY, "FIRST CITY");
-        Airport[] airports = Airport.selectAll(query);
-        AirportAssertions.assertAirports(airports, validationAirports, 1, 3, 4);
-    }
-
-    @Test
-    public void testGreaterThan() {
-
-        // Checking FIELD_ELEVATION > 14
-
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/database_basic.xml"));
-        JetwayTesting.initializeJetway();
-
-        Query query = Query.whereGreaterThan(Airport.class, Airport.FIELD_ELEVATION, 14);
-        Airport[] airports = Airport.selectAll(query);
-        AirportAssertions.assertAirports(airports, validationAirports, 3, 4);
-    }
-
-    @Test
-    public void testGreaterThanEquals() {
-
-        // Checking FIELD_ELEVATION >= 14
-
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/database_basic.xml"));
-        JetwayTesting.initializeJetway();
-
-        Query query = Query.whereGreaterThanEquals(Airport.class, Airport.FIELD_ELEVATION, 14);
-        Airport[] airports = Airport.selectAll(query);
-        AirportAssertions.assertAirports(airports, validationAirports, 2, 3, 4);
-    }
-
-    @Test
-    public void testLessThan() {
-
-        // Checking FIELD_ELEVATION < 14
-
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/database_basic.xml"));
-        JetwayTesting.initializeJetway();
-
-        Query query = Query.whereLessThan(Airport.class, Airport.FIELD_ELEVATION, 14);
-        Airport[] airports = Airport.selectAll(query);
-        AirportAssertions.assertAirports(airports, validationAirports, 0, 1);
-    }
-
-    @Test
-    public void testLessThanEquals() {
-
-        // Checking FIELD_ELEVATION <= 14
-
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/database_basic.xml"));
-        JetwayTesting.initializeJetway();
-
-        Query query = Query.whereLessThanEquals(Airport.class, Airport.FIELD_ELEVATION, 14);
-        Airport[] airports = Airport.selectAll(query);
-        AirportAssertions.assertAirports(airports, validationAirports, 0, 1, 2);
-    }
-
-    @Test
-    public void testLike() {
-
-        // Checking NAME LIKE "%INTL"
-
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/database_basic.xml"));
-        JetwayTesting.initializeJetway();
-
-        Query query = Query.whereLike(Airport.class, Airport.NAME, "%INTL");
-        Airport[] airports = Airport.selectAll(query);
-        AirportAssertions.assertAirports(airports, validationAirports, 0, 3);
-    }
-
-    @Test
-    public void testAnd() {
-
-        // Check FIELD_ELEVATION > 12 AND LATITUDE < 50
-
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/database_basic.xml"));
-        JetwayTesting.initializeJetway();
-
-        Query firstQuery = Query.whereGreaterThan(Airport.class, Airport.FIELD_ELEVATION, 12);
-        Query secondQuery = Query.whereLessThan(Airport.class, Airport.LATITUDE, 50);
-
-        // Check "and" on first
-        Query query = firstQuery.and(secondQuery);
-        Airport[] airports = Airport.selectAll(query);
-        AirportAssertions.assertAirports(airports, validationAirports, 2, 3);
-
-        // Check "and" on second (other way round)
-        query = secondQuery.and(firstQuery);
-        airports = Airport.selectAll(query);
-        AirportAssertions.assertAirports(airports, validationAirports, 2, 3);
-    }
-
-    @Test
-    public void testOr() {
-
-        // Check FIELD_ELEVATION < 12 OR LATITUDE > 46
-
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/database_basic.xml"));
-        JetwayTesting.initializeJetway();
-
-        Query firstQuery = Query.whereLessThan(Airport.class, Airport.FIELD_ELEVATION, 12);
-        Query secondQuery = Query.whereGreaterThan(Airport.class, Airport.LATITUDE, 46);
-
-        // Check "or" on first
-        Query query = firstQuery.or(secondQuery);
-        Airport[] airports = Airport.selectAll(query);
-        AirportAssertions.assertAirports(airports, validationAirports, 0, 3, 4);
-
-        // Check "or" on second (other way round)
-        query = secondQuery.or(firstQuery);
-        airports = Airport.selectAll(query);
-        AirportAssertions.assertAirports(airports, validationAirports, 0, 3, 4);
-    }
-
-    @Test
-    public void testAndAnd() {
-
-        // Check (FIELD_ELEVATION >= 12 AND LATITUDE < 50) AND LONGITUDE > -170
-
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/database_basic.xml"));
-        JetwayTesting.initializeJetway();
-
-        Query firstQuery = Query.whereGreaterThanEquals(Airport.class, Airport.FIELD_ELEVATION, 12);
-        Query secondQuery = Query.whereLessThan(Airport.class, Airport.LATITUDE, 50);
-        Query thirdQuery = Query.whereGreaterThan(Airport.class, Airport.LONGITUDE, -170);
-
-        Query andQuery = firstQuery.and(secondQuery);
-        Query query = andQuery.and(thirdQuery);
-        Airport[] airports = Airport.selectAll(query);
-        AirportAssertions.assertAirports(airports, validationAirports, 1, 2);
-    }
-
-    @Test
-    public void testAndOr() {
-
-        // Check (FIELD_ELEVATION > 12 AND LATITUDE < 50) OR LONGITUDE > -160
-
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/database_basic.xml"));
-        JetwayTesting.initializeJetway();
-
-        Query firstQuery = Query.whereGreaterThan(Airport.class, Airport.FIELD_ELEVATION, 12);
-        Query secondQuery = Query.whereLessThan(Airport.class, Airport.LATITUDE, 50);
-        Query thirdQuery = Query.whereGreaterThan(Airport.class, Airport.LONGITUDE, -160);
-
-        Query andQuery = firstQuery.and(secondQuery);
-        Query query = andQuery.or(thirdQuery);
-        Airport[] airports = Airport.selectAll(query);
-        AirportAssertions.assertAirports(airports, validationAirports, 0, 2, 3);
-    }
-
-    @Test
-    public void testOrAnd() {
-
-        // Check (FIELD_ELEVATION < 12 OR LATITUDE > 44) AND SERVED_CITY = "FIRST CITY"
-
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/database_basic.xml"));
-        JetwayTesting.initializeJetway();
-
-        Query firstQuery = Query.whereLessThan(Airport.class, Airport.FIELD_ELEVATION, 12);
-        Query secondQuery = Query.whereGreaterThan(Airport.class, Airport.LATITUDE, 44);
-        Query thirdQuery = Query.whereEquals(Airport.class, Airport.SERVED_CITY, "FIRST CITY");
-
-        Query orQuery = firstQuery.or(secondQuery);
-        Query query = orQuery.and(thirdQuery);
-        Airport[] airports = Airport.selectAll(query);
-        AirportAssertions.assertAirports(airports, validationAirports, 0, 2);
-    }
-
-    @Test
-    public void testOrOr() {
-
-        // Check (FIELD_ELEVATION < 12 OR LATITUDE > 48) OR SERVED_CITY = "FIRST CITY"
-
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/database_basic.xml"));
-        JetwayTesting.initializeJetway();
-
-        Query firstQuery = Query.whereLessThan(Airport.class, Airport.FIELD_ELEVATION, 12);
-        Query secondQuery = Query.whereGreaterThan(Airport.class, Airport.LATITUDE, 48);
-        Query thirdQuery = Query.whereEquals(Airport.class, Airport.SERVED_CITY, "FIRST CITY");
-
-        Query orQuery = firstQuery.or(secondQuery);
-        Query query = orQuery.or(thirdQuery);
-        Airport[] airports = Airport.selectAll(query);
-        AirportAssertions.assertAirports(airports, validationAirports, 0, 2, 4);
     }
 }

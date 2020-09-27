@@ -36,7 +36,7 @@ public class CLI {
     public static class Options {
 
         private static File nasrFile = null;
-        private static boolean drop = false;
+        private static boolean rebuild = false;
 
         /**
          * This method retrieves the location of the NASR ZIP file.
@@ -50,19 +50,27 @@ public class CLI {
 
         /**
          * This method checks if the command-line options indicate
-         * that the database should be dropped before AIXM data
-         * is loaded.
+         * that the database should be rebuild from AIXM data.
          *
-         * @return {@code true} if the database should be dropped,
+         * @return {@code true} if the database should be rebuilt,
          * {@code false} otherwise
          */
-        public static boolean shouldDrop() {
+        public static boolean isRebuildRequired() {
 
-            return drop;
+            return rebuild;
+        }
+
+        /**
+         * This method resets CLI options to their default values.
+         */
+        public static void reset() {
+
+            nasrFile = null;
+            rebuild = false;
         }
     }
 
-    private static final List<String> AVAILABLE_OPTIONS = Arrays.asList("--server", "-s", "--user", "-u", "--password", "-p", "--aixm", "-a", "--drop", "-d");
+    private static final List<String> AVAILABLE_OPTIONS = Arrays.asList("--server", "-s", "--user", "-u", "--password", "-p", "--aixm", "-a", "--rebuild", "-r");
 
     /**
      * This method parses command-line options from the
@@ -72,8 +80,8 @@ public class CLI {
      * <p>
      * Further available command-line options are:<br>
      * - {@code --aixm}/{@code -a}: this option defines the location of the NASR AIXM ZIP file<br>
-     * - {@code --drop}/{@code -d}: this option indicates that the Jetway database should be dropped before
-     * loading AIXM data<br>
+     * - {@code --rebuild}/{@code -r}: this option indicates that the Jetway database should be rebuilt
+     * from source AIXM data<br>
      * - {@code --server}/{@code -s}: this option defines the database server to use<br>
      * - {@code --user}/{@code -u}: this option defines the database username<br>
      * - {@code --password}/{@code -p}: this option defines the database password<br>
@@ -122,9 +130,9 @@ public class CLI {
                         Options.nasrFile = new File(getOrPrompt(args, i, "NASR AIXM File", false));
                         break;
 
-                    case "--drop":
-                    case "-d":
-                        Options.drop = true;
+                    case "--rebuild":
+                    case "-r":
+                        Options.rebuild = true;
                         break;
                 }
             }
@@ -167,13 +175,13 @@ public class CLI {
     private static void printCLIFormat() {
 
         // Print format information for Jetway command-line arguments
-        System.err.println("Argument format: [db-manager] [--aixm/-a path] ([--server/-s server] [--user/-u username] [--password/-p password] [--drop/-d])");
+        System.err.println("Argument format: [db-manager] [--aixm/-a path] ([--server/-s server] [--user/-u username] [--password/-p password] [--rebuild/-r])");
         System.err.println("Descriptions:");
         System.err.println("\tdb-manager: The identifier for the database manager Jetway should use");
         System.err.println("\tpath: The path to the NASR AIXM ZIP file");
         System.err.println("\tserver: The server address for the database (Optional)");
         System.err.println("\tusername: The username for the database (Optional)");
         System.err.println("\tpassword: The password for the database (Optional)");
-        System.err.println("\tThe --drop/-d option tells Jetway to drop all database tables prior to loading any data.");
+        System.err.println("\tThe --rebuild/-r option tells Jetway to rebuild all database tables from source AIXM data.");
     }
 }

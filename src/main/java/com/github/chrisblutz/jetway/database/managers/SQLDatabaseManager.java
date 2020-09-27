@@ -202,23 +202,27 @@ public abstract class SQLDatabaseManager extends DatabaseManager {
     @Override
     public boolean setJetwayVersion(String version) {
 
-        // Drop the version table if it exists
-        JetwayLog.getDatabaseLogger().info("Dropping Jetway version table if it exists...");
-        String dropQuery = "DROP TABLE IF EXISTS " + VERSION_TABLE + ";";
-        boolean drop = execute(dropQuery);
-
-        // Recreate the jetway_version table
+        // Create the jetway_version table if it doesn't exist
         JetwayLog.getDatabaseLogger().info("Recreating Jetway version table with '" + VERSION_COLUMN + "' column...");
         String createQuery = "CREATE TABLE IF NOT EXISTS " + VERSION_TABLE + " (\n\t" + VERSION_COLUMN +
                 " VARCHAR(50) NOT NULL,\n\tPRIMARY KEY(" + VERSION_COLUMN + "));";
         boolean create = execute(createQuery);
 
         // Insert current version into jetway_version table
-        JetwayLog.getDatabaseLogger().info("Storing Jetway version in database...");
+        JetwayLog.getDatabaseLogger().info("Inserting Jetway version into table '" + VERSION_TABLE + "'...");
         String insertQuery = format("INSERT INTO " + VERSION_TABLE + " VALUES ({0});", formatAsSQLType(DatabaseType.STRING, version));
         boolean insert = execute(insertQuery);
 
-        return drop && create && insert;
+        return create && insert;
+    }
+
+    @Override
+    public boolean dropVersionTable() {
+
+        // Drop the version table if it exists
+        JetwayLog.getDatabaseLogger().info("Dropping Jetway version table if it exists...");
+        String dropQuery = "DROP TABLE IF EXISTS " + VERSION_TABLE + ";";
+        return execute(dropQuery);
     }
 
     @Override

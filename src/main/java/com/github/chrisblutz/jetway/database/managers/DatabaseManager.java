@@ -108,7 +108,7 @@ public abstract class DatabaseManager {
      * This method retrieves the Jetway version stored in the database.
      * <p>
      * This value is used to determine if Jetway versions have changed,
-     * and if any tables need to be dropped before data can be loaded.
+     * and if the database needs to be rebuilt from source data.
      * <p>
      * If no version is stored, return {@code null}.
      *
@@ -127,6 +127,13 @@ public abstract class DatabaseManager {
      * @return {@code true} if the operation succeeded, {@code false} otherwise
      */
     public abstract boolean setJetwayVersion(String version);
+
+    /**
+     * This method drops the Jetway version table from the database.
+     *
+     * @return {@code true} if the operation succeeded, {@code false} otherwise
+     */
+    public abstract boolean dropVersionTable();
 
     /**
      * This method builds a table in the database as defined

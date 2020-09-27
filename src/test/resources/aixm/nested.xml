@@ -136,4 +136,62 @@
             </aixm:timeSlice>
         </aixm:RunwayDirection>
     </faa:Member>
+    <faa:Member>
+        <aixm:Runway gml:id="RWY_RECIPROCAL_END_0000001_1">
+            <aixm:timeSlice>
+                <aixm:RunwayTimeSlice gml:id="RUNWAY_RECIPROCAL_END_TS_0000001_1">
+                    <gml:validTime>
+                        <gml:TimePeriod gml:id="RUNWAY_RECIPROCAL_END_TP_0000001_1">
+                            <gml:beginPosition>2020-08-13T00:00:00.000-04:00</gml:beginPosition>
+                            <gml:endPosition indeterminatePosition="unknown"/>
+                        </gml:TimePeriod>
+                    </gml:validTime>
+                    <aixm:interpretation>BASELINE</aixm:interpretation>
+                    <aixm:designator>23</aixm:designator>
+                    <aixm:associatedAirportHeliport
+                            xlink:href="#/faa:SubscriberFile/faa:Member/aixm:AirportHeliport%5B@gml:id='AH_0000001'%5D"/>
+                    <aixm:extension>
+                        <apt:RunwayExtension gml:id="RUNWAY_RECIPROCAL_END_EXTENSION_0000001_1">
+                            <apt:controllingObjectDescription>HILL</apt:controllingObjectDescription>
+                            <apt:faaCfrPart77RunwayCategory>B(V)</apt:faaCfrPart77RunwayCategory>
+                            <apt:controllingObjectClearanceSlope>10</apt:controllingObjectClearanceSlope>
+                        </apt:RunwayExtension>
+                    </aixm:extension>
+                </aixm:RunwayTimeSlice>
+            </aixm:timeSlice>
+        </aixm:Runway>
+    </faa:Member>
+    <faa:Member>
+        <aixm:RunwayDirection gml:id="RWY_DIRECTION_RECIPROCAL_END_0000001_1">
+            <aixm:timeSlice>
+                <aixm:RunwayDirectionTimeSlice gml:id="RWY_DIRECTION_RECIPROCAL_TS_0000001_1">
+                    <gml:validTime>
+                        <gml:TimePeriod gml:id="RWY_DIRECTION_RECIPROCAL_TP_0000001_1">
+                            <gml:beginPosition>2020-08-13T00:00:00.000-04:00</gml:beginPosition>
+                            <gml:endPosition indeterminatePosition="unknown"/>
+                        </gml:TimePeriod>
+                    </gml:validTime>
+                    <aixm:interpretation>BASELINE</aixm:interpretation>
+                    <aixm:elevationTDZ uom="FT">19.5</aixm:elevationTDZ>
+                    <aixm:usedRunway
+                            xlink:href="#/faa:SubscriberFile/faa:Member/aixm:RUNWAY%5B@gml:id='RWY_RECIPROCAL_END_0000001_1'%5D"/>
+                    <aixm:extension>
+                        <apt:RunwayDirectionExtension gml:id="RUNWAY_DIRECTION_RECIPROCAL_END_EXTENSION_0000001_1">
+                            <apt:runwayCenterLnLightsAvailability>NO</apt:runwayCenterLnLightsAvailability>
+                            <apt:runwayEndTDLightsAvailability>NO</apt:runwayEndTDLightsAvailability>
+                            <apt:takeoffRun uom="FT">7790</apt:takeoffRun>
+                            <apt:takeoffDistance uom="FT">7790</apt:takeoffDistance>
+                            <apt:acltStopDistance uom="FT">6790</apt:acltStopDistance>
+                            <apt:landingDistance uom="FT">6190</apt:landingDistance>
+                            <apt:ElevatedPoint gml:id="RUNWAY_DIRECTION_RECIPROCAL_END_ELEVATED_POINT_0000001_1"
+                                               srsName="urn:ogc:def:crs:OGC:1.3:CRS83">
+                                <gml:pos>-170.3211 50.9765</gml:pos>
+                                <aixm:elevation uom="FT">19.5</aixm:elevation>
+                            </apt:ElevatedPoint>
+                        </apt:RunwayDirectionExtension>
+                    </aixm:extension>
+                </aixm:RunwayDirectionTimeSlice>
+            </aixm:timeSlice>
+        </aixm:RunwayDirection>
+    </faa:Member>
 </faa:SubscriberFile>

@@ -23,6 +23,7 @@ import com.github.chrisblutz.jetway.conversion.DataConversion;
 import com.github.chrisblutz.jetway.conversion.DefaultConverters;
 import com.github.chrisblutz.jetway.database.Database;
 import com.github.chrisblutz.jetway.database.SchemaManager;
+import com.github.chrisblutz.jetway.database.utils.DatabaseVerification;
 import com.github.chrisblutz.jetway.features.*;
 
 /**
@@ -63,9 +64,11 @@ public class Jetway {
         // Parse arguments and continue if all arguments are loaded correctly
         if (CLI.parse(args)) {
 
-            Database.buildAllTables();
+            // Initialize the database, and if necessary, rebuild the tables from source AIXM data
+            boolean rebuild = Database.initializeDatabase();
 
-            AIXM.load();
+            if (rebuild)
+                AIXM.load();
         }
     }
 
@@ -74,10 +77,12 @@ public class Jetway {
      */
     public static void reset() {
 
+        CLI.Options.reset();
         AIXMFeatureManager.reset();
         AIXMFiles.reset();
         SchemaManager.reset();
         Database.reset();
         DataConversion.reset();
+        DatabaseVerification.reset();
     }
 }

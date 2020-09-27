@@ -36,7 +36,7 @@ import com.github.chrisblutz.jetway.database.queries.Sort;
 @DatabaseTable("Airports")
 @AIXMRoot("APT_AIXM")
 @AIXMFeature(name = "AirportHeliport", id = "AH")
-public class Airport {
+public class Airport implements Feature {
 
     public static final String ID = "id";
     public static final String NAME = "Name";
@@ -139,6 +139,12 @@ public class Airport {
     @DatabaseColumn(name = NUMBER_OF_ULTRALIGHT_AIRCRAFT, type = DatabaseType.INTEGER)
     @AIXMAttribute("Extension/NumberOfUltralightAircraft")
     public Integer numberOfUltralightAircraft;
+
+    @Override
+    public String getId() {
+
+        return id;
+    }
 
     @Override
     public String toString() {

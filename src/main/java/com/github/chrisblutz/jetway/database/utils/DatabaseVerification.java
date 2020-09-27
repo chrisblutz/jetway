@@ -18,7 +18,7 @@ package com.github.chrisblutz.jetway.database.utils;
 /**
  * This class provides information about Jetway versioning
  * and database versioning, which helps determine whether
- * database dropping is required due to updates and
+ * database rebuilds are required due to updates and
  * incompatibilities.
  *
  * @author Christopher Lutz
@@ -31,14 +31,14 @@ public class DatabaseVerification {
     /**
      * This method determines whether the Jetway version
      * stored in the database differs from the current version.
-     * If it does, all database tables must be dropped before
-     * they can be filled.
+     * If it does, all database tables must be rebuilt
+     * from source AIXM data.
      *
      * @param databaseVersion the Jetway version as reported by
      *                        the database.  This can be {@code null}
      * @return {@code true} if the versions do not match, {@code false} if they do
      */
-    public static boolean isDropRequired(String databaseVersion) {
+    public static boolean isRebuildRequired(String databaseVersion) {
 
         if (databaseVersion == null)
             return true;
@@ -62,8 +62,26 @@ public class DatabaseVerification {
 
                 currentJetwayVersion = p.getImplementationVersion();
             }
+
+            // If retrieved version is null, check for the testing system
+            // property that forces the version.
+            // Use of this property in normal execution is not recommended,
+            // and it is present solely for unit testing.
+            if (currentJetwayVersion == null) {
+
+                currentJetwayVersion = System.getProperty("FORCE_JETWAY_VERSION");
+            }
         }
 
         return currentJetwayVersion;
+    }
+
+    /**
+     * This method resets currently-loaded version information.
+     */
+    public static void reset() {
+
+        isVersionLoaded = false;
+        currentJetwayVersion = null;
     }
 }

@@ -35,7 +35,7 @@ import com.github.chrisblutz.jetway.database.queries.Sort;
  */
 @DatabaseTable("Runways")
 @AIXMFeature(name = "Runway", id = "RWY", parent = Airport.class)
-public class Runway {
+public class Runway implements NestedFeature {
 
     public static final String ID = "id";
     public static final String AIRPORT_ID = "airportId";
@@ -64,6 +64,18 @@ public class Runway {
     @DatabaseColumn(name = WIDTH, type = DatabaseType.DOUBLE)
     @AIXMAttribute("Feature/WidthStrip")
     public Double width;
+
+    @Override
+    public String getId() {
+
+        return id;
+    }
+
+    @Override
+    public String getParentId() {
+
+        return airportId;
+    }
 
     @Override
     public String toString() {

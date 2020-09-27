@@ -34,7 +34,7 @@ import com.github.chrisblutz.jetway.database.queries.Sort;
  */
 @DatabaseTable("RunwayDirections")
 @AIXMFeature(name = "RunwayDirection", id = "(RWY_DIRECTION_BASE_END|RWY_DIRECTION_RECIPROCAL_END)", parent = RunwayEnd.class)
-public class RunwayDirection {
+public class RunwayDirection implements NestedFeature {
 
     public static final String ID = "id";
     public static final String RUNWAY_END_ID = "runwayEndId";
@@ -56,6 +56,18 @@ public class RunwayDirection {
     @DatabaseColumn(name = LONGITUDE, type = DatabaseType.DOUBLE)
     @AIXMAttribute("Extension/ElevatedPoint/Position/ListValue[0]")
     public Double longitude;
+
+    @Override
+    public String getId() {
+
+        return id;
+    }
+
+    @Override
+    public String getParentId() {
+
+        return runwayEndId;
+    }
 
     @Override
     public String toString() {

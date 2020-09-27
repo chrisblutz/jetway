@@ -86,42 +86,53 @@ public class Database {
     }
 
     /**
-     * This method triggers the database manager to build
-     * all tables based on currently registered {@link SchemaTable}
-     * instances.
+     * This method initializes the connection to the database, creates the
+     * Jetway database if required, and then drops or creates any tables
+     * as necessary.  It also handles version-checking between Jetway
+     * and the Jetway database to check if a rebuild is required due
+     * to updates or version incompatibility.
+     * <p>
+     * The return value from this method indicates if a full rebuild
+     * of the tables from the source AIXM data is required.
+     *
+     * @return {@code true} if a full AIXM rebuild is necessary, {@code false} otherwise
      */
-    public static void buildAllTables() {
+    public static boolean initializeDatabase() {
 
         // Create Jetway database if it doesn't exist
         setupDatabase();
 
-        // Set database name and then reopen the connection
+        // Set the database manager to use the Jetway database schema, then open the connection
         getManager().setDatabaseName();
-        JetwayLog.getDatabaseLogger().info("Setting up connection to database...");
         if (getManager().setupConnection()) {
 
-            // Check if tables need to be dropped, and if so, drop them
-            checkForDrop();
+            // Check if rebuild of database tables is needed
+            if (isRebuildNeeded()) {
 
-            // Store Jetway version in the database
-            storeJetwayVersion();
+                // Drop all database tables (if they exist)
+                dropAllTables();
 
-            // Build all tables
-            JetwayLog.getDatabaseLogger().info("Building all tables...");
-            for (Class<?> featureClass : SchemaManager.getFeatures()) {
+                // Store the current Jetway version in the database
+                storeJetwayVersion();
 
-                SchemaTable table = SchemaManager.get(featureClass);
+                // Create all database tables
+                buildAllTables();
 
-                JetwayLog.getDatabaseLogger().info("Building table '" + table.getTableName() + "'...");
+                // AIXM rebuild required
+                return true;
 
-                if (!getManager().buildTable(table))
-                    JetwayLog.getDatabaseLogger().warn("Table '" + table.getTableName() + "' could not be built.");
+            } else {
+
+                JetwayLog.getDatabaseLogger().info("Database version matches Jetway version, no database rebuild required.");
             }
 
         } else {
 
             JetwayLog.getDatabaseLogger().warn("Database connection failed.");
         }
+
+        // AIXM rebuild not required (or database setup failed)
+        return false;
     }
 
     private static void setupDatabase() {
@@ -150,6 +161,56 @@ public class Database {
         }
     }
 
+    private static boolean isRebuildNeeded() {
+
+        // Check if --rebuild/-r CLI option is present
+        boolean drop = CLI.Options.isRebuildRequired();
+        if (drop)
+            JetwayLog.getDatabaseLogger().info("Command-line --rebuild/-r option present, rebuilding...");
+
+        // If CLI option was not present, check for version mismatch
+        if (!drop) {
+            boolean shouldDrop = DatabaseVerification.isRebuildRequired(getManager().getJetwayVersion());
+            if (shouldDrop)
+                JetwayLog.getDatabaseLogger().info("Mismatch of Jetway and database versions, rebuilding...");
+
+            drop = shouldDrop;
+        }
+
+        return drop;
+    }
+
+    private static void dropAllTables() {
+
+        // Set database manager to drop tables in bulk
+        JetwayLog.getDatabaseLogger().info("Setting up database to drop tables...");
+        if (getManager().setForDrops(true)) {
+
+            // Drop Jetway version table
+            if (!getManager().dropVersionTable())
+                JetwayLog.getDatabaseLogger().warn("Failed to drop Jetway version table.");
+
+            // Drop all feature tables
+            for (Class<?> featureClass : SchemaManager.getFeatures()) {
+
+                SchemaTable table = SchemaManager.get(featureClass);
+                JetwayLog.getDatabaseLogger().info("Dropping table '" + table.getTableName() + "'...");
+
+                if (!getManager().dropTable(table))
+                    JetwayLog.getDatabaseLogger().warn("Table '" + table.getTableName() + "' was not dropped.");
+            }
+
+            // Reset database manager after dropping tables in bulk
+            JetwayLog.getDatabaseLogger().info("Resetting database after dropping tables...");
+            if (!getManager().setForDrops(false))
+                JetwayLog.getDatabaseLogger().warn("Failed to reset database after dropping tables.");
+
+        } else {
+
+            JetwayLog.getDatabaseLogger().warn("Failed to set database up to drop tables.");
+        }
+    }
+
     private static void storeJetwayVersion() {
 
         // Store the current Jetway version in the database
@@ -161,48 +222,17 @@ public class Database {
         }
     }
 
-    private static void checkForDrop() {
+    private static void buildAllTables() {
 
-        // Check if --drop/-d CLI option is present
-        boolean drop = CLI.Options.shouldDrop();
-        if (drop)
-            JetwayLog.getDatabaseLogger().info("Command-line --drop/-d option present, dropping all tables...");
+        JetwayLog.getDatabaseLogger().info("Building all tables...");
+        for (Class<?> featureClass : SchemaManager.getFeatures()) {
 
-        // If CLI option was not present, check for version mismatch
-        if (!drop) {
-            boolean shouldDrop = DatabaseVerification.isDropRequired(getManager().getJetwayVersion());
-            if (shouldDrop)
-                JetwayLog.getDatabaseLogger().info("Mismatch of Jetway and database versions, dropping all tables...");
+            SchemaTable table = SchemaManager.get(featureClass);
 
-            drop = shouldDrop;
-        }
+            JetwayLog.getDatabaseLogger().info("Building table '" + table.getTableName() + "'...");
 
-        // If necessary, tell DB manager to set up for drop, then drop all tables
-        if (drop) {
-
-            // Set database manager to drop tables in bulk
-            JetwayLog.getDatabaseLogger().info("Setting up database to drop tables...");
-            if (getManager().setForDrops(true)) {
-
-                // Drop all tables
-                for (Class<?> featureClass : SchemaManager.getFeatures()) {
-
-                    SchemaTable table = SchemaManager.get(featureClass);
-                    JetwayLog.getDatabaseLogger().info("Dropping table '" + table.getTableName() + "'...");
-
-                    if (!getManager().dropTable(table))
-                        JetwayLog.getDatabaseLogger().warn("Table '" + table.getTableName() + "' was not dropped.");
-                }
-
-                // Reset database manager after dropping tables in bulk
-                JetwayLog.getDatabaseLogger().info("Resetting database after dropping tables...");
-                if (!getManager().setForDrops(false))
-                    JetwayLog.getDatabaseLogger().warn("Failed to reset database after dropping tables.");
-
-            } else {
-
-                JetwayLog.getDatabaseLogger().warn("Failed to set database up to drop tables.");
-            }
+            if (!getManager().buildTable(table))
+                JetwayLog.getDatabaseLogger().warn("Table '" + table.getTableName() + "' could not be built.");
         }
     }
 

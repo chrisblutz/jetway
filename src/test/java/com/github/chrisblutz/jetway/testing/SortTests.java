@@ -21,7 +21,7 @@ import com.github.chrisblutz.jetway.database.queries.Query;
 import com.github.chrisblutz.jetway.database.queries.Sort;
 import com.github.chrisblutz.jetway.features.Airport;
 import com.github.chrisblutz.jetway.logging.JetwayLog;
-import com.github.chrisblutz.jetway.testing.utils.AirportAssertions;
+import com.github.chrisblutz.jetway.testing.utils.JetwayAssertions;
 import com.github.chrisblutz.jetway.testing.utils.JetwayTesting;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -103,7 +103,7 @@ public class SortTests {
         JetwayTesting.initializeJetway();
 
         Airport[] airports = Airport.selectAll(null);
-        AirportAssertions.assertAirports(airports, validationAirports, 0, 1, 2, 3, 4);
+        JetwayAssertions.assertFeatures(airports, validationAirports, 0, 1, 2, 3, 4);
     }
 
     @Test
@@ -116,13 +116,13 @@ public class SortTests {
 
         Sort sort = Sort.by(Airport.class, Airport.NAME, Sort.Order.ASCENDING);
         Airport[] airports = Airport.selectAll(null, sort);
-        AirportAssertions.assertAirportsOrdered(airports, validationAirports, 1, 0, 2, 4, 3);
+        JetwayAssertions.assertFeaturesOrdered(airports, validationAirports, 1, 0, 2, 4, 3);
 
         // Sorting by NAME descending
 
         sort = Sort.by(Airport.class, Airport.NAME, Sort.Order.DESCENDING);
         airports = Airport.selectAll(null, sort);
-        AirportAssertions.assertAirportsOrdered(airports, validationAirports, 3, 4, 2, 0, 1);
+        JetwayAssertions.assertFeaturesOrdered(airports, validationAirports, 3, 4, 2, 0, 1);
     }
 
     @Test
@@ -135,13 +135,13 @@ public class SortTests {
 
         Sort sort = Sort.by(Airport.class, Airport.LATITUDE, Sort.Order.ASCENDING);
         Airport[] airports = Airport.selectAll(null, sort);
-        AirportAssertions.assertAirportsOrdered(airports, validationAirports, 2, 1, 4, 3, 0);
+        JetwayAssertions.assertFeaturesOrdered(airports, validationAirports, 2, 1, 4, 3, 0);
 
         // Sorting by LATITUDE descending
 
         sort = Sort.by(Airport.class, Airport.LATITUDE, Sort.Order.DESCENDING);
         airports = Airport.selectAll(null, sort);
-        AirportAssertions.assertAirportsOrdered(airports, validationAirports, 0, 3, 4, 1, 2);
+        JetwayAssertions.assertFeaturesOrdered(airports, validationAirports, 0, 3, 4, 1, 2);
     }
 
     @Test
@@ -157,13 +157,13 @@ public class SortTests {
 
         Sort sort = Sort.by(Airport.class, Airport.NAME, Sort.Order.ASCENDING);
         Airport[] airports = Airport.selectAll(query, sort);
-        AirportAssertions.assertAirportsOrdered(airports, validationAirports, 1, 2, 4, 3);
+        JetwayAssertions.assertFeaturesOrdered(airports, validationAirports, 1, 2, 4, 3);
 
         // Sorting by NAME descending where FIELD_ELEVATION > 10
 
         sort = Sort.by(Airport.class, Airport.NAME, Sort.Order.DESCENDING);
         airports = Airport.selectAll(query, sort);
-        AirportAssertions.assertAirportsOrdered(airports, validationAirports, 3, 4, 2, 1);
+        JetwayAssertions.assertFeaturesOrdered(airports, validationAirports, 3, 4, 2, 1);
     }
 
     @Test
@@ -178,12 +178,12 @@ public class SortTests {
 
         Sort sort = Sort.by(Airport.class, Airport.LATITUDE, Sort.Order.ASCENDING);
         Airport[] airports = Airport.selectAll(query, sort);
-        AirportAssertions.assertAirportsOrdered(airports, validationAirports, 2, 1, 3, 0);
+        JetwayAssertions.assertFeaturesOrdered(airports, validationAirports, 2, 1, 3, 0);
 
         // Sorting by LATITUDE descending where FIELD_ELEVATION <= 16
 
         sort = Sort.by(Airport.class, Airport.LATITUDE, Sort.Order.DESCENDING);
         airports = Airport.selectAll(query, sort);
-        AirportAssertions.assertAirportsOrdered(airports, validationAirports, 0, 3, 1, 2);
+        JetwayAssertions.assertFeaturesOrdered(airports, validationAirports, 0, 3, 1, 2);
     }
 }
