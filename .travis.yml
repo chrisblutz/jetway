@@ -6,13 +6,16 @@ env:
     - TEST_SERVER=127.0.0.1
     - TEST_USER=root
     - TEST_PASSWORD=
-jdk:
-  - oraclejdk11
-  - openjdk8
-  - openjdk10
-  - openjdk11
 jobs:
   include:
+    - name: Java 8 (OpenJDK)
+      jdk: openjdk8
+    - name: Java 10 (OpenJDK)
+      jdk: openjdk10
+    - name: Java 11 (OpenJDK)
+      jdk: openjdk11
+    - name: Java 11 (Oracle)
+      jdk: oraclejdk11
     - name: Coverage Reporter
       jdk: openjdk8
       env: JACOCO_SOURCE_PATH=./src/main/java
@@ -21,7 +24,7 @@ jobs:
         - chmod +x ./cc-test-reporter
         - ./cc-test-reporter before-build
       after_script:
-        - ./cc-test-reporter format-coverage ./build/reports/jacoco/test/jacocoTestReport.xml
+        - ./cc-test-reporter format-coverage -t jacoco ./build/reports/jacoco/test/jacocoTestReport.xml
         - ./cc-test-reporter upload-coverage
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
