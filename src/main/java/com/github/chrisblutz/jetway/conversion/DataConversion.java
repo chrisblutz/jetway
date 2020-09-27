@@ -44,13 +44,21 @@ public class DataConversion {
         if (converterMap.containsKey(typeClass)) {
             Converter<?> converter = converterMap.get(typeClass);
 
-            // Make sure that the object is of an accepted type
-            for (Class<?> accepted : converter.getAcceptedTypes()) {
-                if (accepted.isInstance(data)) {
+            return getFromConverter(converter, data);
+        }
 
-                    // Convert the data
-                    return converter.convert(data);
-                }
+        // If no converter was found, return null
+        return null;
+    }
+
+    private static Object getFromConverter(Converter<?> converter, Object data) {
+
+        // Make sure that the object is of an accepted type
+        for (Class<?> accepted : converter.getAcceptedTypes()) {
+            if (accepted.isInstance(data)) {
+
+                // Convert the data
+                return converter.convert(data);
             }
         }
 

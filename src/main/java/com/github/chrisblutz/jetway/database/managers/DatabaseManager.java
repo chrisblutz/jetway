@@ -235,19 +235,31 @@ public abstract class DatabaseManager {
 
         if (query instanceof MultiQuery) {
 
-            for (Query subQuery : ((MultiQuery) query).getQueries())
-                buildReferencedTablesSet(subQuery, tables);
+            MultiQuery multiQuery = (MultiQuery) query;
+            buildReferencedTablesFromSubQueries(multiQuery, tables);
 
         } else if (query instanceof SingleQuery) {
 
-            Class<?> feature = ((SingleQuery) query).getFeature();
-            SchemaTable table = SchemaManager.get(feature);
-            tables.add(table);
+            SingleQuery singleQuery = (SingleQuery) query;
+            buildReferencedTablesFromForeignKeys(singleQuery, tables);
+        }
+    }
 
-            while (table.hasForeignKey()) {
-                table = table.getForeignTable();
-                tables.add(table);
-            }
+    private void buildReferencedTablesFromSubQueries(MultiQuery multiQuery, Set<SchemaTable> tables) {
+
+        for (Query subQuery : multiQuery.getQueries())
+            buildReferencedTablesSet(subQuery, tables);
+    }
+
+    private void buildReferencedTablesFromForeignKeys(SingleQuery singleQuery, Set<SchemaTable> tables) {
+
+        Class<?> feature = singleQuery.getFeature();
+        SchemaTable table = SchemaManager.get(feature);
+        tables.add(table);
+
+        while (table.hasForeignKey()) {
+            table = table.getForeignTable();
+            tables.add(table);
         }
     }
 }

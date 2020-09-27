@@ -74,24 +74,34 @@ public class SchemaManager {
         if (table != null) {
 
             // Log basic table information
-            JetwayLog.getDatabaseLogger().info("Generated schema table for feature '" + featureClass.getSimpleName() + "' with name '" + table.getTableName() + "' and " + table.getAttributes().size() + " columns.");
+            logTableInformation(table, featureClass);
 
-            if (JetwayLog.getDatabaseLogger().isDebugEnabled()) {
-                JetwayLog.getDatabaseLogger().debug("Table information for '" + table.getTableName() + "':");
-                JetwayLog.getDatabaseLogger().debug("\tPrimary Key: " + (table.getPrimaryKey() != null ? table.getPrimaryKey() : "None"));
-                JetwayLog.getDatabaseLogger().debug("\tForeign Key: " + (table.getForeignKey() != null ? table.getForeignKey() : "None"));
-                JetwayLog.getDatabaseLogger().debug("\tColumns:");
-            }
-
-            for (String attribute : table.getAttributes()) {
-                Field f = table.getField(attribute);
-
-                if (JetwayLog.getDatabaseLogger().isDebugEnabled())
-                    JetwayLog.getDatabaseLogger().debug("\t\t" + attribute + ": \t" + table.getAttributeType(attribute).name() + ", based on field '" + f.getName() + "' of type " + f.getType().getSimpleName());
-            }
+            logAttributeInformation(table);
 
             featureList.add(featureClass);
             classToSchemaTableMap.put(featureClass, table);
+        }
+    }
+
+    private static void logTableInformation(SchemaTable table, Class<?> featureClass) {
+
+        JetwayLog.getDatabaseLogger().info("Generated schema table for feature '" + featureClass.getSimpleName() + "' with name '" + table.getTableName() + "' and " + table.getAttributes().size() + " columns.");
+
+        if (JetwayLog.getDatabaseLogger().isDebugEnabled()) {
+            JetwayLog.getDatabaseLogger().debug("Table information for '" + table.getTableName() + "':");
+            JetwayLog.getDatabaseLogger().debug("\tPrimary Key: " + (table.getPrimaryKey() != null ? table.getPrimaryKey() : "None"));
+            JetwayLog.getDatabaseLogger().debug("\tForeign Key: " + (table.getForeignKey() != null ? table.getForeignKey() : "None"));
+            JetwayLog.getDatabaseLogger().debug("\tColumns:");
+        }
+    }
+
+    private static void logAttributeInformation(SchemaTable table) {
+
+        for (String attribute : table.getAttributes()) {
+            Field f = table.getField(attribute);
+
+            if (JetwayLog.getDatabaseLogger().isDebugEnabled())
+                JetwayLog.getDatabaseLogger().debug("\t\t" + attribute + ": \t" + table.getAttributeType(attribute).name() + ", based on field '" + f.getName() + "' of type " + f.getType().getSimpleName());
         }
     }
 

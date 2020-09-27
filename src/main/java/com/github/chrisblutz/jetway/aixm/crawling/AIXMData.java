@@ -126,22 +126,7 @@ public class AIXMData {
                 index = Integer.parseInt(matcher.group(2));
             }
 
-            // Invoke next path method, and return null data instance if that path is invalid or null
-            Object newData = data.getClass().getMethod("get" + path).invoke(data);
-            if (newData == null)
-                return AIXMNullData.getInstance();
-
-            AIXMData initialResult = new AIXMData(newData);
-
-            // If an index was given, return that element
-            if (index >= 0)
-                initialResult = initialResult.index(index);
-
-            // Perform the next crawl step if it exists
-            if (subsequentCrawl != null)
-                return initialResult.crawl(subsequentCrawl);
-
-            return initialResult;
+            return performCrawl(path, subsequentCrawl, index);
 
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
 
@@ -149,6 +134,26 @@ public class AIXMData {
             JetwayLog.getJetwayLogger().error(exception.getMessage(), exception);
             throw exception;
         }
+    }
+
+    private AIXMData performCrawl(String path, String subsequentCrawl, int index) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+
+        // Invoke next path method, and return null data instance if that path is invalid or null
+        Object newData = data.getClass().getMethod("get" + path).invoke(data);
+        if (newData == null)
+            return AIXMNullData.getInstance();
+
+        AIXMData initialResult = new AIXMData(newData);
+
+        // If an index was given, return that element
+        if (index >= 0)
+            initialResult = initialResult.index(index);
+
+        // Perform the next crawl step if it exists
+        if (subsequentCrawl != null)
+            return initialResult.crawl(subsequentCrawl);
+
+        return initialResult;
     }
 
     /**

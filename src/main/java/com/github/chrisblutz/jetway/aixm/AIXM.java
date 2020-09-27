@@ -104,26 +104,8 @@ public class AIXM {
 
             try {
 
-                AIXMIdentifiedFeature feature = identify(property, possibleEntries);
-
-                if (feature == null)
-                    continue;
-
-                AIXMInstance instance = convertToInstance(feature);
-
-                // Create instance of the identified feature and fill in fields
-                Object featureInstance = feature.getEntry().instantiate();
-                fillInData(feature, instance, featureInstance);
-
-                // Enter information into database
-                if (!Database.getManager().insertEntry(feature.getEntry().getSchemaTable(), featureInstance))
-                    JetwayLog.getDatabaseLogger().warn("Failed to insert entry into database.  Feature: " + feature.getEntry().getName() + ", ID: " + feature.getId());
-
-                // Update information for future children
-                feature.getEntry().updateCurrentID(feature.getId());
-
-                // Increment feature counter
-                totalCount++;
+                // Attempt to load current AIXM property as a feature
+                loadAIXMFeature(property, possibleEntries);
 
             } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
 
@@ -132,6 +114,31 @@ public class AIXM {
                 throw exception;
             }
         }
+    }
+
+    private static void loadAIXMFeature(SubscriberFileComponentPropertyType property, List<FeatureEntry> possibleEntries) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+
+        AIXMIdentifiedFeature feature = identify(property, possibleEntries);
+
+        // If feature is null, don't try to load it
+        if (feature == null)
+            return;
+
+        AIXMInstance instance = convertToInstance(feature);
+
+        // Create instance of the identified feature and fill in fields
+        Object featureInstance = feature.getEntry().instantiate();
+        fillInData(feature, instance, featureInstance);
+
+        // Enter information into database
+        if (!Database.getManager().insertEntry(feature.getEntry().getSchemaTable(), featureInstance))
+            JetwayLog.getDatabaseLogger().warn("Failed to insert entry into database.  Feature: " + feature.getEntry().getName() + ", ID: " + feature.getId());
+
+        // Update information for future children
+        feature.getEntry().updateCurrentID(feature.getId());
+
+        // Increment feature counter
+        totalCount++;
     }
 
     private static void fillInData(AIXMIdentifiedFeature feature, AIXMInstance instance, Object featureInstance) throws IllegalAccessException {
@@ -165,17 +172,29 @@ public class AIXM {
 
         for (FeatureEntry entry : possibleEntries) {
 
-            // Check for the correct tag name
-            Object value = property.getClass().getMethod("get" + entry.getName()).invoke(property);
-            if (value != null) {
-
-                // Extract ID and match it
-                String id = (String) value.getClass().getMethod("getId").invoke(value);
-                if (id.matches(entry.getId() + "_[0-9_]+"))
-                    return new AIXMIdentifiedFeature(id, value, entry);
-            }
+            // Attempt to load the property as the current feature entry type
+            AIXMIdentifiedFeature feature = identifyFeature(property, entry);
+            if (feature != null)
+                return feature;
         }
 
+        // If no features matched, return null
+        return null;
+    }
+
+    private static AIXMIdentifiedFeature identifyFeature(SubscriberFileComponentPropertyType property, FeatureEntry entry) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+
+        // Check for the correct tag name
+        Object value = property.getClass().getMethod("get" + entry.getName()).invoke(property);
+        if (value != null) {
+
+            // Extract ID and match it
+            String id = (String) value.getClass().getMethod("getId").invoke(value);
+            if (id.matches(entry.getId() + "_[0-9_]+"))
+                return new AIXMIdentifiedFeature(id, value, entry);
+        }
+
+        // If this feature did not match, return null
         return null;
     }
 }

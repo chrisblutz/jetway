@@ -105,40 +105,49 @@ public class CLI {
 
             if (args[i].startsWith("-")) {
 
-                switch (args[i]) {
-
-                    case "--server":
-                    case "-s":
-                        String server = getOrPrompt(args, i, "Database Server", false);
-                        Database.getManager().setServer(server);
-                        break;
-
-                    case "--user":
-                    case "-u":
-                        String user = getOrPrompt(args, i, "Database User", false);
-                        Database.getManager().setUser(user);
-                        break;
-
-                    case "--password":
-                    case "-p":
-                        String password = getOrPrompt(args, i, "Database Password", true);
-                        Database.getManager().setPassword(password);
-                        break;
-
-                    case "--aixm":
-                    case "-a":
-                        Options.nasrFile = new File(getOrPrompt(args, i, "NASR AIXM File", false));
-                        break;
-
-                    case "--rebuild":
-                    case "-r":
-                        Options.rebuild = true;
-                        break;
-                }
+                handleArgument(args, i);
             }
         }
 
-        // Check to make sure that NASR file path was provided and that it exists
+        return checkNASRFile();
+    }
+
+    private static void handleArgument(String[] args, int i) {
+
+        switch (args[i]) {
+
+            case "--server":
+            case "-s":
+                String server = getOrPrompt(args, i, "Database Server", false);
+                Database.getManager().setServer(server);
+                break;
+
+            case "--user":
+            case "-u":
+                String user = getOrPrompt(args, i, "Database User", false);
+                Database.getManager().setUser(user);
+                break;
+
+            case "--password":
+            case "-p":
+                String password = getOrPrompt(args, i, "Database Password", true);
+                Database.getManager().setPassword(password);
+                break;
+
+            case "--aixm":
+            case "-a":
+                Options.nasrFile = new File(getOrPrompt(args, i, "NASR AIXM File", false));
+                break;
+
+            case "--rebuild":
+            case "-r":
+                Options.rebuild = true;
+                break;
+        }
+    }
+
+    private static boolean checkNASRFile() {
+
         if (Options.getNASRFile() == null) {
 
             System.err.println("No NASR file path was provided.  Please include the --aixm/-a option.");

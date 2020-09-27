@@ -478,18 +478,35 @@ public abstract class SQLDatabaseManager extends DatabaseManager {
         List<String> parts = new ArrayList<>();
         for (Query query : queries) {
 
-            if (query instanceof AndQuery)
-                parts.add("(" + buildNestedQuery(((AndQuery) query).getQueries(), "AND") + ")");
-            else if (query instanceof OrQuery)
-                parts.add("(" + buildNestedQuery(((OrQuery) query).getQueries(), "OR") + ")");
-            else if (query instanceof SingleQuery)
-                parts.add(buildSingleQuery((SingleQuery) query));
-            else {
-                // Unrecognized query type
-                JetwayLog.getDatabaseLogger().warn("Invalid query type found: " + query.getClass().getName());
-            }
+            parts.add(buildNestedQueryComponent(query));
         }
         return String.join(" " + keyword + " ", parts);
+    }
+
+    private String buildNestedQueryComponent(Query query) {
+
+        String result = "";
+        if (query instanceof AndQuery) {
+
+            AndQuery andQuery = (AndQuery) query;
+            result = "(" + buildNestedQuery(andQuery.getQueries(), "AND") + ")";
+
+        } else if (query instanceof OrQuery) {
+
+            OrQuery orQuery = (OrQuery) query;
+            result = "(" + buildNestedQuery(orQuery.getQueries(), "OR") + ")";
+
+        } else if (query instanceof SingleQuery) {
+
+            SingleQuery singleQuery = (SingleQuery) query;
+            result = buildSingleQuery(singleQuery);
+
+        } else {
+            // Unrecognized query type
+            JetwayLog.getDatabaseLogger().warn("Invalid query type found: " + query.getClass().getName());
+        }
+
+        return result;
     }
 
     private String buildSingleQuery(SingleQuery query) {

@@ -128,28 +128,12 @@ public class FeatureMapping {
     private static void buildEntryFromField(Class<?> featureClass, Field field, FeatureMapping map) {
 
         // Check if this attribute is the ID attribute
-        if (field.isAnnotationPresent(AIXMId.class)) {
-            if (field.getType() != String.class) {
-                AIXMFeatureException exception = new AIXMFeatureException(featureClass, "ID field '" + field.getName() + "' must be of type String.");
-                JetwayLog.getJetwayLogger().error(exception.getMessage(), exception);
-                throw exception;
-            }
-
-            map.idField = field;
+        if (checkIDField(featureClass, field, map))
             return;
-        }
 
         // Check if this attribute is the parent attribute
-        if (field.isAnnotationPresent(AIXMParent.class)) {
-            if (field.getType() != String.class) {
-                AIXMFeatureException exception = new AIXMFeatureException(featureClass, "Parent ID field '" + field.getName() + "' must be of type String.");
-                JetwayLog.getJetwayLogger().error(exception.getMessage(), exception);
-                throw exception;
-            }
-
-            map.parentField = field;
+        if (checkParentIDField(featureClass, field, map))
             return;
-        }
 
         // Check that the field provided is actually an AIXM attribute
         if (!field.isAnnotationPresent(AIXMAttribute.class))
@@ -160,5 +144,37 @@ public class FeatureMapping {
         String path = attributeDetails.value();
 
         map.fieldMap.put(field, path);
+    }
+
+    private static boolean checkIDField(Class<?> featureClass, Field field, FeatureMapping map) {
+
+        if (field.isAnnotationPresent(AIXMId.class)) {
+            if (field.getType() != String.class) {
+                AIXMFeatureException exception = new AIXMFeatureException(featureClass, "ID field '" + field.getName() + "' must be of type String.");
+                JetwayLog.getJetwayLogger().error(exception.getMessage(), exception);
+                throw exception;
+            }
+
+            map.idField = field;
+            return true;
+        }
+
+        return false;
+    }
+
+    private static boolean checkParentIDField(Class<?> featureClass, Field field, FeatureMapping map) {
+
+        if (field.isAnnotationPresent(AIXMParent.class)) {
+            if (field.getType() != String.class) {
+                AIXMFeatureException exception = new AIXMFeatureException(featureClass, "Parent ID field '" + field.getName() + "' must be of type String.");
+                JetwayLog.getJetwayLogger().error(exception.getMessage(), exception);
+                throw exception;
+            }
+
+            map.parentField = field;
+            return true;
+        }
+
+        return false;
     }
 }

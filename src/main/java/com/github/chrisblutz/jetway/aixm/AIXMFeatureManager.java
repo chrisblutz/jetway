@@ -88,38 +88,65 @@ public class AIXMFeatureManager {
 
             FeatureEntry rootParent = getRootParent(entry);
 
-            JetwayLog.getJetwayLogger().info("Generated feature entry for feature '" + featureClass.getSimpleName() + "' with name '" + entry.getName() + "' and " + entry.getMapping().getFields().size() + "' fields.");
-
-            if (JetwayLog.getJetwayLogger().isDebugEnabled()) {
-                JetwayLog.getJetwayLogger().debug("Feature information for '" + featureClass.getSimpleName() + "':");
-                JetwayLog.getJetwayLogger().debug("\tRoot:  " + (entry.isRoot() ? "Yes, '" + entry.getRootPath() + "'" : "No"));
-                JetwayLog.getJetwayLogger().debug("\tChild: " + (entry.isChild() ? "Yes, " + entry.getParentClass().getSimpleName() : "No"));
-                JetwayLog.getJetwayLogger().debug("\tRoot AIXM Parent: " + (rootParent != null ? rootParent.getName() : "None"));
-            }
+            logFeatureInformation(entry, rootParent, featureClass);
 
             classToFeatureEntryMap.put(featureClass, entry);
 
-            if (entry.isRoot()) {
+            boolean root = checkForRoot(entry, featureClass);
+            boolean child = checkForParent(entry, rootParent);
 
-                JetwayLog.getJetwayLogger().info("Feature '" + featureClass.getSimpleName() + "' has been registered as a root feature with file '" + entry.getRootPath() + "'.");
+            // Check if this feature is orphaned (no parent and not root)
+            boolean orphaned = !(root || child);
 
-                List<FeatureEntry> possibleEntries = new ArrayList<>();
-                possibleEntries.add(entry);
-
-                childFeatureMap.put(entry, possibleEntries);
-
-            } else if (entry.isChild() && rootParent != null) {
-
-                // Register this entry as a sub-feature of its parent
-                childFeatureMap.get(rootParent).add(entry);
-
-            } else {
+            if (orphaned) {
 
                 // Since this feature is neither a root nor a child, throw an error
                 AIXMFeatureException exception = new AIXMFeatureException(featureClass, "This feature is neither a root nor a child.  It will not be loaded.");
                 JetwayLog.getJetwayLogger().error(exception.getMessage(), exception);
                 throw exception;
             }
+        }
+    }
+
+    private static boolean checkForRoot(FeatureEntry entry, Class<?> featureClass) {
+
+        if (entry.isRoot()) {
+
+            JetwayLog.getJetwayLogger().info("Feature '" + featureClass.getSimpleName() + "' has been registered as a root feature with file '" + entry.getRootPath() + "'.");
+
+            List<FeatureEntry> possibleEntries = new ArrayList<>();
+            possibleEntries.add(entry);
+
+            childFeatureMap.put(entry, possibleEntries);
+            return true;
+        }
+
+        // Feature was not root, so return false
+        return false;
+    }
+
+    private static boolean checkForParent(FeatureEntry entry, FeatureEntry rootParent) {
+
+        if (entry.isChild() && rootParent != null) {
+
+            // Register this entry as a sub-feature of its parent
+            childFeatureMap.get(rootParent).add(entry);
+            return true;
+        }
+
+        // Feature had no parent, so return false
+        return false;
+    }
+
+    private static void logFeatureInformation(FeatureEntry entry, FeatureEntry rootParent, Class<?> featureClass) {
+
+        JetwayLog.getJetwayLogger().info("Generated feature entry for feature '" + featureClass.getSimpleName() + "' with name '" + entry.getName() + "' and " + entry.getMapping().getFields().size() + "' fields.");
+
+        if (JetwayLog.getJetwayLogger().isDebugEnabled()) {
+            JetwayLog.getJetwayLogger().debug("Feature information for '" + featureClass.getSimpleName() + "':");
+            JetwayLog.getJetwayLogger().debug("\tRoot:  " + (entry.isRoot() ? "Yes, '" + entry.getRootPath() + "'" : "No"));
+            JetwayLog.getJetwayLogger().debug("\tChild: " + (entry.isChild() ? "Yes, " + entry.getParentClass().getSimpleName() : "No"));
+            JetwayLog.getJetwayLogger().debug("\tRoot AIXM Parent: " + (rootParent != null ? rootParent.getName() : "None"));
         }
     }
 

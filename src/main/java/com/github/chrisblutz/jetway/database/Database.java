@@ -191,14 +191,7 @@ public class Database {
                 JetwayLog.getDatabaseLogger().warn("Failed to drop Jetway version table.");
 
             // Drop all feature tables
-            for (Class<?> featureClass : SchemaManager.getFeatures()) {
-
-                SchemaTable table = SchemaManager.get(featureClass);
-                JetwayLog.getDatabaseLogger().info("Dropping table '" + table.getTableName() + "'...");
-
-                if (!getManager().dropTable(table))
-                    JetwayLog.getDatabaseLogger().warn("Table '" + table.getTableName() + "' was not dropped.");
-            }
+            dropAllFeatureTables();
 
             // Reset database manager after dropping tables in bulk
             JetwayLog.getDatabaseLogger().info("Resetting database after dropping tables...");
@@ -208,6 +201,18 @@ public class Database {
         } else {
 
             JetwayLog.getDatabaseLogger().warn("Failed to set database up to drop tables.");
+        }
+    }
+
+    private static void dropAllFeatureTables() {
+
+        for (Class<?> featureClass : SchemaManager.getFeatures()) {
+
+            SchemaTable table = SchemaManager.get(featureClass);
+            JetwayLog.getDatabaseLogger().info("Dropping table '" + table.getTableName() + "'...");
+
+            if (!getManager().dropTable(table))
+                JetwayLog.getDatabaseLogger().warn("Table '" + table.getTableName() + "' was not dropped.");
         }
     }
 
