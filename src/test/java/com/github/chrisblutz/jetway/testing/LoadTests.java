@@ -16,8 +16,10 @@
 package com.github.chrisblutz.jetway.testing;
 
 import com.github.chrisblutz.jetway.Jetway;
+import com.github.chrisblutz.jetway.aixm.exceptions.AIXMException;
 import com.github.chrisblutz.jetway.aixm.source.AIXMFileSource;
 import com.github.chrisblutz.jetway.aixm.source.AIXMSource;
+import com.github.chrisblutz.jetway.aixm.source.AIXMStreamSource;
 import com.github.chrisblutz.jetway.features.Airport;
 import com.github.chrisblutz.jetway.features.Runway;
 import com.github.chrisblutz.jetway.features.RunwayDirection;
@@ -308,6 +310,30 @@ public class LoadTests {
 
         // Clear forced version property to avoid interference in other tests
         System.clearProperty("FORCE_JETWAY_VERSION");
+    }
+
+    /**
+     * This method tests that attempting to load
+     * a feature from a null {@link java.io.InputStream InputStream}
+     * throws an error.
+     */
+    @Test(expected = AIXMException.class)
+    public void testNullInputStream() {
+
+        AIXMSource source = new AIXMStreamSource();
+        JetwayTesting.initializeJetway(source);
+    }
+
+    /**
+     * This method tests that attempting to load
+     * a feature from a malformed XML file
+     * throws an error.
+     */
+    @Test(expected = AIXMException.class)
+    public void testMalformedZIP() {
+
+        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/invalid.xml"));
+        JetwayTesting.initializeJetway(source);
     }
 
     /**

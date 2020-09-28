@@ -25,7 +25,9 @@ import com.github.chrisblutz.jetway.logging.JetwayLog;
  *
  * @author Christopher Lutz
  */
-public class DefaultConverters {
+public final class DefaultConverters {
+
+    private DefaultConverters() {}
 
     /**
      * This converter converts basic XMLBeans types and basic {@link Object}s into {@link Boolean} values.

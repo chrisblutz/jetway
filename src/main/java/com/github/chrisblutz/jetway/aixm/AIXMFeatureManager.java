@@ -29,7 +29,9 @@ import java.util.*;
  *
  * @author Christopher Lutz
  */
-public class AIXMFeatureManager {
+public final class AIXMFeatureManager {
+
+    private AIXMFeatureManager() {}
 
     private static final Map<FeatureEntry, List<FeatureEntry>> childFeatureMap = new HashMap<>();
     private static final Map<Class<?>, FeatureEntry> classToFeatureEntryMap = new HashMap<>();

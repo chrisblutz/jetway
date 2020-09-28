@@ -31,7 +31,9 @@ import java.io.InputStream;
  *
  * @author Christopher Lutz
  */
-public class AIXMFiles {
+public final class AIXMFiles {
+
+    private AIXMFiles() {}
 
     /**
      * This method loads the specified feature file into memory

@@ -25,7 +25,9 @@ import com.github.chrisblutz.jetway.logging.JetwayLog;
  *
  * @author Christopher Lutz
  */
-public class FeatureManager {
+public final class FeatureManager {
+
+    private FeatureManager() {}
 
     /**
      * This method registers a feature class with both

@@ -21,7 +21,9 @@ package com.github.chrisblutz.jetway.utils;
  *
  * @author Christopher Lutz
  */
-public class TypeUtils {
+public final class TypeUtils {
+
+    private TypeUtils() {}
 
     /**
      * This method determines whether a specific class is a primitive type

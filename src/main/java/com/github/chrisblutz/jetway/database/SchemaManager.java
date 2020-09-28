@@ -30,7 +30,9 @@ import java.util.Map;
  *
  * @author Christopher Lutz
  */
-public class SchemaManager {
+public final class SchemaManager {
+
+    private SchemaManager() {}
 
     private static final List<Class<?>> featureList = new ArrayList<>();
     private static final Map<Class<?>, SchemaTable> classToSchemaTableMap = new HashMap<>();

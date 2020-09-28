@@ -32,7 +32,9 @@ import java.util.List;
  *
  * @author Christopher Lutz
  */
-public class AIXM {
+public final class AIXM {
+
+    private AIXM() {}
 
     private static int totalCount = 0;
 

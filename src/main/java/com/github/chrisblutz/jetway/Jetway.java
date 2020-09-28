@@ -31,7 +31,9 @@ import com.github.chrisblutz.jetway.features.*;
  *
  * @author Christopher Lutz
  */
-public class Jetway {
+public final class Jetway {
+
+    private Jetway() {}
 
     private static AIXMSource aixmSource;
 

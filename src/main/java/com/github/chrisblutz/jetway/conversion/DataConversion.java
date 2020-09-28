@@ -24,7 +24,9 @@ import java.util.Map;
  *
  * @author Christopher Lutz
  */
-public class DataConversion {
+public final class DataConversion {
+
+    private DataConversion() {}
 
     private static final Map<Class<?>, Converter<?>> converterMap = new HashMap<>();
 

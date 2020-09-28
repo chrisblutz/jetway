@@ -30,7 +30,9 @@ import com.github.chrisblutz.jetway.logging.JetwayLog;
  *
  * @author Christopher Lutz
  */
-public class Database {
+public final class Database {
+
+    private Database() {}
 
     private static DatabaseManager currentManager;
     private static boolean forceRebuild = false;

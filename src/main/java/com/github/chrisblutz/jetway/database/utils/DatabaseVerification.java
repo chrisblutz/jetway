@@ -23,7 +23,9 @@ package com.github.chrisblutz.jetway.database.utils;
  *
  * @author Christopher Lutz
  */
-public class DatabaseVerification {
+public final class DatabaseVerification {
+
+    private DatabaseVerification() {}
 
     private static String currentJetwayVersion = null;
     private static boolean isVersionLoaded = false;

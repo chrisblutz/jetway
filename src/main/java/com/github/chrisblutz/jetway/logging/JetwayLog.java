@@ -26,7 +26,9 @@ import org.apache.logging.log4j.core.config.Configurator;
  *
  * @author Christopher Lutz
  */
-public class JetwayLog {
+public final class JetwayLog {
+
+    private JetwayLog() {}
 
     private static Logger jetwayLogger = null;
     private static Logger databaseLogger = null;
