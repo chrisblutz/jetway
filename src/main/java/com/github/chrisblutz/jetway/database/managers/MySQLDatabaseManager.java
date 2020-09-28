@@ -30,21 +30,14 @@ import java.sql.SQLException;
  */
 public class MySQLDatabaseManager extends SQLDatabaseManager {
 
+    private static MySQLDatabaseManager instance;
+
     private final MysqlDataSource dataSource;
     private Connection connection;
 
-    /**
-     * Creates a new instance of this database manager
-     */
-    public MySQLDatabaseManager() {
+    private MySQLDatabaseManager() {
 
         dataSource = new MysqlDataSource();
-    }
-
-    @Override
-    public String getCommandLineIdentifier() {
-
-        return "mysql";
     }
 
     @Override
@@ -139,5 +132,20 @@ public class MySQLDatabaseManager extends SQLDatabaseManager {
             default:
                 return "NULL";
         }
+    }
+
+    /**
+     * This method returns the instance of
+     * the MySQL database manager.
+     *
+     * @return The instance of the database manager
+     */
+    public static MySQLDatabaseManager getInstance() {
+
+        // Initialize the instance if it is null
+        if (instance == null)
+            instance = new MySQLDatabaseManager();
+
+        return instance;
     }
 }

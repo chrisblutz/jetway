@@ -16,7 +16,8 @@
 package com.github.chrisblutz.jetway.testing;
 
 import com.github.chrisblutz.jetway.Jetway;
-import com.github.chrisblutz.jetway.aixm.AIXMFiles;
+import com.github.chrisblutz.jetway.aixm.source.AIXMFileSource;
+import com.github.chrisblutz.jetway.aixm.source.AIXMSource;
 import com.github.chrisblutz.jetway.features.Airport;
 import com.github.chrisblutz.jetway.features.Runway;
 import com.github.chrisblutz.jetway.features.RunwayDirection;
@@ -60,8 +61,8 @@ public class LoadTests {
     @Test
     public void testBasicLoad() {
 
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/basic.xml"));
-        JetwayTesting.initializeJetway();
+        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/basic.xml"));
+        JetwayTesting.initializeJetway(source);
 
         Airport[] airports = Airport.selectAll(null);
         JetwayAssertions.assertFeatures(airports, validationAirportsNoExtension, 0);
@@ -74,8 +75,8 @@ public class LoadTests {
     @Test
     public void testBasicExtensionLoad() {
 
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/basic_extension.xml"));
-        JetwayTesting.initializeJetway();
+        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/basic_extension.xml"));
+        JetwayTesting.initializeJetway(source);
 
         Airport[] airports = Airport.selectAll(null);
         JetwayAssertions.assertFeatures(airports, validationAirportsExtension, 0);
@@ -88,8 +89,8 @@ public class LoadTests {
     @Test
     public void testMultipleLoad() {
 
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/basic_multiple.xml"));
-        JetwayTesting.initializeJetway();
+        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/basic_multiple.xml"));
+        JetwayTesting.initializeJetway(source);
 
         Airport[] airports = Airport.selectAll(null);
         JetwayAssertions.assertFeatures(airports, validationAirportsMultiple, 0, 1);
@@ -103,8 +104,8 @@ public class LoadTests {
     @Test
     public void testNestedLoad() {
 
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/nested.xml"));
-        JetwayTesting.initializeJetway();
+        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/nested.xml"));
+        JetwayTesting.initializeJetway(source);
 
         Airport[] airports = Airport.selectAll(null);
         JetwayAssertions.assertFeatures(airports, validationAirportsNoExtension, 0);
@@ -127,8 +128,8 @@ public class LoadTests {
     @Test
     public void testNestedLoadSelections() {
 
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/nested.xml"));
-        JetwayTesting.initializeJetway();
+        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/nested.xml"));
+        JetwayTesting.initializeJetway(source);
 
         Airport[] airports = Airport.selectAll(null);
         JetwayAssertions.assertFeatures(airports, validationAirportsNoExtension, 0);
@@ -151,8 +152,8 @@ public class LoadTests {
     @Test
     public void testNestedLoadSingleSelections() {
 
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/nested.xml"));
-        JetwayTesting.initializeJetway();
+        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/nested.xml"));
+        JetwayTesting.initializeJetway(source);
 
         Airport airport = Airport.select(null);
         JetwayAssertions.assertFeatureOneOf(airport, validationAirportsNoExtension);
@@ -174,7 +175,8 @@ public class LoadTests {
     @Test
     public void testZIPLoad() {
 
-        JetwayTesting.initializeJetway("test/nasr.zip");
+        AIXMSource source = new AIXMFileSource(LoadTests.class.getResourceAsStream("/aixm/aixm.zip"));
+        JetwayTesting.initializeJetway(source);
 
         Airport[] airports = Airport.selectAll(null);
         JetwayAssertions.assertFeatures(airports, validationAirportsNoExtension, 0);
@@ -191,8 +193,8 @@ public class LoadTests {
         // Force Jetway version for this test
         System.setProperty("FORCE_JETWAY_VERSION", "test");
 
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/rebuild_initial.xml"));
-        JetwayTesting.initializeJetway();
+        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/rebuild_initial.xml"));
+        JetwayTesting.initializeJetway(source);
 
         // Check that airport is correct
         Airport[] airports = Airport.selectAll(null);
@@ -200,8 +202,8 @@ public class LoadTests {
 
         Jetway.reset();
 
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/rebuild_final.xml"));
-        JetwayTesting.initializeJetway(false);
+        source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/rebuild_final.xml"));
+        JetwayTesting.initializeJetway(source, false);
 
         // Check that the airport is still the same as before (no rebuild, so it wasn't overwritten)
         airports = Airport.selectAll(null);
@@ -222,8 +224,8 @@ public class LoadTests {
         // Force Jetway version for this test
         System.setProperty("FORCE_JETWAY_VERSION", "test");
 
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/rebuild_initial.xml"));
-        JetwayTesting.initializeJetway();
+        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/rebuild_initial.xml"));
+        JetwayTesting.initializeJetway(source);
 
         // Check that airport is correct
         Airport[] airports = Airport.selectAll(null);
@@ -234,8 +236,8 @@ public class LoadTests {
         // Force Jetway version mismatch for this test
         System.setProperty("FORCE_JETWAY_VERSION", "test2");
 
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/rebuild_final.xml"));
-        JetwayTesting.initializeJetway(false);
+        source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/rebuild_final.xml"));
+        JetwayTesting.initializeJetway(source, false);
 
         // Check that the airport is now the new airport, because a rebuild was required due to version mismatch
         airports = Airport.selectAll(null);
@@ -256,8 +258,8 @@ public class LoadTests {
         // Force Jetway version for this test
         System.setProperty("FORCE_JETWAY_VERSION", "test");
 
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/rebuild_initial.xml"));
-        JetwayTesting.initializeJetway();
+        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/rebuild_initial.xml"));
+        JetwayTesting.initializeJetway(source);
 
         // Check that airport is correct
         Airport[] airports = Airport.selectAll(null);
@@ -268,8 +270,8 @@ public class LoadTests {
         // Force Jetway version to null for this test
         System.clearProperty("FORCE_JETWAY_VERSION");
 
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/rebuild_final.xml"));
-        JetwayTesting.initializeJetway(false);
+        source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/rebuild_final.xml"));
+        JetwayTesting.initializeJetway(source, false);
 
         // Check that the airport is now the new airport, because a rebuild was required due to version mismatch
         airports = Airport.selectAll(null);
@@ -278,16 +280,17 @@ public class LoadTests {
 
     /**
      * This method tests the database preservation
-     * feature when the CLI option to rebuild is set.
+     * feature when the {@link Jetway#forceDatabaseRebuild()}
+     * flag is set.
      */
     @Test
-    public void testRebuildRequiredCLI() {
+    public void testRebuildRequiredFlag() {
 
         // Force Jetway version for this test
         System.setProperty("FORCE_JETWAY_VERSION", "test");
 
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/rebuild_initial.xml"));
-        JetwayTesting.initializeJetway();
+        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/rebuild_initial.xml"));
+        JetwayTesting.initializeJetway(source);
 
         // Check that airport is correct
         Airport[] airports = Airport.selectAll(null);
@@ -295,11 +298,11 @@ public class LoadTests {
 
         Jetway.reset();
 
-        // Reload Jetway but forcing rebuild using CLI options
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/rebuild_final.xml"));
-        JetwayTesting.initializeJetway(true);
+        // Reload Jetway but set the force-rebuild flag
+        source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/rebuild_final.xml"));
+        JetwayTesting.initializeJetway(source, true);
 
-        // Check that the airport is now the new airport, because a rebuild was forced using CLI options
+        // Check that the airport is now the new airport, because a rebuild was forced
         airports = Airport.selectAll(null);
         JetwayAssertions.assertFeatures(airports, validationAirportsRebuildFinal, 0);
 

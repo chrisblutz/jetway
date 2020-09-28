@@ -34,9 +34,15 @@ import com.github.chrisblutz.jetway.database.queries.Sort;
  * @author Christopher Lutz
  */
 @DatabaseTable("Airports")
-@AIXMRoot("APT_AIXM")
+@AIXMRoot(Airport.AIXM_FILE)
 @AIXMFeature(name = "AirportHeliport", id = "AH")
 public class Airport implements Feature {
+
+    /**
+     * This constant defines the root AIXM file
+     * for airports and airport components (runways, etc.)
+     */
+    public static final String AIXM_FILE = "APT_AIXM";
 
     public static final String ID = "id";
     public static final String NAME = "Name";

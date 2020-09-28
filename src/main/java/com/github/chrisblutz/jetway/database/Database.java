@@ -15,19 +15,14 @@
  */
 package com.github.chrisblutz.jetway.database;
 
-import com.github.chrisblutz.jetway.cli.CLI;
 import com.github.chrisblutz.jetway.database.exceptions.DatabaseException;
 import com.github.chrisblutz.jetway.database.managers.DatabaseManager;
-import com.github.chrisblutz.jetway.database.managers.MySQLDatabaseManager;
 import com.github.chrisblutz.jetway.database.mappings.SchemaTable;
 import com.github.chrisblutz.jetway.database.queries.DatabaseResult;
 import com.github.chrisblutz.jetway.database.queries.Query;
 import com.github.chrisblutz.jetway.database.queries.Sort;
 import com.github.chrisblutz.jetway.database.utils.DatabaseVerification;
 import com.github.chrisblutz.jetway.logging.JetwayLog;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * This method handles all registration and use of {@link DatabaseManager} instances,
@@ -37,18 +32,8 @@ import java.util.List;
  */
 public class Database {
 
-    private static final List<DatabaseManager> managers = new ArrayList<>();
     private static DatabaseManager currentManager;
-
-    /**
-     * This method registers a new database manager.
-     *
-     * @param manager The database manager to register
-     */
-    public static void register(DatabaseManager manager) {
-
-        managers.add(manager);
-    }
+    private static boolean forceRebuild = false;
 
     /**
      * This method retrieves the currently-active database manager.
@@ -61,28 +46,14 @@ public class Database {
     }
 
     /**
-     * This method sets the currently-active database manager
-     * based on the provided identifier.
+     * This method sets the currently-active database manager.
      *
-     * @param identifier the command-line identifier for the requested
-     *                   database manager
+     * @param manager the {@link DatabaseManager} to use
      */
-    public static void setManager(String identifier) {
+    public static void setManager(DatabaseManager manager) {
 
-        for (DatabaseManager manager : managers) {
-
-            if (manager.getCommandLineIdentifier().equalsIgnoreCase(identifier)) {
-
-                Database.currentManager = manager;
-                JetwayLog.getDatabaseLogger().info("Selected " + manager.getClass().getSimpleName() + " as the database manager.");
-            }
-        }
-
-        if (getManager() == null) {
-            DatabaseException exception = new DatabaseException("No database manager was found for identifier '" + identifier + "'.");
-            JetwayLog.getDatabaseLogger().error(exception.getMessage(), exception);
-            throw exception;
-        }
+        Database.currentManager = manager;
+        JetwayLog.getDatabaseLogger().info("Selected " + manager.getClass().getSimpleName() + " as the database manager.");
     }
 
     /**
@@ -163,16 +134,16 @@ public class Database {
 
     private static boolean isRebuildNeeded() {
 
-        // Check if --rebuild/-r CLI option is present
-        boolean drop = CLI.Options.isRebuildRequired();
+        // Check if force-rebuild flag is set
+        boolean drop = forceRebuild;
         if (drop)
-            JetwayLog.getDatabaseLogger().info("Command-line --rebuild/-r option present, rebuilding...");
+            JetwayLog.getDatabaseLogger().info("Force-rebuild flag is set, rebuilding database...");
 
-        // If CLI option was not present, check for version mismatch
+        // If force rebuild flag was not set, check for version mismatch
         if (!drop) {
             boolean shouldDrop = DatabaseVerification.isRebuildRequired(getManager().getJetwayVersion());
             if (shouldDrop)
-                JetwayLog.getDatabaseLogger().info("Mismatch of Jetway and database versions, rebuilding...");
+                JetwayLog.getDatabaseLogger().info("Mismatch of Jetway and database versions, rebuilding database...");
 
             drop = shouldDrop;
         }
@@ -328,18 +299,18 @@ public class Database {
     }
 
     /**
-     * This method registers all default database managers.
+     * This method forces the database manager
+     * to drop all existing tables and rebuild them
+     * from the AIXM data.
      */
-    public static void registerAll() {
+    public static void forceRebuild() {
 
-        JetwayLog.getDatabaseLogger().info("Registering default database managers...");
-
-        register(new MySQLDatabaseManager());
+        forceRebuild = true;
     }
 
     /**
-     * This method resets the database management registry (after closing
-     * any open connections).
+     * This method resets the database manager after closing
+     * any open connections.
      */
     public static void reset() {
 
@@ -349,6 +320,8 @@ public class Database {
 
         // Clear registered database managers
         currentManager = null;
-        managers.clear();
+
+        // Reset force rebuild flag
+        forceRebuild = false;
     }
 }

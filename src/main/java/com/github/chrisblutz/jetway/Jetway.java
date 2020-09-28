@@ -17,12 +17,12 @@ package com.github.chrisblutz.jetway;
 
 import com.github.chrisblutz.jetway.aixm.AIXM;
 import com.github.chrisblutz.jetway.aixm.AIXMFeatureManager;
-import com.github.chrisblutz.jetway.aixm.AIXMFiles;
-import com.github.chrisblutz.jetway.cli.CLI;
+import com.github.chrisblutz.jetway.aixm.source.AIXMSource;
 import com.github.chrisblutz.jetway.conversion.DataConversion;
 import com.github.chrisblutz.jetway.conversion.DefaultConverters;
 import com.github.chrisblutz.jetway.database.Database;
 import com.github.chrisblutz.jetway.database.SchemaManager;
+import com.github.chrisblutz.jetway.database.managers.DatabaseManager;
 import com.github.chrisblutz.jetway.database.utils.DatabaseVerification;
 import com.github.chrisblutz.jetway.features.*;
 
@@ -33,6 +33,8 @@ import com.github.chrisblutz.jetway.features.*;
  */
 public class Jetway {
 
+    private static AIXMSource aixmSource;
+
     /**
      * This method is the entry point for Jetway.  It loads converts
      * and database managers, then registers features.  Then, it
@@ -42,34 +44,102 @@ public class Jetway {
      */
     public static void main(String[] args) {
 
-        initialize(args);
+        initialize();
     }
 
     /**
      * This method initializes Jetway's registries and begins loading
      * AIXM data.
-     *
-     * @param args command-line arguments
      */
-    public static void initialize(String[] args) {
+    public static void initialize() {
 
         DefaultConverters.registerAll();
-        Database.registerAll();
 
         FeatureManager.register(Airport.class);
         FeatureManager.register(Runway.class);
         FeatureManager.register(RunwayEnd.class);
         FeatureManager.register(RunwayDirection.class);
 
-        // Parse arguments and continue if all arguments are loaded correctly
-        if (CLI.parse(args)) {
+        // Initialize the database, and if necessary, rebuild the tables from source AIXM data
+        boolean rebuild = Database.initializeDatabase();
+        if (rebuild)
+            AIXM.load();
+    }
 
-            // Initialize the database, and if necessary, rebuild the tables from source AIXM data
-            boolean rebuild = Database.initializeDatabase();
+    /**
+     * This method sets the {@link AIXMSource} that will
+     * be used to load AIXM feature data.
+     *
+     * @param aixmSource the {@link AIXMSource} to use
+     */
+    public static void setAIXMSource(AIXMSource aixmSource) {
 
-            if (rebuild)
-                AIXM.load();
-        }
+        Jetway.aixmSource = aixmSource;
+    }
+
+    /**
+     * This method retrieves the {@link AIXMSource} being
+     * be used to load AIXM feature data.
+     *
+     * @return the {@link AIXMSource} being used
+     */
+    public static AIXMSource getAIXMSource() {
+
+        return aixmSource;
+    }
+
+    /**
+     * This method forces Jetway to rebuild its
+     * database tables and reload AIXM data from
+     * its source.
+     */
+    public static void forceDatabaseRebuild() {
+
+        Database.forceRebuild();
+    }
+
+    /**
+     * This method sets the {@link DatabaseManager}
+     * that Jetway will use to handle database operations.
+     *
+     * @param manager the {@link DatabaseManager} to use
+     */
+    public static void setDatabaseManager(DatabaseManager manager) {
+
+        Database.setManager(manager);
+    }
+
+    /**
+     * This method sets the server name for the database
+     * that Jetway will use.
+     *
+     * @param server the database server name
+     */
+    public static void setDatabaseServer(String server) {
+
+        Database.getManager().setServer(server);
+    }
+
+    /**
+     * This method sets the user for the database
+     * that Jetway will use.
+     *
+     * @param user the database user
+     */
+    public static void setDatabaseUser(String user) {
+
+        Database.getManager().setUser(user);
+    }
+
+    /**
+     * This method sets the password for the database
+     * that Jetway will use.
+     *
+     * @param password the database password
+     */
+    public static void setDatabasePassword(String password) {
+
+        Database.getManager().setPassword(password);
     }
 
     /**
@@ -77,9 +147,9 @@ public class Jetway {
      */
     public static void reset() {
 
-        CLI.Options.reset();
+        setAIXMSource(null);
+
         AIXMFeatureManager.reset();
-        AIXMFiles.reset();
         SchemaManager.reset();
         Database.reset();
         DataConversion.reset();

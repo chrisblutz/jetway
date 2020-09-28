@@ -16,7 +16,7 @@
 package com.github.chrisblutz.jetway.testing;
 
 import com.github.chrisblutz.jetway.Jetway;
-import com.github.chrisblutz.jetway.aixm.AIXMFiles;
+import com.github.chrisblutz.jetway.aixm.source.AIXMSource;
 import com.github.chrisblutz.jetway.database.queries.Query;
 import com.github.chrisblutz.jetway.database.queries.Sort;
 import com.github.chrisblutz.jetway.features.Airport;
@@ -59,8 +59,8 @@ public class SortTests {
 
         // Make sure assertions are correct by selecting all
 
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/sorting_basic.xml"));
-        JetwayTesting.initializeJetway();
+        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/sorting_basic.xml"));
+        JetwayTesting.initializeJetway(source);
 
         Airport[] airports = Airport.selectAll(null);
         JetwayAssertions.assertFeatures(airports, validationAirports, 0, 1, 2, 3, 4);
@@ -72,8 +72,8 @@ public class SortTests {
     @Test
     public void testSortStringAll() {
 
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/sorting_basic.xml"));
-        JetwayTesting.initializeJetway();
+        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/sorting_basic.xml"));
+        JetwayTesting.initializeJetway(source);
 
         // Sorting by NAME ascending
 
@@ -94,8 +94,8 @@ public class SortTests {
     @Test
     public void testSortNumericAll() {
 
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/sorting_basic.xml"));
-        JetwayTesting.initializeJetway();
+        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/sorting_basic.xml"));
+        JetwayTesting.initializeJetway(source);
 
         // Sorting by LATITUDE ascending
 
@@ -118,8 +118,8 @@ public class SortTests {
     public void testSortStringWithQuery() {
 
 
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/sorting_basic.xml"));
-        JetwayTesting.initializeJetway();
+        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/sorting_basic.xml"));
+        JetwayTesting.initializeJetway(source);
 
         Query query = Query.whereGreaterThan(Airport.class, Airport.FIELD_ELEVATION, 10);
 
@@ -143,8 +143,8 @@ public class SortTests {
     @Test
     public void testSortNumericWithQuery() {
 
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/sorting_basic.xml"));
-        JetwayTesting.initializeJetway();
+        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/sorting_basic.xml"));
+        JetwayTesting.initializeJetway(source);
 
         Query query = Query.whereLessThanEquals(Airport.class, Airport.FIELD_ELEVATION, 16);
 

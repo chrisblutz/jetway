@@ -20,6 +20,9 @@ import aero.aixm.v5.impl.CodeYesNoTypeImpl;
 import org.apache.xmlbeans.XmlAnySimpleType;
 import org.apache.xmlbeans.impl.values.XmlAnySimpleTypeImpl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * This class is used for testing of AIXM data conversion
  * and retrieval.
@@ -29,7 +32,7 @@ import org.apache.xmlbeans.impl.values.XmlAnySimpleTypeImpl;
 public class TestObject {
 
     /**
-     * This is a test method to for testing
+     * This is a test method for testing
      * AIXM type to {@code Boolean} conversion.
      *
      * @return The AIXM type
@@ -47,7 +50,7 @@ public class TestObject {
     }
 
     /**
-     * This is a test method to for testing
+     * This is a test method for testing
      * AIXM type to {@code Byte} conversion.
      *
      * @return The AIXM type
@@ -65,7 +68,7 @@ public class TestObject {
     }
 
     /**
-     * This is a test method to for testing
+     * This is a test method for testing
      * AIXM type to {@code Character} conversion.
      *
      * @return The AIXM type
@@ -83,7 +86,7 @@ public class TestObject {
     }
 
     /**
-     * This is a test method to for testing
+     * This is a test method for testing
      * AIXM type to {@code Double} conversion.
      *
      * @return The AIXM type
@@ -101,7 +104,7 @@ public class TestObject {
     }
 
     /**
-     * This is a test method to for testing
+     * This is a test method for testing
      * AIXM type to {@code Float} conversion.
      *
      * @return The AIXM type
@@ -119,7 +122,7 @@ public class TestObject {
     }
 
     /**
-     * This is a test method to for testing
+     * This is a test method for testing
      * AIXM type to {@code Integer} conversion.
      *
      * @return The AIXM type
@@ -137,7 +140,7 @@ public class TestObject {
     }
 
     /**
-     * This is a test method to for testing
+     * This is a test method for testing
      * AIXM type to {@code Long} conversion.
      *
      * @return The AIXM type
@@ -155,7 +158,7 @@ public class TestObject {
     }
 
     /**
-     * This is a test method to for testing
+     * This is a test method for testing
      * AIXM type to {@code String} conversion.
      *
      * @return The AIXM type
@@ -173,7 +176,7 @@ public class TestObject {
     }
 
     /**
-     * This is a test method to for testing
+     * This is a test method for testing
      * AIXM type to {@code Short} conversion.
      *
      * @return The AIXM type
@@ -186,6 +189,112 @@ public class TestObject {
             public String getStringValue() {
 
                 return "12345";
+            }
+        };
+    }
+
+    /**
+     * This is a test method for testing
+     * AIXM type conversion when the AIXM type is {@code null}.
+     *
+     * @return The AIXM type
+     */
+    public XmlAnySimpleType getNull() {
+
+        return null;
+    }
+
+    /**
+     * This is a test method for testing
+     * AIXM type conversion with indexing
+     * on a {@link List}.
+     *
+     * @return The AIXM type
+     */
+    public List<XmlAnySimpleType> getList() {
+
+        List<XmlAnySimpleType> list = new ArrayList<>();
+        list.add(new XmlAnySimpleTypeImpl() {
+
+            @Override
+            public String getStringValue() {
+
+                return "String 1";
+            }
+        });
+        list.add(new XmlAnySimpleTypeImpl() {
+
+            @Override
+            public String getStringValue() {
+
+                return "String 2";
+            }
+        });
+        list.add(new XmlAnySimpleTypeImpl() {
+
+            @Override
+            public String getStringValue() {
+
+                return "String 3";
+            }
+        });
+
+        return list;
+    }
+
+    /**
+     * This is a test method for testing
+     * AIXM type conversion with indexing
+     * on arrays.
+     *
+     * @return The AIXM type
+     */
+    public XmlAnySimpleType[] getArray() {
+
+        XmlAnySimpleType[] array = new XmlAnySimpleType[3];
+        array[0] = new XmlAnySimpleTypeImpl() {
+
+            @Override
+            public String getStringValue() {
+
+                return "String 1";
+            }
+        };
+        array[1] = new XmlAnySimpleTypeImpl() {
+
+            @Override
+            public String getStringValue() {
+
+                return "String 2";
+            }
+        };
+        array[2] = new XmlAnySimpleTypeImpl() {
+
+            @Override
+            public String getStringValue() {
+
+                return "String 3";
+            }
+        };
+
+        return array;
+    }
+
+    /**
+     * This is a test method for testing
+     * AIXM indexing when the AIXM type
+     * cannot be indexed.
+     *
+     * @return The AIXM type
+     */
+    public XmlAnySimpleType getNoIndex() {
+
+        return new XmlAnySimpleTypeImpl() {
+
+            @Override
+            public String getStringValue() {
+
+                return "String";
             }
         };
     }

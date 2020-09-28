@@ -15,31 +15,23 @@
  */
 package com.github.chrisblutz.jetway.aixm;
 
+import com.github.chrisblutz.jetway.Jetway;
 import com.github.chrisblutz.jetway.aixm.exceptions.AIXMException;
-import com.github.chrisblutz.jetway.cli.CLI;
 import com.github.chrisblutz.jetway.logging.JetwayLog;
 import gov.faa.aixm51.SubscriberFileComponentPropertyType;
 import gov.faa.aixm51.SubscriberFileDocument;
 import org.apache.xmlbeans.XmlException;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 /**
- * This class handles loading NASR AIXM ZIP files into memory
+ * This class handles loading AIXM ZIP files into memory
  * as XMLBeans types.
  *
  * @author Christopher Lutz
  */
 public class AIXMFiles {
-
-    private static ZipInputStream outerZipStream;
-    private static final Map<String, InputStream> customInputStreams = new HashMap<>();
 
     /**
      * This method loads the specified feature file into memory
@@ -53,23 +45,21 @@ public class AIXMFiles {
         try {
 
             // Handle overridden input streams
-            InputStream is;
-            if (customInputStreams.containsKey(featureFileName))
-                is = customInputStreams.get(featureFileName);
-            else
-                is = load(featureFileName);
+            InputStream is = Jetway.getAIXMSource().getStreamForFeature(featureFileName);
 
-            // If input stream is null, return empty array
-            if (is == null)
-                return new SubscriberFileComponentPropertyType[0];
+            // If input stream is null, throw an error
+            if (is == null) {
+
+                AIXMException exception = new AIXMException("Input stream to AIXM source was null.");
+                JetwayLog.getJetwayLogger().error(exception.getMessage(), exception);
+                throw exception;
+            }
 
             // Load data into an AIXM subscriber file document
             SubscriberFileDocument doc = SubscriberFileDocument.Factory.parse(is);
 
-            // Close input stream after loading
-            is.close();
-            if (outerZipStream != null)
-                outerZipStream.close();
+            // Close AIXM source after loading
+            Jetway.getAIXMSource().close();
 
             // Extract array of properties and return
             return doc.getSubscriberFile().getMemberArray();
@@ -80,80 +70,5 @@ public class AIXMFiles {
             JetwayLog.getJetwayLogger().error(exception.getMessage(), exception);
             throw exception;
         }
-    }
-
-    /**
-     * This method opens an {@link InputStream} to the specified feature file,
-     * which is located within the NASR AIXM ZIP file.
-     *
-     * @param featureFileName the feature file to load
-     * @return An {@link InputStream} pointing to the specified file
-     */
-    public static InputStream load(String featureFileName) {
-
-        try {
-
-            // Open ZIP input stream for full NASR file
-            JetwayLog.getJetwayLogger().info("Opening NASR ZIP file...");
-            outerZipStream = new ZipInputStream(new FileInputStream(CLI.Options.getNASRFile()));
-
-            // Find inner ZIP file for specific feature
-            JetwayLog.getJetwayLogger().info("Locating inner ZIP for feature with name '" + featureFileName + "'...");
-            outerZipStream = findZipEntry(outerZipStream, "AIXM_5.1/XML-Subscriber-Files/" + featureFileName + ".zip");
-
-            // Check that inner ZIP exists
-            if (outerZipStream == null)
-                return null;
-
-            // Find XML file for the feature
-            JetwayLog.getJetwayLogger().info("Locating XML for feature with name '" + featureFileName + "'...");
-            ZipInputStream innerZipStream = new ZipInputStream(outerZipStream);
-            return findZipEntry(innerZipStream, featureFileName + ".xml");
-
-        } catch (IOException e) {
-
-            AIXMException exception = new AIXMException("An error occurred while locating the ZIP entry for the feature file '" + featureFileName + "'.", e);
-            JetwayLog.getJetwayLogger().error(exception.getMessage(), exception);
-            throw exception;
-        }
-    }
-
-    private static ZipInputStream findZipEntry(ZipInputStream zipStream, String entryName) {
-
-        ZipEntry entry;
-        try {
-
-            while ((entry = zipStream.getNextEntry()) != null)
-                if (!entry.isDirectory() && entry.getName().equals(entryName))
-                    return zipStream;
-
-        } catch (IOException e) {
-
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-    /**
-     * This method allows for custom input streams to be defined for
-     * each AIXM XML file.  For instance, if data has been removed
-     * from its ZIP file or split, this method can be used to tell
-     * Jetway where to load the data from.
-     *
-     * @param featureFileName the file name for the feature this input stream is for
-     * @param stream          the stream itself
-     */
-    public static void registerCustomInputStream(String featureFileName, InputStream stream) {
-
-        customInputStreams.put(featureFileName, stream);
-    }
-
-    /**
-     * This method resets all custom input stream designations.
-     */
-    public static void reset() {
-
-        customInputStreams.clear();
     }
 }

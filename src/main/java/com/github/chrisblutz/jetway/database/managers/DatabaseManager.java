@@ -41,14 +41,6 @@ public abstract class DatabaseManager {
     protected static final String DATABASE_NAME = "jetway";
 
     /**
-     * This method gets the command-line identifier used to
-     * select this manager.
-     *
-     * @return The identifier for this manager
-     */
-    public abstract String getCommandLineIdentifier();
-
-    /**
      * This method sets the server address to be used
      * by this database manager.
      *

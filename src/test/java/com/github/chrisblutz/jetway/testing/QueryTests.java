@@ -16,7 +16,7 @@
 package com.github.chrisblutz.jetway.testing;
 
 import com.github.chrisblutz.jetway.Jetway;
-import com.github.chrisblutz.jetway.aixm.AIXMFiles;
+import com.github.chrisblutz.jetway.aixm.source.AIXMSource;
 import com.github.chrisblutz.jetway.database.queries.Query;
 import com.github.chrisblutz.jetway.features.Airport;
 import com.github.chrisblutz.jetway.logging.JetwayLog;
@@ -58,8 +58,8 @@ public class QueryTests {
 
         // Make sure assertions are correct by selecting all
 
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/query_basic.xml"));
-        JetwayTesting.initializeJetway();
+        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/query_basic.xml"));
+        JetwayTesting.initializeJetway(source);
 
         Airport[] airports = Airport.selectAll(null);
         JetwayAssertions.assertFeatures(airports, validationAirports, 0, 1, 2, 3, 4);
@@ -75,8 +75,8 @@ public class QueryTests {
 
         // Checking SERVED_CITY = "FIRST CITY"
 
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/query_basic.xml"));
-        JetwayTesting.initializeJetway();
+        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/query_basic.xml"));
+        JetwayTesting.initializeJetway(source);
 
         Query query = Query.whereEquals(Airport.class, Airport.SERVED_CITY, "FIRST CITY");
         Airport[] airports = Airport.selectAll(query);
@@ -93,8 +93,8 @@ public class QueryTests {
 
         // Checking SERVED_CITY != "FIRST CITY"
 
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/query_basic.xml"));
-        JetwayTesting.initializeJetway();
+        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/query_basic.xml"));
+        JetwayTesting.initializeJetway(source);
 
         Query query = Query.whereNotEquals(Airport.class, Airport.SERVED_CITY, "FIRST CITY");
         Airport[] airports = Airport.selectAll(query);
@@ -111,8 +111,8 @@ public class QueryTests {
 
         // Checking FIELD_ELEVATION > 14
 
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/query_basic.xml"));
-        JetwayTesting.initializeJetway();
+        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/query_basic.xml"));
+        JetwayTesting.initializeJetway(source);
 
         Query query = Query.whereGreaterThan(Airport.class, Airport.FIELD_ELEVATION, 14);
         Airport[] airports = Airport.selectAll(query);
@@ -129,8 +129,8 @@ public class QueryTests {
 
         // Checking FIELD_ELEVATION >= 14
 
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/query_basic.xml"));
-        JetwayTesting.initializeJetway();
+        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/query_basic.xml"));
+        JetwayTesting.initializeJetway(source);
 
         Query query = Query.whereGreaterThanEquals(Airport.class, Airport.FIELD_ELEVATION, 14);
         Airport[] airports = Airport.selectAll(query);
@@ -147,8 +147,8 @@ public class QueryTests {
 
         // Checking FIELD_ELEVATION < 14
 
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/query_basic.xml"));
-        JetwayTesting.initializeJetway();
+        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/query_basic.xml"));
+        JetwayTesting.initializeJetway(source);
 
         Query query = Query.whereLessThan(Airport.class, Airport.FIELD_ELEVATION, 14);
         Airport[] airports = Airport.selectAll(query);
@@ -165,8 +165,8 @@ public class QueryTests {
 
         // Checking FIELD_ELEVATION <= 14
 
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/query_basic.xml"));
-        JetwayTesting.initializeJetway();
+        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/query_basic.xml"));
+        JetwayTesting.initializeJetway(source);
 
         Query query = Query.whereLessThanEquals(Airport.class, Airport.FIELD_ELEVATION, 14);
         Airport[] airports = Airport.selectAll(query);
@@ -183,8 +183,8 @@ public class QueryTests {
 
         // Checking NAME LIKE "%INTL"
 
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/query_basic.xml"));
-        JetwayTesting.initializeJetway();
+        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/query_basic.xml"));
+        JetwayTesting.initializeJetway(source);
 
         Query query = Query.whereLike(Airport.class, Airport.NAME, "%INTL");
         Airport[] airports = Airport.selectAll(query);
@@ -201,8 +201,8 @@ public class QueryTests {
 
         // Check FIELD_ELEVATION > 12 AND LATITUDE < 50
 
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/query_basic.xml"));
-        JetwayTesting.initializeJetway();
+        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/query_basic.xml"));
+        JetwayTesting.initializeJetway(source);
 
         Query firstQuery = Query.whereGreaterThan(Airport.class, Airport.FIELD_ELEVATION, 12);
         Query secondQuery = Query.whereLessThan(Airport.class, Airport.LATITUDE, 50);
@@ -228,8 +228,8 @@ public class QueryTests {
 
         // Check FIELD_ELEVATION < 12 OR LATITUDE > 46
 
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/query_basic.xml"));
-        JetwayTesting.initializeJetway();
+        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/query_basic.xml"));
+        JetwayTesting.initializeJetway(source);
 
         Query firstQuery = Query.whereLessThan(Airport.class, Airport.FIELD_ELEVATION, 12);
         Query secondQuery = Query.whereGreaterThan(Airport.class, Airport.LATITUDE, 46);
@@ -257,8 +257,8 @@ public class QueryTests {
 
         // Check (FIELD_ELEVATION >= 12 AND LATITUDE < 50) AND LONGITUDE > -170
 
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/query_basic.xml"));
-        JetwayTesting.initializeJetway();
+        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/query_basic.xml"));
+        JetwayTesting.initializeJetway(source);
 
         Query firstQuery = Query.whereGreaterThanEquals(Airport.class, Airport.FIELD_ELEVATION, 12);
         Query secondQuery = Query.whereLessThan(Airport.class, Airport.LATITUDE, 50);
@@ -282,8 +282,8 @@ public class QueryTests {
 
         // Check (FIELD_ELEVATION > 12 AND LATITUDE < 50) OR LONGITUDE > -160
 
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/query_basic.xml"));
-        JetwayTesting.initializeJetway();
+        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/query_basic.xml"));
+        JetwayTesting.initializeJetway(source);
 
         Query firstQuery = Query.whereGreaterThan(Airport.class, Airport.FIELD_ELEVATION, 12);
         Query secondQuery = Query.whereLessThan(Airport.class, Airport.LATITUDE, 50);
@@ -307,8 +307,8 @@ public class QueryTests {
 
         // Check (FIELD_ELEVATION < 12 OR LATITUDE > 44) AND SERVED_CITY = "FIRST CITY"
 
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/query_basic.xml"));
-        JetwayTesting.initializeJetway();
+        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/query_basic.xml"));
+        JetwayTesting.initializeJetway(source);
 
         Query firstQuery = Query.whereLessThan(Airport.class, Airport.FIELD_ELEVATION, 12);
         Query secondQuery = Query.whereGreaterThan(Airport.class, Airport.LATITUDE, 44);
@@ -332,8 +332,8 @@ public class QueryTests {
 
         // Check (FIELD_ELEVATION < 12 OR LATITUDE > 48) OR SERVED_CITY = "FIRST CITY"
 
-        AIXMFiles.registerCustomInputStream("APT_AIXM", LoadTests.class.getResourceAsStream("/aixm/query_basic.xml"));
-        JetwayTesting.initializeJetway();
+        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/query_basic.xml"));
+        JetwayTesting.initializeJetway(source);
 
         Query firstQuery = Query.whereLessThan(Airport.class, Airport.FIELD_ELEVATION, 12);
         Query secondQuery = Query.whereGreaterThan(Airport.class, Airport.LATITUDE, 48);

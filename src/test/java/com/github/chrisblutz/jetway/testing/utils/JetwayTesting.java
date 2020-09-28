@@ -16,6 +16,9 @@
 package com.github.chrisblutz.jetway.testing.utils;
 
 import com.github.chrisblutz.jetway.Jetway;
+import com.github.chrisblutz.jetway.aixm.source.AIXMSource;
+import com.github.chrisblutz.jetway.aixm.source.AIXMStreamSource;
+import com.github.chrisblutz.jetway.database.managers.MySQLDatabaseManager;
 
 import java.io.InputStream;
 
@@ -28,60 +31,60 @@ import java.io.InputStream;
 public class JetwayTesting {
 
     /**
-     * This method initializes Jetway and forces
-     * it to rebuild the database.  It assumes that
-     * a custom AIXM stream has been set using
-     * {@link com.github.chrisblutz.jetway.aixm.AIXMFiles#registerCustomInputStream(String, InputStream)}
-     */
-    public static void initializeJetway() {
-
-        initializeJetway("/", true);
-    }
-
-    /**
-     * This method initializes Jetway and forces it to rebuild
-     * the database if {@code rebuild} is {@code true}.  It
-     * assumes that a custom AIXM stream has been set using
-     * {@link com.github.chrisblutz.jetway.aixm.AIXMFiles#registerCustomInputStream(String, InputStream)}
+     * This method constructs a new {@link AIXMSource} using
+     * the specified {@link InputStream} for the given feature file name.
      *
-     * @param rebuild if {@code true}, the Jetway database will be force-rebuilt.
-     *                If {@code false}, Jetway will handle loading normally.
+     * @param feature the feature file name
+     * @param stream  the {@link InputStream} for the feature
+     * @return The constructed {@link AIXMSource}
      */
-    public static void initializeJetway(boolean rebuild) {
+    public static AIXMSource constructSource(String feature, InputStream stream) {
 
-        initializeJetway("/", rebuild);
+        AIXMStreamSource source = new AIXMStreamSource();
+        source.addStream(feature, stream);
+        return source;
     }
 
     /**
      * This method initializes Jetway and forces it to
-     * rebuild the database.  It also sets the AIXM
-     * file path to the specified path.
+     * rebuild the database.
      *
-     * @param aixmPath the AIXM file path
+     * @param aixmSource the AIXM source to use
      */
-    public static void initializeJetway(String aixmPath) {
+    public static void initializeJetway(AIXMSource aixmSource) {
 
-        initializeJetway(aixmPath, true);
+        initializeJetway(aixmSource, true);
     }
 
     /**
      * This method initializes Jetway and  and forces it to
      * rebuild the database if {@code rebuild} is {@code true}.
-     * It also sets the AIXM file path to the specified path.
      *
-     * @param aixmPath the AIXM file path
-     * @param rebuild  if {@code true}, the Jetway database will be force-rebuilt.
-     *                 If {@code false}, Jetway will handle loading normally.
+     * @param aixmSource the AIXM source to use
+     * @param rebuild    if {@code true}, the Jetway database will be force-rebuilt.
+     *                   If {@code false}, Jetway will handle loading normally.
      */
-    public static void initializeJetway(String aixmPath, boolean rebuild) {
+    public static void initializeJetway(AIXMSource aixmSource, boolean rebuild) {
 
+        Jetway.setAIXMSource(aixmSource);
+        Jetway.setDatabaseManager(MySQLDatabaseManager.getInstance());
+
+        String server = System.getenv("TEST_SERVER");
         String user = System.getenv("TEST_USER");
         String password = System.getenv("TEST_PASSWORD");
-        String server = System.getenv("TEST_SERVER");
-        Jetway.initialize(("mysql -a " + aixmPath +
-                (user != null && !user.isEmpty() ? " -u " + user : "") +
-                (password != null && !password.isEmpty() ? " -p " + password : "") +
-                (server != null && !server.isEmpty() ? " -s " + server : "")
-                + (rebuild ? " --rebuild" : "")).split(" "));
+
+        if (server != null && !server.isEmpty())
+            Jetway.setDatabaseServer(server);
+
+        if (user != null && !user.isEmpty())
+            Jetway.setDatabaseUser(user);
+
+        if (password != null && !password.isEmpty())
+            Jetway.setDatabasePassword(password);
+
+        if (rebuild)
+            Jetway.forceDatabaseRebuild();
+
+        Jetway.initialize();
     }
 }

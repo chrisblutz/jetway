@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * This class handles testing of AIXM data conversion
@@ -56,6 +57,7 @@ public class AIXMTests {
         TestObject object = new TestObject();
         AIXMData data = new AIXMData(object);
 
+        // Test simple crawls
         assertEquals(true, data.crawl("Boolean").get(Boolean.class));
         assertEquals((byte) 5, data.crawl("Byte").get(Byte.class));
         assertEquals('_', data.crawl("Character").get(Character.class));
@@ -65,6 +67,18 @@ public class AIXMTests {
         assertEquals(123456789L, data.crawl("Long").get(Long.class));
         assertEquals("Value", data.crawl("String").get(String.class));
         assertEquals((short) 12345, data.crawl("Short").get(Short.class));
+
+        // Test indexing
+        assertEquals("String 1", data.crawl("List[0]").get(String.class));
+        assertEquals("String 2", data.crawl("List[1]").get(String.class));
+        assertEquals("String 3", data.crawl("List[2]").get(String.class));
+        assertEquals("String 1", data.crawl("Array[0]").get(String.class));
+        assertEquals("String 2", data.crawl("Array[1]").get(String.class));
+        assertEquals("String 3", data.crawl("Array[2]").get(String.class));
+
+        // Test invalid types/crawls
+        assertNull(data.crawl("Null").get(String.class));
+        assertNull(data.crawl("NoIndex[0]").get(String.class));
     }
 
     /**
