@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--suppress ALL -->
 <faa:SubscriberFile gml:id="Subscriber-0000000" validFrom="2020-08-13T00:00:00.000-04:00" AIXMVersion="AIXM5.1"
                     SubscriberFileType="APT"
                     xsi:schemaLocation="http://www.faa.gov/aixm5.1 ../AIXM/extension/SubscriberFile-AIXM.xsd"

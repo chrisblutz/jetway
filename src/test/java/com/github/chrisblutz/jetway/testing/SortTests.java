@@ -20,11 +20,14 @@ import com.github.chrisblutz.jetway.aixm.source.AIXMSource;
 import com.github.chrisblutz.jetway.database.queries.Query;
 import com.github.chrisblutz.jetway.database.queries.Sort;
 import com.github.chrisblutz.jetway.features.Airport;
+import com.github.chrisblutz.jetway.features.Runway;
+import com.github.chrisblutz.jetway.features.RunwayDirection;
+import com.github.chrisblutz.jetway.features.RunwayEnd;
 import com.github.chrisblutz.jetway.logging.JetwayLog;
 import com.github.chrisblutz.jetway.testing.utils.JetwayAssertions;
 import com.github.chrisblutz.jetway.testing.utils.JetwayTesting;
+import com.github.chrisblutz.jetway.testing.utils.ValidationArrays;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -34,8 +37,6 @@ import org.junit.Test;
  * @author Christopher Lutz
  */
 public class SortTests {
-
-    private static Airport[] validationAirports;
 
     /**
      * This method resets Jetway before each test
@@ -63,7 +64,7 @@ public class SortTests {
         JetwayTesting.initializeJetway(source);
 
         Airport[] airports = Airport.selectAll(null);
-        JetwayAssertions.assertFeatures(airports, validationAirports, 0, 1, 2, 3, 4);
+        JetwayAssertions.assertFeatures(airports, ValidationArrays.SORTING_BASIC_AIRPORTS, 0, 1, 2, 3, 4);
     }
 
     /**
@@ -79,13 +80,13 @@ public class SortTests {
 
         Sort sort = Sort.by(Airport.class, Airport.NAME, Sort.Order.ASCENDING);
         Airport[] airports = Airport.selectAll(null, sort);
-        JetwayAssertions.assertFeaturesOrdered(airports, validationAirports, 1, 0, 2, 4, 3);
+        JetwayAssertions.assertFeaturesOrdered(airports, ValidationArrays.SORTING_BASIC_AIRPORTS, 1, 0, 2, 4, 3);
 
         // Sorting by NAME descending
 
         sort = Sort.by(Airport.class, Airport.NAME, Sort.Order.DESCENDING);
         airports = Airport.selectAll(null, sort);
-        JetwayAssertions.assertFeaturesOrdered(airports, validationAirports, 3, 4, 2, 0, 1);
+        JetwayAssertions.assertFeaturesOrdered(airports, ValidationArrays.SORTING_BASIC_AIRPORTS, 3, 4, 2, 0, 1);
     }
 
     /**
@@ -101,13 +102,13 @@ public class SortTests {
 
         Sort sort = Sort.by(Airport.class, Airport.LATITUDE, Sort.Order.ASCENDING);
         Airport[] airports = Airport.selectAll(null, sort);
-        JetwayAssertions.assertFeaturesOrdered(airports, validationAirports, 2, 1, 4, 3, 0);
+        JetwayAssertions.assertFeaturesOrdered(airports, ValidationArrays.SORTING_BASIC_AIRPORTS, 2, 1, 4, 3, 0);
 
         // Sorting by LATITUDE descending
 
         sort = Sort.by(Airport.class, Airport.LATITUDE, Sort.Order.DESCENDING);
         airports = Airport.selectAll(null, sort);
-        JetwayAssertions.assertFeaturesOrdered(airports, validationAirports, 0, 3, 4, 1, 2);
+        JetwayAssertions.assertFeaturesOrdered(airports, ValidationArrays.SORTING_BASIC_AIRPORTS, 0, 3, 4, 1, 2);
     }
 
     /**
@@ -127,13 +128,13 @@ public class SortTests {
 
         Sort sort = Sort.by(Airport.class, Airport.NAME, Sort.Order.ASCENDING);
         Airport[] airports = Airport.selectAll(query, sort);
-        JetwayAssertions.assertFeaturesOrdered(airports, validationAirports, 1, 2, 4, 3);
+        JetwayAssertions.assertFeaturesOrdered(airports, ValidationArrays.SORTING_BASIC_AIRPORTS, 1, 2, 4, 3);
 
         // Sorting by NAME descending where FIELD_ELEVATION > 10
 
         sort = Sort.by(Airport.class, Airport.NAME, Sort.Order.DESCENDING);
         airports = Airport.selectAll(query, sort);
-        JetwayAssertions.assertFeaturesOrdered(airports, validationAirports, 3, 4, 2, 1);
+        JetwayAssertions.assertFeaturesOrdered(airports, ValidationArrays.SORTING_BASIC_AIRPORTS, 3, 4, 2, 1);
     }
 
     /**
@@ -152,73 +153,189 @@ public class SortTests {
 
         Sort sort = Sort.by(Airport.class, Airport.LATITUDE, Sort.Order.ASCENDING);
         Airport[] airports = Airport.selectAll(query, sort);
-        JetwayAssertions.assertFeaturesOrdered(airports, validationAirports, 2, 1, 3, 0);
+        JetwayAssertions.assertFeaturesOrdered(airports, ValidationArrays.SORTING_BASIC_AIRPORTS, 2, 1, 3, 0);
 
         // Sorting by LATITUDE descending where FIELD_ELEVATION <= 16
 
         sort = Sort.by(Airport.class, Airport.LATITUDE, Sort.Order.DESCENDING);
         airports = Airport.selectAll(query, sort);
-        JetwayAssertions.assertFeaturesOrdered(airports, validationAirports, 0, 3, 1, 2);
+        JetwayAssertions.assertFeaturesOrdered(airports, ValidationArrays.SORTING_BASIC_AIRPORTS, 0, 3, 1, 2);
     }
 
     /**
-     * This method sets up the features
-     * needed for validation during assertions
-     * in {@link JetwayAssertions} methods.
+     * This method ensures that all features in the {@code sorting_nested.xml}
+     * file are correctly recognized by Jetway.  This allows for easier
+     * bug-finding when errors arise.  If this test fails, the error is most
+     * likely in the loader itself.  If other tests fail when this one passes,
+     * the error is most likely in the sorting functionality.
      */
-    @BeforeClass
-    public static void setupValidationFeatures() {
+    @Test
+    public void testAllNested() {
 
-        Airport airport1 = new Airport();
-        airport1.id = "AH_0000001";
-        airport1.name = "AIRPORT C";
-        airport1.fieldElevation = 10d;
-        airport1.latitude = 60d;
-        airport1.longitude = -155d;
-        airport1.servedCity = "FIRST CITY";
-        airport1.iataDesignator = "TST";
-        airport1.icao = "KTST";
+        // Make sure assertions are correct by selecting all
 
-        Airport airport2 = new Airport();
-        airport2.id = "AH_0000002";
-        airport2.name = "AIRPORT A";
-        airport2.fieldElevation = 12d;
-        airport2.latitude = 48d;
-        airport2.longitude = -160d;
-        airport2.servedCity = "SECOND CITY";
-        airport2.iataDesignator = "TST";
-        airport2.icao = "KTST";
+        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/sorting_nested.xml"));
+        JetwayTesting.initializeJetway(source);
 
-        Airport airport3 = new Airport();
-        airport3.id = "AH_0000003";
-        airport3.name = "AIRPORT F";
-        airport3.fieldElevation = 14d;
-        airport3.latitude = 46d;
-        airport3.longitude = -165d;
-        airport3.servedCity = "FIRST CITY";
-        airport3.iataDesignator = "TST";
-        airport3.icao = "KTST";
+        Airport[] airports = Airport.selectAll(null);
+        JetwayAssertions.assertFeatures(airports, ValidationArrays.SORTING_NESTED_AIRPORTS, 0, 1, 2);
 
-        Airport airport4 = new Airport();
-        airport4.id = "AH_0000004";
-        airport4.name = "AIRPORT Z";
-        airport4.fieldElevation = 16d;
-        airport4.latitude = 52d;
-        airport4.longitude = -170d;
-        airport4.servedCity = "SECOND CITY";
-        airport4.iataDesignator = "TST";
-        airport4.icao = "KTST";
+        Runway[] runways = Runway.selectAll(null);
+        JetwayAssertions.assertFeatures(runways, ValidationArrays.SORTING_NESTED_RUNWAYS, 0, 1, 2, 3, 4, 5);
 
-        Airport airport5 = new Airport();
-        airport5.id = "AH_0000005";
-        airport5.name = "AIRPORT H";
-        airport5.fieldElevation = 18d;
-        airport5.latitude = 50d;
-        airport5.longitude = -175d;
-        airport5.servedCity = "THIRD CITY";
-        airport5.iataDesignator = "TST";
-        airport5.icao = "KTST";
+        RunwayEnd[] runwayEnds = RunwayEnd.selectAll(null);
+        JetwayAssertions.assertFeatures(runwayEnds, ValidationArrays.SORTING_NESTED_RUNWAY_ENDS,
+                0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11);
 
-        validationAirports = new Airport[]{airport1, airport2, airport3, airport4, airport5};
+        RunwayDirection[] runwayDirections = RunwayDirection.selectAll(null);
+        JetwayAssertions.assertFeatures(runwayDirections, ValidationArrays.SORTING_NESTED_RUNWAY_DIRECTIONS,
+                0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11);
+    }
+
+    /**
+     * This method tests sorting runways.
+     */
+    @Test
+    public void testSortRunways() {
+
+        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/sorting_nested.xml"));
+        JetwayTesting.initializeJetway(source);
+
+        // Sorting by LENGTH ascending
+
+        Sort sort = Sort.by(Runway.class, Runway.LENGTH, Sort.Order.ASCENDING);
+        Runway[] runways = Runway.selectAll(null, sort);
+        JetwayAssertions.assertFeaturesOrdered(runways, ValidationArrays.SORTING_NESTED_RUNWAYS, 4, 2, 0, 1, 3, 5);
+
+        // Sorting by LENGTH descending
+
+        sort = Sort.by(Runway.class, Runway.LENGTH, Sort.Order.DESCENDING);
+        runways = Runway.selectAll(null, sort);
+        JetwayAssertions.assertFeaturesOrdered(runways, ValidationArrays.SORTING_NESTED_RUNWAYS, 5, 3, 1, 0, 2, 4);
+    }
+
+    /**
+     * This method tests sorting runways
+     * while also selecting a specific {@link Query}.
+     */
+    @Test
+    public void testSortRunwaysWithQuery() {
+
+        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/sorting_nested.xml"));
+        JetwayTesting.initializeJetway(source);
+
+        Query query = Query.whereGreaterThan(Runway.class, Runway.LENGTH, 10000);
+
+        // Sorting by LENGTH ascending where LENGTH > 10000
+
+        Sort sort = Sort.by(Runway.class, Runway.LENGTH, Sort.Order.ASCENDING);
+        Runway[] runways = Runway.selectAll(query, sort);
+        JetwayAssertions.assertFeaturesOrdered(runways, ValidationArrays.SORTING_NESTED_RUNWAYS, 1, 3, 5);
+
+        // Sorting by LENGTH descending where LENGTH > 10000
+
+        sort = Sort.by(Runway.class, Runway.LENGTH, Sort.Order.DESCENDING);
+        runways = Runway.selectAll(query, sort);
+        JetwayAssertions.assertFeaturesOrdered(runways, ValidationArrays.SORTING_NESTED_RUNWAYS, 5, 3, 1);
+    }
+
+    /**
+     * This method tests sorting runway ends.
+     */
+    @Test
+    public void testSortRunwayEnds() {
+
+        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/sorting_nested.xml"));
+        JetwayTesting.initializeJetway(source);
+
+        // Sorting by DESIGNATOR ascending
+
+        Sort sort = Sort.by(RunwayEnd.class, RunwayEnd.DESIGNATOR, Sort.Order.ASCENDING);
+        RunwayEnd[] runwayEnds = RunwayEnd.selectAll(null, sort);
+        JetwayAssertions.assertFeaturesOrdered(runwayEnds, ValidationArrays.SORTING_NESTED_RUNWAY_ENDS,
+                0, 4, 8, 2, 6, 10, 1, 5, 9, 3, 7, 11);
+
+        // Sorting by DESIGNATOR descending
+
+        sort = Sort.by(RunwayEnd.class, RunwayEnd.DESIGNATOR, Sort.Order.DESCENDING);
+        runwayEnds = RunwayEnd.selectAll(null, sort);
+        JetwayAssertions.assertFeaturesOrdered(runwayEnds, ValidationArrays.SORTING_NESTED_RUNWAY_ENDS,
+                11, 7, 3, 9, 5, 1, 10, 6, 2, 8, 4, 0);
+    }
+
+    /**
+     * This method tests sorting runway ends
+     * while also selecting a specific {@link Query}.
+     */
+    @Test
+    public void testSortRunwayEndsWithQuery() {
+
+        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/sorting_nested.xml"));
+        JetwayTesting.initializeJetway(source);
+
+        Query query = Query.whereLike(RunwayEnd.class, RunwayEnd.DESIGNATOR, "0_");
+
+        // Sorting by DESIGNATOR ascending
+
+        Sort sort = Sort.by(RunwayEnd.class, RunwayEnd.DESIGNATOR, Sort.Order.ASCENDING);
+        RunwayEnd[] runwayEnds = RunwayEnd.selectAll(query, sort);
+        JetwayAssertions.assertFeaturesOrdered(runwayEnds, ValidationArrays.SORTING_NESTED_RUNWAY_ENDS, 0, 4, 8);
+
+        // Sorting by DESIGNATOR descending
+
+        sort = Sort.by(RunwayEnd.class, RunwayEnd.DESIGNATOR, Sort.Order.DESCENDING);
+        runwayEnds = RunwayEnd.selectAll(query, sort);
+        JetwayAssertions.assertFeaturesOrdered(runwayEnds, ValidationArrays.SORTING_NESTED_RUNWAY_ENDS, 8, 4, 0);
+    }
+
+    /**
+     * This method tests sorting runway directions.
+     */
+    @Test
+    public void testSortRunwayDirections() {
+
+        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/sorting_nested.xml"));
+        JetwayTesting.initializeJetway(source);
+
+        // Sorting by LATITUDE ascending
+
+        Sort sort = Sort.by(RunwayDirection.class, RunwayDirection.LATITUDE, Sort.Order.ASCENDING);
+        RunwayDirection[] runwayDirections = RunwayDirection.selectAll(null, sort);
+        JetwayAssertions.assertFeaturesOrdered(runwayDirections, ValidationArrays.SORTING_NESTED_RUNWAY_DIRECTIONS,
+                9, 8, 5, 4, 0, 1, 2, 3, 6, 7, 10, 11);
+
+        // Sorting by LATITUDE descending
+
+        sort = Sort.by(RunwayDirection.class, RunwayDirection.LATITUDE, Sort.Order.DESCENDING);
+        runwayDirections = RunwayDirection.selectAll(null, sort);
+        JetwayAssertions.assertFeaturesOrdered(runwayDirections, ValidationArrays.SORTING_NESTED_RUNWAY_DIRECTIONS,
+                11, 10, 7, 6, 3, 2, 1, 0, 4, 5, 8, 9);
+    }
+
+    /**
+     * This method tests sorting runway directions
+     * while also selecting a specific {@link Query}.
+     */
+    @Test
+    public void testSortRunwayDirectionsWithQuery() {
+
+        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/sorting_nested.xml"));
+        JetwayTesting.initializeJetway(source);
+
+        Query query = Query.whereGreaterThan(RunwayDirection.class, RunwayDirection.LATITUDE, 50);
+
+        // Sorting by LATITUDE ascending
+
+        Sort sort = Sort.by(RunwayDirection.class, RunwayDirection.LATITUDE, Sort.Order.ASCENDING);
+        RunwayDirection[] runwayDirections = RunwayDirection.selectAll(query, sort);
+        JetwayAssertions.assertFeaturesOrdered(runwayDirections, ValidationArrays.SORTING_NESTED_RUNWAY_DIRECTIONS,
+                0, 1, 2, 3, 6, 7, 10, 11);
+
+        // Sorting by LATITUDE descending
+
+        sort = Sort.by(RunwayDirection.class, RunwayDirection.LATITUDE, Sort.Order.DESCENDING);
+        runwayDirections = RunwayDirection.selectAll(query, sort);
+        JetwayAssertions.assertFeaturesOrdered(runwayDirections, ValidationArrays.SORTING_NESTED_RUNWAY_DIRECTIONS,
+                11, 10, 7, 6, 3, 2, 1, 0);
     }
 }

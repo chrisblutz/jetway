@@ -69,42 +69,42 @@ public final class DefaultConverters {
     /**
      * This converter converts basic XMLBeans types and basic {@link Object}s into {@link Byte} values.
      */
-    public static final Converter<Byte> BYTE_CONVERTER = new BasicConverter<>((byte) 0, Byte.class, Byte::parseByte);
+    public static final Converter<Byte> BYTE_CONVERTER = new BasicConverter<>(Byte.class, Byte::parseByte);
 
     /**
      * This converter converts basic XMLBeans types and basic {@link Object}s into {@link Character} values.
      */
-    public static final Converter<Character> CHARACTER_CONVERTER = new BasicConverter<>('\0', Character.class, string -> string.length() == 1 ? string.charAt(0) : '\0');
+    public static final Converter<Character> CHARACTER_CONVERTER = new BasicConverter<>(Character.class, string -> string.length() == 1 ? string.charAt(0) : '\0');
 
     /**
      * This converter converts basic XMLBeans types and basic {@link Object}s into {@link Double} values.
      */
-    public static final Converter<Double> DOUBLE_CONVERTER = new BasicConverter<>(0d, Double.class, Double::parseDouble);
+    public static final Converter<Double> DOUBLE_CONVERTER = new BasicConverter<>(Double.class, Double::parseDouble);
 
     /**
      * This converter converts basic XMLBeans types and basic {@link Object}s into {@link Float} values.
      */
-    public static final Converter<Float> FLOAT_CONVERTER = new BasicConverter<>(0f, Float.class, Float::parseFloat);
+    public static final Converter<Float> FLOAT_CONVERTER = new BasicConverter<>(Float.class, Float::parseFloat);
 
     /**
      * This converter converts basic XMLBeans types and basic {@link Object}s into {@link Integer} values.
      */
-    public static final Converter<Integer> INTEGER_CONVERTER = new BasicConverter<>(0, Integer.class, Integer::parseInt);
+    public static final Converter<Integer> INTEGER_CONVERTER = new BasicConverter<>(Integer.class, Integer::parseInt);
 
     /**
      * This converter converts basic XMLBeans types and basic {@link Object}s into {@link Long} values.
      */
-    public static final Converter<Long> LONG_CONVERTER = new BasicConverter<>(0L, Long.class, Long::parseLong);
+    public static final Converter<Long> LONG_CONVERTER = new BasicConverter<>(Long.class, Long::parseLong);
 
     /**
      * This converter converts basic XMLBeans types and basic {@link Object}s into {@link String} values.
      */
-    public static final Converter<String> STRING_CONVERTER = new BasicConverter<>(null, String.class, string -> string);
+    public static final Converter<String> STRING_CONVERTER = new BasicConverter<>(String.class, string -> string);
 
     /**
      * This converter converts basic XMLBeans types and basic {@link Object}s into {@link Short} values.
      */
-    public static final Converter<Short> SHORT_CONVERTER = new BasicConverter<>((short) 0, Short.class, Short::parseShort);
+    public static final Converter<Short> SHORT_CONVERTER = new BasicConverter<>(Short.class, Short::parseShort);
 
     /**
      * This method registers converters for the main Java types, including

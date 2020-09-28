@@ -28,7 +28,6 @@ public class BasicConverter<T> implements Converter<T> {
 
     private static final Class<?>[] DEFAULT_ACCEPTED_TYPES = new Class<?>[]{XmlAnySimpleType.class, Object.class};
 
-    private final T defaultValue;
     private final Class<T> producedClass;
     private final StringConverter<T> converter;
 
@@ -36,13 +35,11 @@ public class BasicConverter<T> implements Converter<T> {
      * Creates a new basic converter that uses the specified {@link StringConverter} to
      * convert the incoming value's string representation to the converter's type.
      *
-     * @param defaultValue  the default value if incoming value is {@code null}
      * @param producedClass the type of value produced by this converter
      * @param converter     the {@link StringConverter} to use when converting
      */
-    public BasicConverter(T defaultValue, Class<T> producedClass, StringConverter<T> converter) {
+    public BasicConverter(Class<T> producedClass, StringConverter<T> converter) {
 
-        this.defaultValue = defaultValue;
         this.producedClass = producedClass;
         this.converter = converter;
     }
@@ -57,14 +54,7 @@ public class BasicConverter<T> implements Converter<T> {
     @Override
     public T convert(String value) {
 
-        if (value == null) {
-
-            return defaultValue;
-
-        } else {
-
-            return converter.convert(value);
-        }
+        return converter.convert(value);
     }
 
     @Override
