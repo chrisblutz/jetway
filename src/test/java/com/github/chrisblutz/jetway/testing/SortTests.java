@@ -23,7 +23,6 @@ import com.github.chrisblutz.jetway.features.Airport;
 import com.github.chrisblutz.jetway.features.Runway;
 import com.github.chrisblutz.jetway.features.RunwayDirection;
 import com.github.chrisblutz.jetway.features.RunwayEnd;
-import com.github.chrisblutz.jetway.logging.JetwayLog;
 import com.github.chrisblutz.jetway.testing.utils.JetwayAssertions;
 import com.github.chrisblutz.jetway.testing.utils.JetwayTesting;
 import com.github.chrisblutz.jetway.testing.utils.ValidationArrays;
@@ -44,7 +43,6 @@ public class SortTests {
     @Before
     public void beforeAll() {
 
-        JetwayLog.setLoggingEnabled(false);
         Jetway.reset();
     }
 

@@ -8,6 +8,7 @@
             <PatternLayout pattern="%d{MM-dd-yyyy HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
         </File>
         <Console name="STDOUT" target="SYSTEM_OUT">
+            <ThresholdFilter level="${env:JETWAY_STDOUT_LOG_LEVEL:-debug}"/>
             <PatternLayout pattern="%d{MM-dd-yyyy HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
         </Console>
     </Appenders>

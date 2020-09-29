@@ -6,6 +6,7 @@ env:
     - TEST_SERVER=127.0.0.1
     - TEST_USER=root
     - TEST_PASSWORD=
+    - JETWAY_STDOUT_LOG_LEVEL=OFF
 jobs:
   include:
     - name: Java 8 (OpenJDK)

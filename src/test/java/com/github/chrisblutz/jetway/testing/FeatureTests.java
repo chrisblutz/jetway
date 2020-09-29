@@ -21,7 +21,6 @@ import com.github.chrisblutz.jetway.aixm.exceptions.AIXMFeatureException;
 import com.github.chrisblutz.jetway.aixm.mappings.FeatureEntry;
 import com.github.chrisblutz.jetway.aixm.mappings.FeatureMapping;
 import com.github.chrisblutz.jetway.database.SchemaManager;
-import com.github.chrisblutz.jetway.logging.JetwayLog;
 import com.github.chrisblutz.jetway.testing.features.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,7 +43,6 @@ public class FeatureTests {
     @Before
     public void beforeAll() {
 
-        JetwayLog.setLoggingEnabled(false);
         Jetway.reset();
     }
 

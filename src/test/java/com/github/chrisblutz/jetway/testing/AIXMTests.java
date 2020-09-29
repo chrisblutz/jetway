@@ -19,7 +19,6 @@ import com.github.chrisblutz.jetway.Jetway;
 import com.github.chrisblutz.jetway.aixm.crawling.AIXMData;
 import com.github.chrisblutz.jetway.aixm.exceptions.AIXMException;
 import com.github.chrisblutz.jetway.conversion.DefaultConverters;
-import com.github.chrisblutz.jetway.logging.JetwayLog;
 import com.github.chrisblutz.jetway.testing.aixm.TestObject;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,7 +41,6 @@ public class AIXMTests {
     @Before
     public void beforeAll() {
 
-        JetwayLog.setLoggingEnabled(false);
         Jetway.reset();
         DefaultConverters.registerAll();
     }

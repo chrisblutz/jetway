@@ -18,7 +18,6 @@ package com.github.chrisblutz.jetway.testing;
 import com.github.chrisblutz.jetway.Jetway;
 import com.github.chrisblutz.jetway.conversion.DataConversion;
 import com.github.chrisblutz.jetway.conversion.DefaultConverters;
-import com.github.chrisblutz.jetway.logging.JetwayLog;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -41,7 +40,6 @@ public class ConversionTests {
     @Before
     public void beforeAll() {
 
-        JetwayLog.setLoggingEnabled(false);
         Jetway.reset();
         DefaultConverters.registerAll();
     }
