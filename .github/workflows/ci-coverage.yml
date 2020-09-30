@@ -17,8 +17,6 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    continue-on-error: true
-
     name: Ubuntu (Coverage Reporter)
     steps:
       - name: Check out repository
@@ -28,16 +26,6 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 8
-
-      - name: Download CodeClimate reporter
-        run: curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-
-      - name: Notify CodeClimate of incoming report
-        run: |
-          chmod +x ./cc-test-reporter
-          ./cc-test-reporter before-build
-        env:
-          CC_TEST_REPORTER_ID: ${{ secrets.CODECLIMATE_REPORTER_ID }}
 
       - name: Build Gradle project
         run: |
@@ -50,10 +38,8 @@ jobs:
           TEST_MYSQL_PASSWORD: password
           JETWAY_STDOUT_LOG_LEVEL: OFF
 
-      - name: Send CodeClimate coverage data
-        run: |
-          ./cc-test-reporter format-coverage -t jacoco ./build/reports/jacoco/test/jacocoTestReport.xml
-          ./cc-test-reporter upload-coverage
-        env:
-          CC_TEST_REPORTER_ID: ${{ secrets.CODECLIMATE_REPORTER_ID }}
-          JACOCO_SOURCE_PATH: ./src/main/java
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          file: ./build/reports/jacoco/test/jacocoTestReport.xml
+          flags: unittests
