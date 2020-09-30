@@ -19,6 +19,7 @@ import com.github.chrisblutz.jetway.aixm.annotations.AIXMAttribute;
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMFeature;
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMId;
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMRoot;
+import com.github.chrisblutz.jetway.features.Feature;
 
 /**
  * This class is used when testing for
@@ -28,7 +29,7 @@ import com.github.chrisblutz.jetway.aixm.annotations.AIXMRoot;
  */
 @AIXMFeature(name = "TestFeature", id = "FEATURE")
 @AIXMRoot("ROOT")
-public class InvalidIdFeature {
+public class InvalidIdFeature implements Feature {
 
     /**
      * This ID should cause an error because it is not
@@ -42,4 +43,10 @@ public class InvalidIdFeature {
      */
     @AIXMAttribute("Path")
     public String path;
+
+    @Override
+    public String getId() {
+
+        return null;
+    }
 }

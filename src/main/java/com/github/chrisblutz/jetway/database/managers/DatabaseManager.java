@@ -18,6 +18,7 @@ package com.github.chrisblutz.jetway.database.managers;
 import com.github.chrisblutz.jetway.database.SchemaManager;
 import com.github.chrisblutz.jetway.database.mappings.SchemaTable;
 import com.github.chrisblutz.jetway.database.queries.*;
+import com.github.chrisblutz.jetway.features.Feature;
 
 import java.text.MessageFormat;
 import java.util.HashSet;
@@ -245,7 +246,7 @@ public abstract class DatabaseManager {
 
     private void buildReferencedTablesFromForeignKeys(SingleQuery singleQuery, Set<SchemaTable> tables) {
 
-        Class<?> feature = singleQuery.getFeature();
+        Class<? extends Feature> feature = singleQuery.getFeature();
         SchemaTable table = SchemaManager.get(feature);
         tables.add(table);
 

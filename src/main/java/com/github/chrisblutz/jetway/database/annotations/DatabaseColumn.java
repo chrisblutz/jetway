@@ -16,6 +16,7 @@
 package com.github.chrisblutz.jetway.database.annotations;
 
 import com.github.chrisblutz.jetway.database.DatabaseType;
+import com.github.chrisblutz.jetway.features.Feature;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -78,8 +79,12 @@ public @interface DatabaseColumn {
      * and {@link DatabaseTable}.
      * <p>
      * If this attribute is set, {@link #foreign()} ()} must also be set.
+     * <p>
+     * This attribute defaults to the {@link Feature} class, which is used
+     * in this context to indicate that this column does not reference
+     * another table.
      *
      * @return The class that this foreign key links to
      */
-    Class<?> foreignClass() default Object.class;
+    Class<? extends Feature> foreignClass() default Feature.class;
 }

@@ -15,6 +15,8 @@
  */
 package com.github.chrisblutz.jetway.aixm.exceptions;
 
+import com.github.chrisblutz.jetway.features.Feature;
+
 /**
  * This exception class is used when errors occur related
  * to the structure or contents of AIXM feature classes,
@@ -32,7 +34,7 @@ public class AIXMFeatureException extends RuntimeException {
      * @param featureClass the class of the feature that caused the error
      * @param message      the error message
      */
-    public AIXMFeatureException(Class<?> featureClass, String message) {
+    public AIXMFeatureException(Class<? extends Feature> featureClass, String message) {
 
         super("Feature: " + featureClass.getSimpleName() + " -> " + message);
     }

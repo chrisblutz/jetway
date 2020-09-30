@@ -17,6 +17,7 @@ package com.github.chrisblutz.jetway.testing.features;
 
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMAttribute;
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMFeature;
+import com.github.chrisblutz.jetway.features.Feature;
 
 /**
  * This class is used when testing for
@@ -25,11 +26,17 @@ import com.github.chrisblutz.jetway.aixm.annotations.AIXMFeature;
  * @author Christopher lutz
  */
 @AIXMFeature(name = "TestFeature", id = "FEATURE")
-public class OrphanFeature {
+public class OrphanFeature implements Feature {
 
     /**
      * This attribute should not affect the test.
      */
     @AIXMAttribute("Path")
     public String path;
+
+    @Override
+    public String getId() {
+
+        return null;
+    }
 }

@@ -17,6 +17,7 @@ package com.github.chrisblutz.jetway.database.queries;
 
 import com.github.chrisblutz.jetway.database.SchemaManager;
 import com.github.chrisblutz.jetway.database.mappings.SchemaTable;
+import com.github.chrisblutz.jetway.features.Feature;
 
 /**
  * This class represents a sorting order for
@@ -88,7 +89,7 @@ public class Sort {
      * @param order     the sorting {@link Order}
      * @return The new sorting instance
      */
-    public static Sort by(Class<?> feature, String attribute, Order order) {
+    public static Sort by(Class<? extends Feature> feature, String attribute, Order order) {
 
         SchemaTable table = SchemaManager.get(feature);
         return new Sort(table, attribute, order);

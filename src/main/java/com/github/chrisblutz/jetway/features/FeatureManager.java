@@ -39,7 +39,7 @@ public final class FeatureManager {
      *
      * @param featureClass the feature class to register
      */
-    public static void register(Class<?> featureClass) {
+    public static void register(Class<? extends Feature> featureClass) {
 
         JetwayLog.getJetwayLogger().info("Registering feature '" + featureClass.getSimpleName() + "'...");
 

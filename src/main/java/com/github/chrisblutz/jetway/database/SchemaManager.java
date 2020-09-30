@@ -16,6 +16,7 @@
 package com.github.chrisblutz.jetway.database;
 
 import com.github.chrisblutz.jetway.database.mappings.SchemaTable;
+import com.github.chrisblutz.jetway.features.Feature;
 import com.github.chrisblutz.jetway.logging.JetwayLog;
 
 import java.lang.reflect.Field;
@@ -34,8 +35,8 @@ public final class SchemaManager {
 
     private SchemaManager() {}
 
-    private static final List<Class<?>> featureList = new ArrayList<>();
-    private static final Map<Class<?>, SchemaTable> classToSchemaTableMap = new HashMap<>();
+    private static final List<Class<? extends Feature>> featureList = new ArrayList<>();
+    private static final Map<Class<? extends Feature>, SchemaTable> classToSchemaTableMap = new HashMap<>();
 
     /**
      * This method retrieves the registered {@link SchemaTable} for
@@ -44,7 +45,7 @@ public final class SchemaManager {
      * @param featureClass the class to get the {@link SchemaTable} for
      * @return The {@link SchemaTable} associated with the specified class
      */
-    public static SchemaTable get(Class<?> featureClass) {
+    public static SchemaTable get(Class<? extends Feature> featureClass) {
 
         return classToSchemaTableMap.get(featureClass);
     }
@@ -56,7 +57,7 @@ public final class SchemaManager {
      *
      * @return A {@link List} of all registered feature classes
      */
-    public static List<Class<?>> getFeatures() {
+    public static List<Class<? extends Feature>> getFeatures() {
 
         return featureList;
     }
@@ -69,7 +70,7 @@ public final class SchemaManager {
      *
      * @param featureClass the feature class to register
      */
-    public static void registerFeatureType(Class<?> featureClass) {
+    public static void registerFeatureType(Class<? extends Feature> featureClass) {
 
         SchemaTable table = SchemaTable.build(featureClass);
 

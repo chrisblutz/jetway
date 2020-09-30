@@ -23,6 +23,7 @@ import com.github.chrisblutz.jetway.aixm.crawling.AIXMInstance;
 import com.github.chrisblutz.jetway.aixm.exceptions.AIXMException;
 import com.github.chrisblutz.jetway.database.SchemaManager;
 import com.github.chrisblutz.jetway.database.mappings.SchemaTable;
+import com.github.chrisblutz.jetway.features.Feature;
 import com.github.chrisblutz.jetway.logging.JetwayLog;
 
 import java.lang.reflect.Field;
@@ -36,10 +37,10 @@ public class FeatureEntry {
 
     private String name;
     private String id;
-    private Class<?> featureClass;
+    private Class<? extends Feature> featureClass;
     private FeatureMapping mapping;
     private String rootPath = null;
-    private Class<?> parent = null;
+    private Class<? extends Feature> parent = null;
     private SchemaTable schemaTable;
 
     private String currentId = null;
@@ -133,7 +134,7 @@ public class FeatureEntry {
      *
      * @return The parent class for this feature, or {@code null}
      */
-    public Class<?> getParentClass() {
+    public Class<? extends Feature> getParentClass() {
 
         return parent;
     }
@@ -272,7 +273,7 @@ public class FeatureEntry {
      * @param featureClass the class to build from
      * @return the entry built from the class
      */
-    public static FeatureEntry build(Class<?> featureClass) {
+    public static FeatureEntry build(Class<? extends Feature> featureClass) {
 
         // Check that the class provided is actually an AIXM feature
         if (!featureClass.isAnnotationPresent(AIXMFeature.class))
@@ -294,8 +295,10 @@ public class FeatureEntry {
             AIXMRoot rootDetails = featureClass.getAnnotation(AIXMRoot.class);
             entry.rootPath = rootDetails.value();
 
-        } else if (featureDetails.parent() != Object.class) {
+        } else if (featureDetails.parent() != Feature.class) {
 
+            // If parent is not "Feature" (i.e. if it has a valid parent)
+            // then set it
             entry.parent = featureDetails.parent();
         }
 

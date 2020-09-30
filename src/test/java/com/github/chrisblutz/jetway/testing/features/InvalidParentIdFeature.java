@@ -19,6 +19,7 @@ import com.github.chrisblutz.jetway.aixm.annotations.AIXMAttribute;
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMFeature;
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMId;
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMParent;
+import com.github.chrisblutz.jetway.features.NestedFeature;
 
 /**
  * This class is used when testing for
@@ -27,7 +28,7 @@ import com.github.chrisblutz.jetway.aixm.annotations.AIXMParent;
  * @author Christopher lutz
  */
 @AIXMFeature(name = "TestFeature", id = "FEATURE", parent = RootFeature.class)
-public class InvalidParentIdFeature {
+public class InvalidParentIdFeature implements NestedFeature {
 
     /**
      * This ID should cause an error because it is not
@@ -47,4 +48,16 @@ public class InvalidParentIdFeature {
      */
     @AIXMAttribute("Path")
     public String path;
+
+    @Override
+    public String getId() {
+
+        return id;
+    }
+
+    @Override
+    public String getParentId() {
+
+        return null;
+    }
 }

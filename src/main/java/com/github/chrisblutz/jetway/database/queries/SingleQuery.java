@@ -15,6 +15,8 @@
  */
 package com.github.chrisblutz.jetway.database.queries;
 
+import com.github.chrisblutz.jetway.features.Feature;
+
 /**
  * This class represents a single condition in a
  * database query.
@@ -23,7 +25,7 @@ package com.github.chrisblutz.jetway.database.queries;
  */
 public class SingleQuery extends Query {
 
-    private final Class<?> feature;
+    private final Class<? extends Feature> feature;
     private final String attribute;
     private final Object expected;
     private final Query.QueryOperation operation;
@@ -38,7 +40,7 @@ public class SingleQuery extends Query {
      * @param expected  the expected value
      * @param operation the comparison operation to use
      */
-    public SingleQuery(Class<?> feature, String attribute, Object expected, Query.QueryOperation operation) {
+    public SingleQuery(Class<? extends Feature> feature, String attribute, Object expected, Query.QueryOperation operation) {
 
         this.feature = feature;
         this.attribute = attribute;
@@ -52,7 +54,7 @@ public class SingleQuery extends Query {
      *
      * @return The feature that this query operates on
      */
-    public Class<?> getFeature() {
+    public Class<? extends Feature> getFeature() {
 
         return feature;
     }

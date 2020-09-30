@@ -16,6 +16,7 @@
 package com.github.chrisblutz.jetway.aixm.annotations;
 
 import com.github.chrisblutz.jetway.aixm.mappings.FeatureEntry;
+import com.github.chrisblutz.jetway.features.Feature;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -60,8 +61,11 @@ public @interface AIXMFeature {
      * {@link com.github.chrisblutz.jetway.features.Airport Airport}.
      * <p>
      * This attribute may be omitted if this feature does not have a parent.
+     * <p>
+     * This attribute defaults to the {@link Feature} class, which is used
+     * in this context to indicate that this feature does not have a parent.
      *
      * @return The parent class for this feature
      */
-    Class<?> parent() default Object.class;
+    Class<? extends Feature> parent() default Feature.class;
 }

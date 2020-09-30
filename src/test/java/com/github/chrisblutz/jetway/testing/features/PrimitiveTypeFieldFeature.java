@@ -18,6 +18,7 @@ package com.github.chrisblutz.jetway.testing.features;
 import com.github.chrisblutz.jetway.database.DatabaseType;
 import com.github.chrisblutz.jetway.database.annotations.DatabaseColumn;
 import com.github.chrisblutz.jetway.database.annotations.DatabaseTable;
+import com.github.chrisblutz.jetway.features.Feature;
 
 /**
  * This class is used when testing for attributes
@@ -26,7 +27,7 @@ import com.github.chrisblutz.jetway.database.annotations.DatabaseTable;
  * @author Christopher lutz
  */
 @DatabaseTable("Table")
-public class PrimitiveTypeFieldFeature {
+public class PrimitiveTypeFieldFeature implements Feature {
 
     /**
      * This attribute should not affect the test.
@@ -40,4 +41,10 @@ public class PrimitiveTypeFieldFeature {
      */
     @DatabaseColumn(name = "Test", type = DatabaseType.DOUBLE)
     public double test;
+
+    @Override
+    public String getId() {
+
+        return id;
+    }
 }

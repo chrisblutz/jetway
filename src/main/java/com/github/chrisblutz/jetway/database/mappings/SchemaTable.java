@@ -20,6 +20,7 @@ import com.github.chrisblutz.jetway.database.DatabaseType;
 import com.github.chrisblutz.jetway.database.SchemaManager;
 import com.github.chrisblutz.jetway.database.annotations.DatabaseColumn;
 import com.github.chrisblutz.jetway.database.annotations.DatabaseTable;
+import com.github.chrisblutz.jetway.features.Feature;
 import com.github.chrisblutz.jetway.logging.JetwayLog;
 import com.github.chrisblutz.jetway.utils.TypeUtils;
 
@@ -40,7 +41,7 @@ public class SchemaTable {
     private final Map<String, DatabaseType> typeMap = new HashMap<>();
     private final List<SchemaTable> childTables = new ArrayList<>();
     private String primaryKey, foreignKey;
-    private Class<?> foreignClass;
+    private Class<? extends Feature> foreignClass;
 
     /**
      * This method retrieves the {@link Field} linked
@@ -162,7 +163,7 @@ public class SchemaTable {
      * @param featureClass the class to build from
      * @return The schema built from the specified class
      */
-    public static SchemaTable build(Class<?> featureClass) {
+    public static SchemaTable build(Class<? extends Feature> featureClass) {
 
         // Check that the class provided defines a database table
         if (!featureClass.isAnnotationPresent(DatabaseTable.class))
@@ -182,7 +183,7 @@ public class SchemaTable {
         return table;
     }
 
-    private static void buildColumnFromField(Class<?> featureClass, Field field, SchemaTable table) {
+    private static void buildColumnFromField(Class<? extends Feature> featureClass, Field field, SchemaTable table) {
 
         // Check that the field provided is actually a database column
         if (!field.isAnnotationPresent(DatabaseColumn.class)) {
@@ -202,7 +203,7 @@ public class SchemaTable {
         DatabaseType type = columnDetails.type();
         boolean primary = columnDetails.primary();
         boolean foreign = columnDetails.foreign();
-        Class<?> foreignClass = columnDetails.foreignClass();
+        Class<? extends Feature> foreignClass = columnDetails.foreignClass();
 
         table.fieldMap.put(name, field);
         table.typeMap.put(name, type);

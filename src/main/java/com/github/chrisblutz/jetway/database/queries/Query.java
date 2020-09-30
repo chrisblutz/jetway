@@ -15,6 +15,8 @@
  */
 package com.github.chrisblutz.jetway.database.queries;
 
+import com.github.chrisblutz.jetway.features.Feature;
+
 /**
  * This class represents a SQL-style query to
  * narrow down information selected from the Jetway
@@ -63,7 +65,7 @@ public abstract class Query {
      * @param expected  the expected value
      * @return The query to check if the attribute is equal to the expected value
      */
-    public static Query whereEquals(Class<?> feature, String attribute, Object expected) {
+    public static Query whereEquals(Class<? extends Feature> feature, String attribute, Object expected) {
 
         return buildQuery(feature, attribute, expected, Query.QueryOperation.EQUALS);
     }
@@ -77,7 +79,7 @@ public abstract class Query {
      * @param expected  the expected value
      * @return The query to check if the attribute is not equal to the expected value
      */
-    public static Query whereNotEquals(Class<?> feature, String attribute, Object expected) {
+    public static Query whereNotEquals(Class<? extends Feature> feature, String attribute, Object expected) {
 
         return buildQuery(feature, attribute, expected, Query.QueryOperation.NOT_EQUALS);
     }
@@ -91,7 +93,7 @@ public abstract class Query {
      * @param expected  the expected value
      * @return The query to check if the attribute is greater than the expected value
      */
-    public static Query whereGreaterThan(Class<?> feature, String attribute, Object expected) {
+    public static Query whereGreaterThan(Class<? extends Feature> feature, String attribute, Object expected) {
 
         return buildQuery(feature, attribute, expected, Query.QueryOperation.GREATER_THAN);
     }
@@ -105,7 +107,7 @@ public abstract class Query {
      * @param expected  the expected value
      * @return The query to check if the attribute is greater than or equal to the expected value
      */
-    public static Query whereGreaterThanEquals(Class<?> feature, String attribute, Object expected) {
+    public static Query whereGreaterThanEquals(Class<? extends Feature> feature, String attribute, Object expected) {
 
         return buildQuery(feature, attribute, expected, Query.QueryOperation.GREATER_THAN_EQUALS);
     }
@@ -119,7 +121,7 @@ public abstract class Query {
      * @param expected  the expected value
      * @return The query to check if the attribute is less than the expected value
      */
-    public static Query whereLessThan(Class<?> feature, String attribute, Object expected) {
+    public static Query whereLessThan(Class<? extends Feature> feature, String attribute, Object expected) {
 
         return buildQuery(feature, attribute, expected, Query.QueryOperation.LESS_THAN);
     }
@@ -133,7 +135,7 @@ public abstract class Query {
      * @param expected  the expected value
      * @return The query to check if the attribute is less than or equal to the expected value
      */
-    public static Query whereLessThanEquals(Class<?> feature, String attribute, Object expected) {
+    public static Query whereLessThanEquals(Class<? extends Feature> feature, String attribute, Object expected) {
 
         return buildQuery(feature, attribute, expected, Query.QueryOperation.LESS_THAN_EQUALS);
     }
@@ -147,12 +149,12 @@ public abstract class Query {
      * @param expected  the expected value
      * @return The query to check if the attribute matches the expected pattern.
      */
-    public static Query whereLike(Class<?> feature, String attribute, Object expected) {
+    public static Query whereLike(Class<? extends Feature> feature, String attribute, Object expected) {
 
         return buildQuery(feature, attribute, expected, Query.QueryOperation.LIKE);
     }
 
-    private static Query buildQuery(Class<?> feature, String attribute, Object expected, Query.QueryOperation operation) {
+    private static Query buildQuery(Class<? extends Feature> feature, String attribute, Object expected, Query.QueryOperation operation) {
 
         return new SingleQuery(feature, attribute, expected, operation);
     }

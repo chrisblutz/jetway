@@ -17,6 +17,7 @@ package com.github.chrisblutz.jetway.aixm;
 
 import com.github.chrisblutz.jetway.aixm.exceptions.AIXMFeatureException;
 import com.github.chrisblutz.jetway.aixm.mappings.FeatureEntry;
+import com.github.chrisblutz.jetway.features.Feature;
 import com.github.chrisblutz.jetway.logging.JetwayLog;
 
 import java.util.*;
@@ -34,7 +35,7 @@ public final class AIXMFeatureManager {
     private AIXMFeatureManager() {}
 
     private static final Map<FeatureEntry, List<FeatureEntry>> childFeatureMap = new HashMap<>();
-    private static final Map<Class<?>, FeatureEntry> classToFeatureEntryMap = new HashMap<>();
+    private static final Map<Class<? extends Feature>, FeatureEntry> classToFeatureEntryMap = new HashMap<>();
 
     /**
      * This method retrieves {@link FeatureEntry} instances for all
@@ -69,7 +70,7 @@ public final class AIXMFeatureManager {
      * @param featureClass the class to retrieve the feature for
      * @return The {@link FeatureEntry} associated with the specified class
      */
-    public static FeatureEntry get(Class<?> featureClass) {
+    public static FeatureEntry get(Class<? extends Feature> featureClass) {
 
         return classToFeatureEntryMap.get(featureClass);
     }
@@ -82,7 +83,7 @@ public final class AIXMFeatureManager {
      *
      * @param featureClass the class to build a feature out of
      */
-    public static void registerFeatureType(Class<?> featureClass) {
+    public static void registerFeatureType(Class<? extends Feature> featureClass) {
 
         FeatureEntry entry = FeatureEntry.build(featureClass);
 
@@ -110,7 +111,7 @@ public final class AIXMFeatureManager {
         }
     }
 
-    private static boolean checkForRoot(FeatureEntry entry, Class<?> featureClass) {
+    private static boolean checkForRoot(FeatureEntry entry, Class<? extends Feature> featureClass) {
 
         if (entry.isRoot()) {
 
@@ -140,7 +141,7 @@ public final class AIXMFeatureManager {
         return false;
     }
 
-    private static void logFeatureInformation(FeatureEntry entry, FeatureEntry rootParent, Class<?> featureClass) {
+    private static void logFeatureInformation(FeatureEntry entry, FeatureEntry rootParent, Class<? extends Feature> featureClass) {
 
         JetwayLog.getJetwayLogger().info("Generated feature entry for feature '" + featureClass.getSimpleName() + "' with name '" + entry.getName() + "' and " + entry.getMapping().getFields().size() + "' fields.");
 

@@ -20,6 +20,7 @@ import com.github.chrisblutz.jetway.aixm.annotations.AIXMFeature;
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMId;
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMParent;
 import com.github.chrisblutz.jetway.aixm.exceptions.AIXMFeatureException;
+import com.github.chrisblutz.jetway.features.Feature;
 import com.github.chrisblutz.jetway.logging.JetwayLog;
 
 import java.lang.reflect.Field;
@@ -110,7 +111,7 @@ public class FeatureMapping {
      * @param featureClass the class to build from
      * @return The mapping for the {@link Field}s in the class
      */
-    public static FeatureMapping build(Class<?> featureClass) {
+    public static FeatureMapping build(Class<? extends Feature> featureClass) {
 
         // Check that the class provided is actually an AIXM feature
         if (!featureClass.isAnnotationPresent(AIXMFeature.class))
@@ -125,7 +126,7 @@ public class FeatureMapping {
         return map;
     }
 
-    private static void buildEntryFromField(Class<?> featureClass, Field field, FeatureMapping map) {
+    private static void buildEntryFromField(Class<? extends Feature> featureClass, Field field, FeatureMapping map) {
 
         // Check if this attribute is the ID attribute
         if (checkIDField(featureClass, field, map))
@@ -146,7 +147,7 @@ public class FeatureMapping {
         map.fieldMap.put(field, path);
     }
 
-    private static boolean checkIDField(Class<?> featureClass, Field field, FeatureMapping map) {
+    private static boolean checkIDField(Class<? extends Feature> featureClass, Field field, FeatureMapping map) {
 
         if (field.isAnnotationPresent(AIXMId.class)) {
             if (field.getType() != String.class) {
@@ -162,7 +163,7 @@ public class FeatureMapping {
         return false;
     }
 
-    private static boolean checkParentIDField(Class<?> featureClass, Field field, FeatureMapping map) {
+    private static boolean checkParentIDField(Class<? extends Feature> featureClass, Field field, FeatureMapping map) {
 
         if (field.isAnnotationPresent(AIXMParent.class)) {
             if (field.getType() != String.class) {

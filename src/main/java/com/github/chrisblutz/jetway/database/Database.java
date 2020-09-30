@@ -22,6 +22,7 @@ import com.github.chrisblutz.jetway.database.queries.DatabaseResult;
 import com.github.chrisblutz.jetway.database.queries.Query;
 import com.github.chrisblutz.jetway.database.queries.Sort;
 import com.github.chrisblutz.jetway.database.utils.DatabaseVerification;
+import com.github.chrisblutz.jetway.features.Feature;
 import com.github.chrisblutz.jetway.logging.JetwayLog;
 
 /**
@@ -179,7 +180,7 @@ public final class Database {
 
     private static void dropAllFeatureTables() {
 
-        for (Class<?> featureClass : SchemaManager.getFeatures()) {
+        for (Class<? extends Feature> featureClass : SchemaManager.getFeatures()) {
 
             SchemaTable table = SchemaManager.get(featureClass);
             JetwayLog.getDatabaseLogger().info("Dropping table '" + table.getTableName() + "'...");
@@ -203,7 +204,7 @@ public final class Database {
     private static void buildAllTables() {
 
         JetwayLog.getDatabaseLogger().info("Building all tables...");
-        for (Class<?> featureClass : SchemaManager.getFeatures()) {
+        for (Class<? extends Feature> featureClass : SchemaManager.getFeatures()) {
 
             SchemaTable table = SchemaManager.get(featureClass);
 
@@ -231,7 +232,7 @@ public final class Database {
      * @param <T>   the feature type
      * @return the feature instance selected, or {@code null} if none were selected
      */
-    public static <T> T select(Class<T> type, Query query) {
+    public static <T extends Feature> T select(Class<T> type, Query query) {
 
         SchemaTable table = SchemaManager.get(type);
         DatabaseResult result = getManager().runQuery(table, query, null);
@@ -263,7 +264,7 @@ public final class Database {
      * @param <T>   the feature type
      * @return the array of features selected
      */
-    public static <T> T[] selectAll(Class<T> type, Query query) {
+    public static <T extends Feature> T[] selectAll(Class<T> type, Query query) {
 
         return selectAll(type, query, null);
     }
@@ -282,7 +283,7 @@ public final class Database {
      * @param <T>   the feature type
      * @return the array of features selected
      */
-    public static <T> T[] selectAll(Class<T> type, Query query, Sort sort) {
+    public static <T extends Feature> T[] selectAll(Class<T> type, Query query, Sort sort) {
 
         SchemaTable table = SchemaManager.get(type);
         DatabaseResult result = getManager().runQuery(table, query, sort);

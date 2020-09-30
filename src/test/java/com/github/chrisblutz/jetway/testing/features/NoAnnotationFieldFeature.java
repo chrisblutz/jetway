@@ -17,6 +17,7 @@ package com.github.chrisblutz.jetway.testing.features;
 
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMFeature;
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMRoot;
+import com.github.chrisblutz.jetway.features.Feature;
 
 /**
  * This class is used when testing for
@@ -26,7 +27,7 @@ import com.github.chrisblutz.jetway.aixm.annotations.AIXMRoot;
  */
 @AIXMFeature(name = "TestFeature", id = "FEATURE")
 @AIXMRoot("ROOT")
-public class NoAnnotationFieldFeature {
+public class NoAnnotationFieldFeature implements Feature {
 
     /**
      * This attribute should not be registered
@@ -34,4 +35,10 @@ public class NoAnnotationFieldFeature {
      * {@link com.github.chrisblutz.jetway.aixm.annotations.AIXMAttribute}.
      */
     public String path;
+
+    @Override
+    public String getId() {
+
+        return null;
+    }
 }

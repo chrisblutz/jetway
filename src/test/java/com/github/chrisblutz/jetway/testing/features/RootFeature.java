@@ -19,6 +19,7 @@ import com.github.chrisblutz.jetway.aixm.annotations.AIXMAttribute;
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMFeature;
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMId;
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMRoot;
+import com.github.chrisblutz.jetway.features.Feature;
 
 /**
  * This class is used when testing root features.
@@ -27,7 +28,7 @@ import com.github.chrisblutz.jetway.aixm.annotations.AIXMRoot;
  */
 @AIXMFeature(name = "TestFeature", id = "FEATURE")
 @AIXMRoot("ROOT")
-public class RootFeature {
+public class RootFeature implements Feature {
 
     /**
      * This attribute should not affect the test.
@@ -40,4 +41,10 @@ public class RootFeature {
      */
     @AIXMAttribute("Path")
     public String path;
+
+    @Override
+    public String getId() {
+
+        return id;
+    }
 }
