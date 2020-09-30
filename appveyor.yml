@@ -1,8 +1,9 @@
 version: '{branch}-{build}'
 environment:
-  TEST_SERVER: 127.0.0.1
-  TEST_USER: root
-  TEST_PASSWORD: Password12!
+  TEST_MYSQL_SERVER: 127.0.0.1
+  TEST_MYSQL_PORT: 3306
+  TEST_MYSQL_USER: root
+  TEST_MYSQL_PASSWORD: Password12!
   JETWAY_STDOUT_LOG_LEVEL: OFF
 services: mysql
 build: off

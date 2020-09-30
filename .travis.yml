@@ -3,9 +3,10 @@ services:
   - mysql
 env:
   global:
-    - TEST_SERVER=127.0.0.1
-    - TEST_USER=root
-    - TEST_PASSWORD=
+    - TEST_MYSQL_SERVER=127.0.0.1
+    - TEST_MYSQL_PORT=3306
+    - TEST_MYSQL_USER=root
+    - TEST_MYSQL_PASSWORD=
     - JETWAY_STDOUT_LOG_LEVEL=OFF
 jobs:
   include:
