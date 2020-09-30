@@ -123,6 +123,17 @@ public final class Jetway {
     }
 
     /**
+     * This method sets the port for the database
+     * that Jetway will use.
+     *
+     * @param port the database port number
+     */
+    public static void setDatabasePort(int port) {
+
+        Database.getManager().setPort(port);
+    }
+
+    /**
      * This method sets the user for the database
      * that Jetway will use.
      *

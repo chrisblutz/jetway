@@ -69,12 +69,16 @@ public class JetwayTesting {
         Jetway.setAIXMSource(aixmSource);
         Jetway.setDatabaseManager(MySQLDatabaseManager.getInstance());
 
-        String server = System.getenv("TEST_SERVER");
-        String user = System.getenv("TEST_USER");
-        String password = System.getenv("TEST_PASSWORD");
+        String server = System.getenv("TEST_MYSQL_SERVER");
+        String port = System.getenv("TEST_MYSQL_PORT");
+        String user = System.getenv("TEST_MYSQL_USER");
+        String password = System.getenv("TEST_MYSQL_PASSWORD");
 
         if (server != null && !server.isEmpty())
             Jetway.setDatabaseServer(server);
+
+        if (port != null && !port.isEmpty())
+            Jetway.setDatabasePort(Integer.parseInt(port));
 
         if (user != null && !user.isEmpty())
             Jetway.setDatabaseUser(user);

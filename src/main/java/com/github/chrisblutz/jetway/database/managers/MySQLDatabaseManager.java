@@ -47,6 +47,12 @@ public class MySQLDatabaseManager extends SQLDatabaseManager {
     }
 
     @Override
+    public void setPort(int port) {
+
+        dataSource.setPort(port);
+    }
+
+    @Override
     public void setDatabaseName() {
 
         dataSource.setDatabaseName(DATABASE_NAME);

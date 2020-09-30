@@ -45,9 +45,17 @@ public abstract class DatabaseManager {
      * This method sets the server address to be used
      * by this database manager.
      *
-     * @param server The server address to use
+     * @param server the server address to use
      */
     public abstract void setServer(String server);
+
+    /**
+     * This method sets the port to be used by
+     * this database manager.
+     *
+     * @param port the port number
+     */
+    public abstract void setPort(int port);
 
     /**
      * This method sets the database name to be used by
@@ -60,7 +68,7 @@ public abstract class DatabaseManager {
      * This method sets the username to be used
      * by this database manager.
      *
-     * @param user The username to use
+     * @param user the username to use
      */
     public abstract void setUser(String user);
 
@@ -68,7 +76,7 @@ public abstract class DatabaseManager {
      * This method sets the password to be used
      * by this database manager.
      *
-     * @param password The password to use
+     * @param password the password to use
      */
     public abstract void setPassword(String password);
 
