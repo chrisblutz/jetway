@@ -17,6 +17,8 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    continue-on-error: true
+
     name: Ubuntu (Coverage Reporter)
     steps:
       - name: Check out repository

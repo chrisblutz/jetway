@@ -1,5 +1,4 @@
-[![Build Status](https://travis-ci.org/chrisblutz/jetway.svg?branch=master)](https://travis-ci.org/chrisblutz/jetway)
-[![Build status](https://ci.appveyor.com/api/projects/status/yp30mdj12vb1jd68?svg=true)](https://ci.appveyor.com/project/chrisblutz/jetway)
+[![Build Status](https://github.com/chrisblutz/jetway/workflows/CI%20-%20Unit%20Tests/badge.svg)](https://github.com/chrisblutz/jetway/actions)
 [![Maintainability](https://api.codeclimate.com/v1/badges/48507ad376c7b9cb5d6b/maintainability)](https://codeclimate.com/github/chrisblutz/jetway/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/48507ad376c7b9cb5d6b/test_coverage)](https://codeclimate.com/github/chrisblutz/jetway/test_coverage)
 
