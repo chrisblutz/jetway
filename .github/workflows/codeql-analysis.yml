@@ -1,0 +1,40 @@
+name: "Code Analysis"
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 0 * * 0'
+
+jobs:
+  analyze:
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ['java']
+
+    runs-on: ubuntu-latest
+
+    name: CodeQL Analysis (${{ matrix.language }})
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 2
+
+    - name: Check out HEAD for pull request
+      run: git checkout HEAD^2
+      if: ${{ github.event_name == 'pull_request' }}
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v1
+      with:
+        languages: ${{ matrix.language }}
+
+    - name: Build Gradle project
+      run: ./gradlew build -x check
+
+    - name: Perform CodeQL analysis
+      uses: github/codeql-action/analyze@v1
