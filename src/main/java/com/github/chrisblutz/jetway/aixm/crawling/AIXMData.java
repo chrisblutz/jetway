@@ -18,9 +18,14 @@ package com.github.chrisblutz.jetway.aixm.crawling;
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMAttribute;
 import com.github.chrisblutz.jetway.aixm.exceptions.AIXMException;
 import com.github.chrisblutz.jetway.conversion.DataConversion;
+import com.github.chrisblutz.jetway.database.Database;
+import com.github.chrisblutz.jetway.database.SchemaManager;
+import com.github.chrisblutz.jetway.features.Feature;
 import com.github.chrisblutz.jetway.logging.JetwayLog;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URLDecoder;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -39,6 +44,9 @@ public class AIXMData {
 
     private static final String PATH_REGEX = "([a-zA-Z0-9]+)\\[([0-9]+)]";
     private static final Pattern PATH_PATTERN = Pattern.compile(PATH_REGEX);
+
+    private static final String ID_REGEX = ".*\\[@gml:id='([A-Z_]+_[0-9_]+)']";
+    private static final Pattern ID_PATTERN = Pattern.compile(ID_REGEX);
 
     /**
      * This object represents the AIXM data in raw form.  Methods in
@@ -75,6 +83,43 @@ public class AIXMData {
     public Object get(Class<?> typeClass) {
 
         return DataConversion.get(data, typeClass);
+    }
+
+    /**
+     * This method extracts a foreign ID from the underlying AIXM data.
+     * The underlying data is formatted as a URL to data in the AIXM file,
+     * so this method pulls out the ID for the referenced feature.
+     *
+     * @param feature the type of feature the foreign ID references
+     * @return The foreign ID as a String, or {@code null} if it couldn't be extracted
+     */
+    public String decodeID(Class<? extends Feature> feature) {
+
+        try {
+
+            // Pull 'href' attribute from XMLBeans property type and URL-decode it
+            String href = data.getClass().getMethod("getHref").invoke(data).toString();
+            href = URLDecoder.decode(href, "UTF-8");
+            Matcher matcher = ID_PATTERN.matcher(href);
+            if (matcher.matches()) {
+
+                // Extract ID from regular expression
+                String id = matcher.group(1);
+
+                // Insert placeholder key into database to avoid foreign key constraint issues
+                Database.getManager().insertPrimaryKey(SchemaManager.get(feature), id);
+
+                return id;
+            }
+
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | UnsupportedEncodingException e) {
+
+            AIXMException exception = new AIXMException("An error occurred while decoding a foreign ID for feature '" + feature.getSimpleName() + "'.", e);
+            JetwayLog.getJetwayLogger().error(exception.getMessage(), exception);
+            throw exception;
+        }
+
+        return null;
     }
 
     /**

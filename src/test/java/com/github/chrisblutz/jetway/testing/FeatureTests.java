@@ -27,7 +27,8 @@ import org.junit.Test;
 
 import java.lang.reflect.Field;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * This class handles testing of feature
@@ -68,16 +69,6 @@ public class FeatureTests {
     }
 
     /**
-     * This method tests that orphaned features (no parent and not root)
-     * throw exceptions when registered.
-     */
-    @Test(expected = AIXMFeatureException.class)
-    public void testOrphanedFeature() {
-
-        AIXMFeatureManager.registerFeatureType(OrphanFeature.class);
-    }
-
-    /**
      * This method tests that features with the wrong ID type
      * throw exceptions when registered.
      */
@@ -88,14 +79,14 @@ public class FeatureTests {
     }
 
     /**
-     * This method tests that features with the wrong parent ID type
+     * This method tests that features with the wrong foreign key type
      * throw exceptions when registered.
      */
     @Test(expected = AIXMFeatureException.class)
-    public void testInvalidParentIdFeature() {
+    public void testInvalidForeignKeyFeature() {
 
         AIXMFeatureManager.registerFeatureType(RootFeature.class);
-        AIXMFeatureManager.registerFeatureType(InvalidParentIdFeature.class);
+        AIXMFeatureManager.registerFeatureType(InvalidForeignKeyFeature.class);
     }
 
     /**
@@ -110,8 +101,7 @@ public class FeatureTests {
     }
 
     /**
-     * This method tests that features marked as root features
-     * are registered as such.
+     * This method tests that features register their AIXM files correctly
      *
      * @throws NoSuchFieldException if either attribute field is not found
      *                              (this should never happen)
@@ -121,9 +111,7 @@ public class FeatureTests {
 
         AIXMFeatureManager.registerFeatureType(RootFeature.class);
         FeatureEntry entry = AIXMFeatureManager.get(RootFeature.class);
-        assertTrue(entry.isRoot());
-        assertFalse(entry.isChild());
-        assertEquals("ROOT", entry.getRootPath());
+        assertEquals("File", entry.getAIXMFile());
         assertEquals("TestFeature", entry.getName());
         assertEquals("FEATURE", entry.getId());
 

@@ -156,12 +156,12 @@ public class ValidationArrays {
 
         RunwayEnd loadNoExtensionRunwayEndBaseR1A1 = new RunwayEnd();
         loadNoExtensionRunwayEndBaseR1A1.id = "RWY_BASE_END_0000001_1";
-        loadNoExtensionRunwayEndBaseR1A1.runwayId = loadNoExtensionRunwayA1.id;
+        loadNoExtensionRunwayEndBaseR1A1.airportId = loadNoExtensionAirport.id;
         loadNoExtensionRunwayEndBaseR1A1.designator = "05";
 
         RunwayEnd loadNoExtensionRunwayEndReciprocalR1A1 = new RunwayEnd();
         loadNoExtensionRunwayEndReciprocalR1A1.id = "RWY_RECIPROCAL_END_0000001_1";
-        loadNoExtensionRunwayEndReciprocalR1A1.runwayId = loadNoExtensionRunwayA1.id;
+        loadNoExtensionRunwayEndReciprocalR1A1.airportId = loadNoExtensionAirport.id;
         loadNoExtensionRunwayEndReciprocalR1A1.designator = "23";
 
         LOAD_NO_EXTENSION_RUNWAY_ENDS = new RunwayEnd[]{loadNoExtensionRunwayEndBaseR1A1,
@@ -331,12 +331,12 @@ public class ValidationArrays {
 
         RunwayEnd queryNestedRunwayEndBase = new RunwayEnd();
         queryNestedRunwayEndBase.id = "RWY_BASE_END_0000001_1";
-        queryNestedRunwayEndBase.runwayId = queryNestedRunway1.id;
+        queryNestedRunwayEndBase.airportId = queryNestedAirport.id;
         queryNestedRunwayEndBase.designator = "05";
 
         RunwayEnd queryNestedRunwayEndReciprocal = new RunwayEnd();
         queryNestedRunwayEndReciprocal.id = "RWY_RECIPROCAL_END_0000001_1";
-        queryNestedRunwayEndReciprocal.runwayId = queryNestedRunway1.id;
+        queryNestedRunwayEndReciprocal.airportId = queryNestedAirport.id;
         queryNestedRunwayEndReciprocal.designator = "23";
 
         QUERY_NESTED_RUNWAY_ENDS = new RunwayEnd[]{queryNestedRunwayEndBase, queryNestedRunwayEndReciprocal};
@@ -492,62 +492,62 @@ public class ValidationArrays {
 
         RunwayEnd sortingNestedRunwayEndBaseR1A1 = new RunwayEnd();
         sortingNestedRunwayEndBaseR1A1.id = "RWY_BASE_END_0000001_1";
-        sortingNestedRunwayEndBaseR1A1.runwayId = sortingNestedRunway1A1.id;
+        sortingNestedRunwayEndBaseR1A1.airportId = sortingNestedAirport1.id;
         sortingNestedRunwayEndBaseR1A1.designator = "05";
 
         RunwayEnd sortingNestedRunwayEndReciprocalR1A1 = new RunwayEnd();
         sortingNestedRunwayEndReciprocalR1A1.id = "RWY_RECIPROCAL_END_0000001_1";
-        sortingNestedRunwayEndReciprocalR1A1.runwayId = sortingNestedRunway1A1.id;
+        sortingNestedRunwayEndReciprocalR1A1.airportId = sortingNestedAirport1.id;
         sortingNestedRunwayEndReciprocalR1A1.designator = "23";
 
         RunwayEnd sortingNestedRunwayEndBaseR2A1 = new RunwayEnd();
         sortingNestedRunwayEndBaseR2A1.id = "RWY_BASE_END_0000001_2";
-        sortingNestedRunwayEndBaseR2A1.runwayId = sortingNestedRunway2A1.id;
+        sortingNestedRunwayEndBaseR2A1.airportId = sortingNestedAirport1.id;
         sortingNestedRunwayEndBaseR2A1.designator = "10";
 
         RunwayEnd sortingNestedRunwayEndReciprocalR2A1 = new RunwayEnd();
         sortingNestedRunwayEndReciprocalR2A1.id = "RWY_RECIPROCAL_END_0000001_2";
-        sortingNestedRunwayEndReciprocalR2A1.runwayId = sortingNestedRunway2A1.id;
+        sortingNestedRunwayEndReciprocalR2A1.airportId = sortingNestedAirport1.id;
         sortingNestedRunwayEndReciprocalR2A1.designator = "28";
 
         RunwayEnd sortingNestedRunwayEndBaseR1A2 = new RunwayEnd();
         sortingNestedRunwayEndBaseR1A2.id = "RWY_BASE_END_0000002_1";
-        sortingNestedRunwayEndBaseR1A2.runwayId = sortingNestedRunway1A2.id;
+        sortingNestedRunwayEndBaseR1A2.airportId = sortingNestedAirport2.id;
         sortingNestedRunwayEndBaseR1A2.designator = "06";
 
         RunwayEnd sortingNestedRunwayEndReciprocalR1A2 = new RunwayEnd();
         sortingNestedRunwayEndReciprocalR1A2.id = "RWY_RECIPROCAL_END_0000002_1";
-        sortingNestedRunwayEndReciprocalR1A2.runwayId = sortingNestedRunway1A2.id;
+        sortingNestedRunwayEndReciprocalR1A2.airportId = sortingNestedAirport2.id;
         sortingNestedRunwayEndReciprocalR1A2.designator = "24";
 
         RunwayEnd sortingNestedRunwayEndBaseR2A2 = new RunwayEnd();
         sortingNestedRunwayEndBaseR2A2.id = "RWY_BASE_END_0000002_2";
-        sortingNestedRunwayEndBaseR2A2.runwayId = sortingNestedRunway2A2.id;
+        sortingNestedRunwayEndBaseR2A2.airportId = sortingNestedAirport2.id;
         sortingNestedRunwayEndBaseR2A2.designator = "11";
 
         RunwayEnd sortingNestedRunwayEndReciprocalR2A2 = new RunwayEnd();
         sortingNestedRunwayEndReciprocalR2A2.id = "RWY_RECIPROCAL_END_0000002_2";
-        sortingNestedRunwayEndReciprocalR2A2.runwayId = sortingNestedRunway2A2.id;
+        sortingNestedRunwayEndReciprocalR2A2.airportId = sortingNestedAirport2.id;
         sortingNestedRunwayEndReciprocalR2A2.designator = "29";
 
         RunwayEnd sortingNestedRunwayEndBaseR1A3 = new RunwayEnd();
         sortingNestedRunwayEndBaseR1A3.id = "RWY_BASE_END_0000003_1";
-        sortingNestedRunwayEndBaseR1A3.runwayId = sortingNestedRunway1A3.id;
+        sortingNestedRunwayEndBaseR1A3.airportId = sortingNestedAirport3.id;
         sortingNestedRunwayEndBaseR1A3.designator = "07";
 
         RunwayEnd sortingNestedRunwayEndReciprocalR1A3 = new RunwayEnd();
         sortingNestedRunwayEndReciprocalR1A3.id = "RWY_RECIPROCAL_END_0000003_1";
-        sortingNestedRunwayEndReciprocalR1A3.runwayId = sortingNestedRunway1A3.id;
+        sortingNestedRunwayEndReciprocalR1A3.airportId = sortingNestedAirport3.id;
         sortingNestedRunwayEndReciprocalR1A3.designator = "25";
 
         RunwayEnd sortingNestedRunwayEndBaseR2A3 = new RunwayEnd();
         sortingNestedRunwayEndBaseR2A3.id = "RWY_BASE_END_0000003_2";
-        sortingNestedRunwayEndBaseR2A3.runwayId = sortingNestedRunway2A3.id;
+        sortingNestedRunwayEndBaseR2A3.airportId = sortingNestedAirport3.id;
         sortingNestedRunwayEndBaseR2A3.designator = "12";
 
         RunwayEnd sortingNestedRunwayEndReciprocalR2A3 = new RunwayEnd();
         sortingNestedRunwayEndReciprocalR2A3.id = "RWY_RECIPROCAL_END_0000003_2";
-        sortingNestedRunwayEndReciprocalR2A3.runwayId = sortingNestedRunway2A3.id;
+        sortingNestedRunwayEndReciprocalR2A3.airportId = sortingNestedAirport3.id;
         sortingNestedRunwayEndReciprocalR2A3.designator = "30";
 
         SORTING_NESTED_RUNWAY_ENDS = new RunwayEnd[]{

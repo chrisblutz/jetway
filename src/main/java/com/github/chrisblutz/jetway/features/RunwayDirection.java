@@ -17,8 +17,8 @@ package com.github.chrisblutz.jetway.features;
 
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMAttribute;
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMFeature;
+import com.github.chrisblutz.jetway.aixm.annotations.AIXMForeign;
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMId;
-import com.github.chrisblutz.jetway.aixm.annotations.AIXMParent;
 import com.github.chrisblutz.jetway.database.Database;
 import com.github.chrisblutz.jetway.database.DatabaseType;
 import com.github.chrisblutz.jetway.database.annotations.DatabaseColumn;
@@ -33,7 +33,7 @@ import com.github.chrisblutz.jetway.database.queries.Sort;
  * @author Christopher Lutz
  */
 @DatabaseTable("RunwayDirections")
-@AIXMFeature(name = "RunwayDirection", id = "(RWY_DIRECTION_BASE_END|RWY_DIRECTION_RECIPROCAL_END)", parent = RunwayEnd.class)
+@AIXMFeature(name = "RunwayDirection", id = "(RWY_DIRECTION_BASE_END|RWY_DIRECTION_RECIPROCAL_END)", aixmFile = Airport.AIXM_FILE)
 public class RunwayDirection implements NestedFeature {
 
     public static final String ID = "id";
@@ -46,7 +46,7 @@ public class RunwayDirection implements NestedFeature {
     public String id;
 
     @DatabaseColumn(name = RUNWAY_END_ID, type = DatabaseType.STRING, foreign = true, foreignClass = RunwayEnd.class)
-    @AIXMParent
+    @AIXMForeign(feature = RunwayEnd.class, path = "UsedRunway")
     public String runwayEndId;
 
     @DatabaseColumn(name = LATITUDE, type = DatabaseType.DOUBLE)

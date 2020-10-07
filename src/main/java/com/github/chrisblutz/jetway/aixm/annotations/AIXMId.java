@@ -22,7 +22,7 @@ import java.lang.annotation.Target;
 
 /**
  * An {@link AIXMId} annotation denotes that a field
- * should be defined using the ID for its parent feature as found
+ * should be defined using the ID for its feature as found
  * within the AIXM files for that feature.
  *
  * @author Christopher Lutz

@@ -39,34 +39,26 @@ public final class AIXM {
     private static int totalCount = 0;
 
     /**
-     * This method begins the load sequence for all AIXM features
-     * that are registered via {@link AIXMFeatureManager}.  It
-     * iterates over all "root" features and loads that feature and all
-     * of its children from the feature's file.
+     * This method begins the load sequence for all registered AIXM files.
      */
     public static void load() {
 
-        // For each root entry, perform the full load sequence
-        for (FeatureEntry rootEntry : AIXMFeatureManager.getRootEntries())
-            load(rootEntry);
+        // For each AIXM file, perform the full load sequence
+        for (String aixmFile : AIXMFeatureManager.getAIXMFiles())
+            load(aixmFile);
     }
 
     /**
-     * This method loads a specific root feature's file.
+     * This method loads a specific AIXM file.
      * It first loads the file into memory using XMLBeans,
      * then parses each AIXM entry into a specific feature,
      * if applicable.
      *
-     * @param rootEntry the feature type to load.  This feature
-     *                  defines which file should be read.
+     * @param aixmFile the AIXM file to load
      */
-    public static void load(final FeatureEntry rootEntry) {
+    public static void load(String aixmFile) {
 
-        // Check to make sure that entry is root
-        if (!rootEntry.isRoot())
-            return;
-
-        JetwayLog.getJetwayLogger().info("Loading AIXM data in path '" + rootEntry.getRootPath() + "'...");
+        JetwayLog.getJetwayLogger().info("Loading AIXM data in path '" + aixmFile + "'...");
 
         // Reset count of entries
         totalCount = 0;
@@ -76,11 +68,11 @@ public final class AIXM {
 
         // Load AIXM properties from file
         JetwayLog.getJetwayLogger().info("Loading AIXM file into memory...");
-        final SubscriberFileComponentPropertyType[] properties = AIXMFiles.loadAIXMFile(rootEntry.getRootPath());
+        final SubscriberFileComponentPropertyType[] properties = AIXMFiles.loadAIXMFile(aixmFile);
 
         // Find all possible AIXM features that may be in this file
         JetwayLog.getJetwayLogger().info("Retrieving all possible features for this file...");
-        List<FeatureEntry> possibleEntries = AIXMFeatureManager.getPossibleEntries(rootEntry);
+        List<FeatureEntry> possibleEntries = AIXMFeatureManager.getPossibleEntries(aixmFile);
 
         long loadTime = System.currentTimeMillis();
 
@@ -136,9 +128,6 @@ public final class AIXM {
         if (!Database.getManager().insertEntry(feature.getEntry().getSchemaTable(), featureInstance))
             JetwayLog.getDatabaseLogger().warn("Failed to insert entry into database.  Feature: " + feature.getEntry().getName() + ", ID: " + feature.getId());
 
-        // Update information for future children
-        feature.getEntry().updateCurrentID(feature.getId());
-
         // Increment feature counter
         totalCount++;
     }
@@ -149,13 +138,6 @@ public final class AIXM {
         if (feature.getEntry().getMapping().getIDField() != null) {
 
             feature.getEntry().getMapping().getIDField().set(featureInstance, feature.getId());
-        }
-
-        // Fill in the parent field if present
-        if (feature.getEntry().getMapping().getParentField() != null) {
-
-            String parentId = feature.getEntry().getParentEntry().getCurrentID();
-            feature.getEntry().getMapping().getParentField().set(featureInstance, parentId);
         }
 
         // Fill in fields

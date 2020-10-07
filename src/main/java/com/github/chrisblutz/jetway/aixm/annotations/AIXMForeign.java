@@ -15,36 +15,38 @@
  */
 package com.github.chrisblutz.jetway.aixm.annotations;
 
+import com.github.chrisblutz.jetway.features.Feature;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * An {@link AIXMRoot} annotation denotes that a class
- * (which should also feature an {@link AIXMFeature} annotation)
- * is a "root" feature for its file.  This is generally
- * a feature which does not "belong" to any other feature, such as how
- * runways belong to airports.
- * <p>
- * For example, {@link com.github.chrisblutz.jetway.features.Airport Airport}
- * is the root for its file.
+ * An {@link AIXMForeign} annotation indicates that the annotated
+ * field refers to an ID of another feature, like foreign keys in a
+ * database.
  *
  * @author Christopher Lutz
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface AIXMRoot {
+@Target(ElementType.FIELD)
+public @interface AIXMForeign {
 
     /**
-     * The value attribute defines the name of the files that AIXM
-     * data for this feature and all child features can be found in.
-     * Both the ZIP and XML files should have this name.
-     * <p>
-     * For example, the file names for the {@link com.github.chrisblutz.jetway.features.Airport Airport}
-     * feature and its children is {@code APT_AIXM}.
+     * This attribute denotes the feature that this ID references.
      *
-     * @return the file name for AIXM files that contain this feature and its children
+     * @return The feature that this ID references
      */
-    String value();
+    Class<? extends Feature> feature() default Feature.class;
+
+    /**
+     * This attribute denotes the "path" to the field's data
+     * within the AIXM feature.  See
+     * {@link com.github.chrisblutz.jetway.aixm.crawling.AIXMData#crawl(String) AIXMData.crawl()}
+     * to see the path description.
+     *
+     * @return The path to the field's data within the AIXM feature
+     */
+    String path();
 }

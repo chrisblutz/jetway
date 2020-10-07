@@ -17,8 +17,8 @@ package com.github.chrisblutz.jetway.features;
 
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMAttribute;
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMFeature;
+import com.github.chrisblutz.jetway.aixm.annotations.AIXMForeign;
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMId;
-import com.github.chrisblutz.jetway.aixm.annotations.AIXMParent;
 import com.github.chrisblutz.jetway.database.Database;
 import com.github.chrisblutz.jetway.database.DatabaseType;
 import com.github.chrisblutz.jetway.database.annotations.DatabaseColumn;
@@ -33,11 +33,11 @@ import com.github.chrisblutz.jetway.database.queries.Sort;
  * @author Christopher Lutz
  */
 @DatabaseTable("RunwayEnds")
-@AIXMFeature(name = "Runway", id = "(RWY_BASE_END|RWY_RECIPROCAL_END)", parent = Runway.class)
+@AIXMFeature(name = "Runway", id = "(RWY_BASE_END|RWY_RECIPROCAL_END)", aixmFile = Airport.AIXM_FILE)
 public class RunwayEnd implements NestedFeature {
 
     public static final String ID = "id";
-    public static final String RUNWAY_ID = "runwayId";
+    public static final String AIRPORT_ID = "airportId";
     public static final String DESIGNATOR = "Designator";
 
     private RunwayDirection[] runwayDirections;
@@ -46,9 +46,9 @@ public class RunwayEnd implements NestedFeature {
     @AIXMId
     public String id;
 
-    @DatabaseColumn(name = RUNWAY_ID, type = DatabaseType.STRING, foreign = true, foreignClass = Runway.class)
-    @AIXMParent
-    public String runwayId;
+    @DatabaseColumn(name = AIRPORT_ID, type = DatabaseType.STRING, foreign = true, foreignClass = Airport.class)
+    @AIXMForeign(feature = Airport.class, path = "AssociatedAirportHeliport")
+    public String airportId;
 
     @DatabaseColumn(name = DESIGNATOR, type = DatabaseType.STRING)
     @AIXMAttribute("Feature/Designator")
@@ -63,7 +63,7 @@ public class RunwayEnd implements NestedFeature {
     @Override
     public String getParentId() {
 
-        return runwayId;
+        return airportId;
     }
 
     @Override
@@ -71,7 +71,7 @@ public class RunwayEnd implements NestedFeature {
 
         return "RunwayEnd{" +
                 "id='" + id + '\'' +
-                ", runwayId='" + runwayId + '\'' +
+                ", airportId='" + airportId + '\'' +
                 ", designator='" + designator + '\'' +
                 '}';
     }

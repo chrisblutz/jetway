@@ -17,16 +17,31 @@ package com.github.chrisblutz.jetway.testing.features;
 
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMAttribute;
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMFeature;
-import com.github.chrisblutz.jetway.features.Feature;
+import com.github.chrisblutz.jetway.aixm.annotations.AIXMForeign;
+import com.github.chrisblutz.jetway.aixm.annotations.AIXMId;
+import com.github.chrisblutz.jetway.features.NestedFeature;
 
 /**
  * This class is used when testing for
- * orphan features (no parent and not root).
+ * invalid foreign key types.
  *
  * @author Christopher lutz
  */
-@AIXMFeature(name = "TestFeature", id = "FEATURE")
-public class OrphanFeature implements Feature {
+@AIXMFeature(name = "TestFeature", id = "FEATURE", aixmFile = "File")
+public class InvalidForeignKeyFeature implements NestedFeature {
+
+    /**
+     * This attribute should not affect the test.
+     */
+    @AIXMId
+    public String id;
+
+    /**
+     * This ID should cause an error because it is not
+     * of type {@code String}.
+     */
+    @AIXMForeign(feature = RootFeature.class, path = "Path")
+    public int parentId;
 
     /**
      * This attribute should not affect the test.
@@ -36,6 +51,12 @@ public class OrphanFeature implements Feature {
 
     @Override
     public String getId() {
+
+        return id;
+    }
+
+    @Override
+    public String getParentId() {
 
         return null;
     }

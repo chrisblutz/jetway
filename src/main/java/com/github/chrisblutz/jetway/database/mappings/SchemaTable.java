@@ -25,7 +25,9 @@ import com.github.chrisblutz.jetway.logging.JetwayLog;
 import com.github.chrisblutz.jetway.utils.TypeUtils;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * This class represents a schema for a database table, based on
@@ -39,9 +41,8 @@ public class SchemaTable {
     private String tableName;
     private final Map<String, Field> fieldMap = new HashMap<>();
     private final Map<String, DatabaseType> typeMap = new HashMap<>();
-    private final List<SchemaTable> childTables = new ArrayList<>();
-    private String primaryKey, foreignKey;
-    private Class<? extends Feature> foreignClass;
+    private final Map<String, Class<? extends Feature>> foreignKeyMap = new HashMap<>();
+    private String primaryKey;
 
     /**
      * This method retrieves the {@link Field} linked
@@ -86,36 +87,27 @@ public class SchemaTable {
     }
 
     /**
-     * This method checks if this table has a foreign key.
+     * This method gets the name of the foreign keys for this table,
+     * or {@code null} if no foreign keys exist.
      *
-     * @return {@code true} if a foreign key exists, {@code false} otherwise
+     * @return The name of the foreign keys, or an empty {@link Set<String>} if no foreign keys exist
      */
-    public boolean hasForeignKey() {
+    public Set<String> getForeignKeys() {
 
-        return getForeignKey() != null;
+        return foreignKeyMap.keySet();
     }
 
     /**
-     * This method gets the name of the foreign key for this table,
-     * or {@code null} if no foreign key exists.
-     *
-     * @return The name of the foreign key, or {@code null}
-     */
-    public String getForeignKey() {
-
-        return foreignKey;
-    }
-
-    /**
-     * This method gets the table that the foreign key for this table
-     * links to.  If this table has no foreign key, this method returns
+     * This method gets the table that the specified foreign key for this table
+     * links to.  If the given attribute is not a foreign key, this method returns
      * {@code null.}
      *
+     * @param foreignKey the foreign key to use
      * @return The table linked to by the foreign key, or {@code null}
      */
-    public SchemaTable getForeignTable() {
+    public SchemaTable getForeignTable(String foreignKey) {
 
-        return SchemaManager.get(foreignClass);
+        return SchemaManager.get(foreignKeyMap.get(foreignKey));
     }
 
     /**
@@ -126,7 +118,7 @@ public class SchemaTable {
      */
     public boolean isSpecialKey(String attribute) {
 
-        return attribute.equals(getPrimaryKey()) || attribute.equals(getForeignKey());
+        return attribute.equals(getPrimaryKey()) || getForeignKeys().contains(attribute);
     }
 
     /**
@@ -211,9 +203,7 @@ public class SchemaTable {
         if (primary)
             table.primaryKey = name;
 
-        if (foreign) {
-            table.foreignKey = name;
-            table.foreignClass = foreignClass;
-        }
+        if (foreign)
+            table.foreignKeyMap.put(name, foreignClass);
     }
 }
