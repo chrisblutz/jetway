@@ -18,16 +18,14 @@ package com.github.chrisblutz.jetway.testing.features;
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMAttribute;
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMFeature;
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMId;
-import com.github.chrisblutz.jetway.aixm.annotations.AIXMRoot;
 import com.github.chrisblutz.jetway.features.Feature;
 
 /**
- * This class is used when testing root features.
+ * This class is used when testing features with no foreign keys.
  *
  * @author Christopher lutz
  */
-@AIXMFeature(name = "TestFeature", id = "FEATURE")
-@AIXMRoot("ROOT")
+@AIXMFeature(name = "TestFeature", id = "FEATURE", aixmFile = "File")
 public class RootFeature implements Feature {
 
     /**

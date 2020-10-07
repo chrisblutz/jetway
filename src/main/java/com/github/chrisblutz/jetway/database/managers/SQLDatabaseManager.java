@@ -22,6 +22,7 @@ import com.github.chrisblutz.jetway.database.exceptions.DatabaseException;
 import com.github.chrisblutz.jetway.database.mappings.SchemaTable;
 import com.github.chrisblutz.jetway.database.queries.*;
 import com.github.chrisblutz.jetway.logging.JetwayLog;
+import com.github.chrisblutz.jetway.utils.ResultPair;
 
 import java.lang.reflect.Field;
 import java.sql.Connection;
@@ -239,12 +240,11 @@ public abstract class SQLDatabaseManager extends DatabaseManager {
         String primarySQLType = getSQLType(table.getAttributeType(primary));
         StringBuilder attributes = new StringBuilder(format("\t{0} {1} NOT NULL", primary, primarySQLType));
 
-        // Append foreign key definition if this table has one
-        if (table.hasForeignKey()) {
+        // Append foreign key definitions if this table has any
+        for (String foreignKey : table.getForeignKeys()) {
 
-            String foreign = table.getForeignKey();
-            String foreignSQLType = getSQLType(table.getAttributeType(foreign));
-            attributes.append(format(",\n\t{0} {1} NOT NULL", foreign, foreignSQLType));
+            String foreignSQLType = getSQLType(table.getAttributeType(foreignKey));
+            attributes.append(format(",\n\t{0} {1} NULL", foreignKey, foreignSQLType));
         }
 
         // Append all further attribute definitions  as long as they are not special (i.e. primary or foreign keys)
@@ -260,14 +260,14 @@ public abstract class SQLDatabaseManager extends DatabaseManager {
         // Declare the primary key column
         attributes.append(format(",\n\tPRIMARY KEY ({0})", primary));
 
-        // If the table has a foreign key, declare that column
-        if (table.hasForeignKey()) {
+        // If the table has any foreign key, declare them
+        for (String foreignKey : table.getForeignKeys()) {
 
-            String foreign = table.getForeignKey();
-            String foreignTable = table.getForeignTable().getTableName();
-            String foreignTablePrimary = table.getForeignTable().getPrimaryKey();
+            SchemaTable foreignTable = table.getForeignTable(foreignKey);
+            String foreignTableName = foreignTable.getTableName();
+            String foreignTablePrimary = foreignTable.getPrimaryKey();
             attributes.append(format(",\n\tFOREIGN KEY ({0})\n\t\tREFERENCES {1}({2})\n\t\tON DELETE CASCADE",
-                    foreign, foreignTable, foreignTablePrimary));
+                    foreignKey, foreignTableName, foreignTablePrimary));
         }
 
         return attributes.toString();
@@ -283,19 +283,27 @@ public abstract class SQLDatabaseManager extends DatabaseManager {
     @Override
     public boolean insertEntry(SchemaTable table, Object value) {
 
-        String query = format("REPLACE INTO {0} VALUES ({1});", table.getTableName(), getValuesAsSQL(table, value));
+        // First is attribute list, second is value list
+        ResultPair<String, String> results = getValuesAsSQL(table, value);
+
+        // Insert into database, replacing any entries already present
+        String query = format("REPLACE INTO {0} ({1}) VALUES ({2});", table.getTableName(), results.getFirst(), results.getSecond());
         return execute(query);
     }
 
-    private String getValuesAsSQL(SchemaTable table, Object value) {
+    private ResultPair<String, String> getValuesAsSQL(SchemaTable table, Object value) {
 
         // Start with primary key value
         String primary = table.getPrimaryKey();
+        StringBuilder attributes = new StringBuilder(primary);
         StringBuilder values = new StringBuilder(formatAttributeAsSQLType(table, primary, value));
 
-        // Append foreign key value if this table has one
-        if (table.hasForeignKey())
-            values.append(format(", {0}", formatAttributeAsSQLType(table, table.getForeignKey(), value)));
+        // Append foreign key values if this table has any
+        for (String foreignKey : table.getForeignKeys()) {
+
+            attributes.append(", ").append(foreignKey);
+            values.append(", ").append(formatAttributeAsSQLType(table, foreignKey, value));
+        }
 
         // Append all further attributes as long as they are not special (i.e. primary or foreign keys)
         for (String attribute : table.getAttributes()) {
@@ -303,10 +311,11 @@ public abstract class SQLDatabaseManager extends DatabaseManager {
             if (table.isSpecialKey(attribute))
                 continue;
 
-            values.append(format(", {0}", formatAttributeAsSQLType(table, attribute, value)));
+            attributes.append(", ").append(attribute);
+            values.append(", ").append(formatAttributeAsSQLType(table, attribute, value));
         }
 
-        return values.toString();
+        return new ResultPair<>(attributes.toString(), values.toString());
     }
 
     private String formatAttributeAsSQLType(SchemaTable table, String attribute, Object value) {
@@ -330,6 +339,17 @@ public abstract class SQLDatabaseManager extends DatabaseManager {
             JetwayLog.getDatabaseLogger().error(exception.getMessage(), exception);
             throw exception;
         }
+    }
+
+    @Override
+    public boolean insertPrimaryKey(SchemaTable table, Object primaryKey) {
+
+        String keyAttribute = table.getPrimaryKey();
+        String formattedKey = formatAsSQLType(table.getAttributeType(keyAttribute), primaryKey);
+
+        // Insert key into table, and if it already exists, set the ID to itself (i.e. change nothing)
+        String query = format("INSERT INTO {0} ({1}) VALUES ({2}) ON DUPLICATE KEY UPDATE {1} = {1};", table.getTableName(), table.getPrimaryKey(), formattedKey);
+        return execute(query);
     }
 
     @Override
@@ -443,10 +463,16 @@ public abstract class SQLDatabaseManager extends DatabaseManager {
         Set<String> joinConditions = new HashSet<>();
 
         for (SchemaTable table : referencedTables) {
-            if (table.hasForeignKey()) {
-                SchemaTable foreignTable = table.getForeignTable();
-                joinConditions.add(table.getTableName() + "." + table.getForeignKey() + " = " +
-                        foreignTable.getTableName() + "." + foreignTable.getPrimaryKey());
+
+            // Go through any foreign keys that the current table has
+            for (String foreignKey : table.getForeignKeys()) {
+
+                SchemaTable foreignTable = table.getForeignTable(foreignKey);
+
+                // If the foreign key refers to a table that is also referenced in the query, join on it
+                if (referencedTables.contains(foreignTable))
+                    joinConditions.add(table.getTableName() + "." + foreignKey + " = " +
+                            foreignTable.getTableName() + "." + foreignTable.getPrimaryKey());
             }
         }
 

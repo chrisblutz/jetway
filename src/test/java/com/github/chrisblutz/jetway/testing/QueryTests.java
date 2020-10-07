@@ -418,10 +418,8 @@ public class QueryTests {
         JetwayAssertions.assertFeatures(runways, ValidationArrays.QUERY_NESTED_RUNWAYS, 1, 2);
 
         // Select runway ends where DESIGNATOR = 05
-        Runway runway = Runway.select(Query.whereEquals(Runway.class, Runway.ID, "RWY_0000001_1"));
-
         query = Query.whereEquals(RunwayEnd.class, RunwayEnd.DESIGNATOR, "05");
-        RunwayEnd[] runwayEnds = runway.getRunwayEnds(query);
+        RunwayEnd[] runwayEnds = airport.getRunwayEnds(query);
         JetwayAssertions.assertFeatures(runwayEnds, ValidationArrays.QUERY_NESTED_RUNWAY_ENDS, 0);
 
         // Select runway directions where LATITUDE > 60 (should be empty)

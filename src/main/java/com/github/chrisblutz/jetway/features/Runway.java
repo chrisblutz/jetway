@@ -17,8 +17,8 @@ package com.github.chrisblutz.jetway.features;
 
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMAttribute;
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMFeature;
+import com.github.chrisblutz.jetway.aixm.annotations.AIXMForeign;
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMId;
-import com.github.chrisblutz.jetway.aixm.annotations.AIXMParent;
 import com.github.chrisblutz.jetway.database.Database;
 import com.github.chrisblutz.jetway.database.DatabaseType;
 import com.github.chrisblutz.jetway.database.annotations.DatabaseColumn;
@@ -34,7 +34,7 @@ import com.github.chrisblutz.jetway.database.queries.Sort;
  * @author Christopher Lutz
  */
 @DatabaseTable("Runways")
-@AIXMFeature(name = "Runway", id = "RWY", parent = Airport.class)
+@AIXMFeature(name = "Runway", id = "RWY", aixmFile = Airport.AIXM_FILE)
 public class Runway implements NestedFeature {
 
     public static final String ID = "id";
@@ -43,14 +43,12 @@ public class Runway implements NestedFeature {
     public static final String LENGTH = "Length";
     public static final String WIDTH = "Width";
 
-    private RunwayEnd[] runwayEnds;
-
     @DatabaseColumn(name = ID, type = DatabaseType.STRING, primary = true)
     @AIXMId
     public String id;
 
     @DatabaseColumn(name = AIRPORT_ID, type = DatabaseType.STRING, foreign = true, foreignClass = Airport.class)
-    @AIXMParent
+    @AIXMForeign(feature = Airport.class, path = "AssociatedAirportHeliport")
     public String airportId;
 
     @DatabaseColumn(name = DESIGNATOR, type = DatabaseType.STRING)
@@ -87,44 +85,6 @@ public class Runway implements NestedFeature {
                 ", length=" + length +
                 ", width=" + width +
                 '}';
-    }
-
-    /**
-     * This method selects all runway ends for this runway from
-     * the database and returns them.
-     * <p>
-     * This method also caches its result, so calling this method
-     * more than once will not result in more database calls.
-     *
-     * @return The array of runway ends
-     */
-    public RunwayEnd[] getRunwayEnds() {
-
-        // Check if cached value exists
-        if (runwayEnds == null) {
-
-            Query query = Query.whereEquals(RunwayEnd.class, RunwayEnd.RUNWAY_ID, id);
-            runwayEnds = RunwayEnd.selectAll(query);
-        }
-
-        return runwayEnds;
-    }
-
-    /**
-     * This method selects all runway ends for this runway that
-     * fit the {@link Query} from the database and returns them.
-     * <p>
-     * Unlike {@link #getRunwayEnds()}, this method does not cache its
-     * result, so calling this method will result in further
-     * database calls, even if the same {@link Query} is used.
-     *
-     * @param query the {@link Query} to use
-     * @return The array of runway ends
-     */
-    public RunwayEnd[] getRunwayEnds(Query query) {
-
-        Query fullQuery = query.and(Query.whereEquals(RunwayEnd.class, RunwayEnd.RUNWAY_ID, id));
-        return RunwayEnd.selectAll(fullQuery);
     }
 
     /**

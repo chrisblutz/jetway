@@ -93,7 +93,7 @@ public final class SchemaManager {
         if (JetwayLog.getDatabaseLogger().isDebugEnabled()) {
             JetwayLog.getDatabaseLogger().debug("Table information for '" + table.getTableName() + "':");
             JetwayLog.getDatabaseLogger().debug("\tPrimary Key: " + (table.getPrimaryKey() != null ? table.getPrimaryKey() : "None"));
-            JetwayLog.getDatabaseLogger().debug("\tForeign Key: " + (table.getForeignKey() != null ? table.getForeignKey() : "None"));
+            JetwayLog.getDatabaseLogger().debug("\tForeign Keys: " + (table.getForeignKeys().isEmpty() ? "None" : String.join(", ", table.getForeignKeys())));
             JetwayLog.getDatabaseLogger().debug("\tColumns:");
         }
     }

@@ -26,6 +26,9 @@ public interface NestedFeature extends Feature {
 
     /**
      * This method retrieves the unique ID of the parent feature.
+     * The "parent" feature of a feature should be the feature
+     * that this feature "belongs to," like how {@link Runway} instances
+     * belong to {@link Airport} instances.
      *
      * @return The unique ID of the parent feature
      */

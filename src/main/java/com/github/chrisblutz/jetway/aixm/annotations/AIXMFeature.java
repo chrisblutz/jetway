@@ -16,7 +16,6 @@
 package com.github.chrisblutz.jetway.aixm.annotations;
 
 import com.github.chrisblutz.jetway.aixm.mappings.FeatureEntry;
-import com.github.chrisblutz.jetway.features.Feature;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -54,18 +53,9 @@ public @interface AIXMFeature {
     String id();
 
     /**
-     * This attribute denotes the parent feature class of this feature.  For database purposes,
-     * this allows the AIXM loader to determine foreign keys for parent features.
-     * <p>
-     * For example, the parent for {@link com.github.chrisblutz.jetway.features.Runway Runway} is
-     * {@link com.github.chrisblutz.jetway.features.Airport Airport}.
-     * <p>
-     * This attribute may be omitted if this feature does not have a parent.
-     * <p>
-     * This attribute defaults to the {@link Feature} class, which is used
-     * in this context to indicate that this feature does not have a parent.
+     * This attribute denotes the AIXM file that contains this feature.
      *
-     * @return The parent class for this feature
+     * @return The AIXM file that contains this feature
      */
-    Class<? extends Feature> parent() default Feature.class;
+    String aixmFile();
 }

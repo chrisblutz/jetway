@@ -15,10 +15,11 @@
  */
 package com.github.chrisblutz.jetway.aixm.mappings;
 
+import com.github.chrisblutz.jetway.aixm.AIXMFeatureManager;
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMAttribute;
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMFeature;
+import com.github.chrisblutz.jetway.aixm.annotations.AIXMForeign;
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMId;
-import com.github.chrisblutz.jetway.aixm.annotations.AIXMParent;
 import com.github.chrisblutz.jetway.aixm.exceptions.AIXMFeatureException;
 import com.github.chrisblutz.jetway.features.Feature;
 import com.github.chrisblutz.jetway.logging.JetwayLog;
@@ -37,7 +38,8 @@ import java.util.Set;
 public class FeatureMapping {
 
     private final Map<Field, String> fieldMap = new HashMap<>();
-    private Field idField, parentField;
+    private final Map<Field, Class<? extends Feature>> foreignFieldMap = new HashMap<>();
+    private Field idField;
 
     /**
      * This method retrieves all registered {@link Field}s.
@@ -73,19 +75,29 @@ public class FeatureMapping {
     }
 
     /**
-     * This method retrieves the {@link Field} defined to hold
-     * the parent feature's ID, annotated using {@link AIXMParent}.
-     * <p>
-     * If this feature does not have a parent, this will return
-     * {@code null}.
+     * This method checks if the provided {@link Field} is a foreign
+     * key within this feature.
      *
-     * @return The {@link Field} defined to hold the parent
-     * feature's ID, or {@code null} if this feature does not
-     * have a parent
+     * @param field the {@link Field} to check
+     * @return {@code true} if the {@link Field} is a foreign key, {@code false} otherwise
      */
-    public Field getParentField() {
+    public boolean isFieldForeignKey(Field field) {
 
-        return parentField;
+        return foreignFieldMap.containsKey(field);
+    }
+
+    /**
+     * This method retrieves the feature class that is referenced by the
+     * provided {@link Field}, assuming that the provided {@link Field} is
+     * a foreign key.
+     *
+     * @param field the {@link Field} to use
+     * @return The feature class referenced by the foreign key, or {@code null} if
+     * the provided {@link Field} is not a foreign key
+     */
+    public Class<? extends Feature> getForeignClassForField(Field field) {
+
+        return foreignFieldMap.get(field);
     }
 
     @Override
@@ -132,19 +144,40 @@ public class FeatureMapping {
         if (checkIDField(featureClass, field, map))
             return;
 
-        // Check if this attribute is the parent attribute
-        if (checkParentIDField(featureClass, field, map))
-            return;
-
         // Check that the field provided is actually an AIXM attribute
-        if (!field.isAnnotationPresent(AIXMAttribute.class))
+        if (!field.isAnnotationPresent(AIXMAttribute.class) && !field.isAnnotationPresent(AIXMForeign.class))
             return;
 
         AIXMAttribute attributeDetails = field.getAnnotation(AIXMAttribute.class);
+        AIXMForeign foreignDetails = field.getAnnotation(AIXMForeign.class);
 
-        String path = attributeDetails.value();
+        String path = foreignDetails == null ? attributeDetails.value() : foreignDetails.path();
+        Class<? extends Feature> foreignClass = foreignDetails == null ? null : foreignDetails.feature();
 
         map.fieldMap.put(field, path);
+
+        if (foreignClass != null) {
+
+            // Get feature entry for foreign type
+            FeatureEntry foreignFeature = AIXMFeatureManager.get(foreignClass);
+
+            // Check that foreign feature exists
+            if (foreignFeature == null) {
+                AIXMFeatureException exception = new AIXMFeatureException(featureClass, "Foreign feature field '" + field.getName() + "' references feature '" + foreignClass.getSimpleName() + "' that is not registered.");
+                JetwayLog.getJetwayLogger().error(exception.getMessage(), exception);
+                throw exception;
+            }
+
+            // Check that the types match between this field and the foreign feature's ID field
+            Class<?> foreignIDType = foreignFeature.getMapping().getIDField().getType();
+            if (!field.getType().equals(foreignIDType)) {
+                AIXMFeatureException exception = new AIXMFeatureException(featureClass, "Foreign feature ID type mismatch for field '" + field.getName() + "': expected '" + foreignIDType.getSimpleName() + "', was '" + field.getType().getSimpleName() + ".");
+                JetwayLog.getJetwayLogger().error(exception.getMessage(), exception);
+                throw exception;
+            }
+
+            map.foreignFieldMap.put(field, foreignClass);
+        }
     }
 
     private static boolean checkIDField(Class<? extends Feature> featureClass, Field field, FeatureMapping map) {
@@ -157,22 +190,6 @@ public class FeatureMapping {
             }
 
             map.idField = field;
-            return true;
-        }
-
-        return false;
-    }
-
-    private static boolean checkParentIDField(Class<? extends Feature> featureClass, Field field, FeatureMapping map) {
-
-        if (field.isAnnotationPresent(AIXMParent.class)) {
-            if (field.getType() != String.class) {
-                AIXMFeatureException exception = new AIXMFeatureException(featureClass, "Parent ID field '" + field.getName() + "' must be of type String.");
-                JetwayLog.getJetwayLogger().error(exception.getMessage(), exception);
-                throw exception;
-            }
-
-            map.parentField = field;
             return true;
         }
 

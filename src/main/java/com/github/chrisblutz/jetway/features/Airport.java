@@ -18,7 +18,6 @@ package com.github.chrisblutz.jetway.features;
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMAttribute;
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMFeature;
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMId;
-import com.github.chrisblutz.jetway.aixm.annotations.AIXMRoot;
 import com.github.chrisblutz.jetway.database.Database;
 import com.github.chrisblutz.jetway.database.DatabaseType;
 import com.github.chrisblutz.jetway.database.annotations.DatabaseColumn;
@@ -34,12 +33,11 @@ import com.github.chrisblutz.jetway.database.queries.Sort;
  * @author Christopher Lutz
  */
 @DatabaseTable("Airports")
-@AIXMRoot(Airport.AIXM_FILE)
-@AIXMFeature(name = "AirportHeliport", id = "AH")
+@AIXMFeature(name = "AirportHeliport", id = "AH", aixmFile = Airport.AIXM_FILE)
 public class Airport implements Feature {
 
     /**
-     * This constant defines the root AIXM file
+     * This constant defines the AIXM file
      * for airports and airport components (runways, etc.)
      */
     public static final String AIXM_FILE = "APT_AIXM";
@@ -65,6 +63,7 @@ public class Airport implements Feature {
     public static final String NUMBER_OF_ULTRALIGHT_AIRCRAFT = "NumberOfUltralightAircraft";
 
     private Runway[] runways;
+    private RunwayEnd[] runwayEnds;
 
     @DatabaseColumn(name = ID, type = DatabaseType.STRING, primary = true)
     @AIXMId
@@ -214,6 +213,44 @@ public class Airport implements Feature {
 
         Query fullQuery = query.and(Query.whereEquals(Runway.class, Runway.AIRPORT_ID, id));
         return Runway.selectAll(fullQuery);
+    }
+
+    /**
+     * This method selects all runway ends for this airport from
+     * the database and returns them.
+     * <p>
+     * This method also caches its result, so calling this method
+     * more than once will not result in more database calls.
+     *
+     * @return The array of runway ends
+     */
+    public RunwayEnd[] getRunwayEnds() {
+
+        // Check if cached value exists
+        if (runwayEnds == null) {
+
+            Query query = Query.whereEquals(RunwayEnd.class, RunwayEnd.AIRPORT_ID, id);
+            runwayEnds = RunwayEnd.selectAll(query);
+        }
+
+        return runwayEnds;
+    }
+
+    /**
+     * This method selects all runway ends for this airport that
+     * fit the {@link Query} from the database and returns them.
+     * <p>
+     * Unlike {@link #getRunwayEnds()}, this method does not cache its
+     * result, so calling this method will result in further
+     * database calls, even if the same {@link Query} is used.
+     *
+     * @param query the {@link Query} to use
+     * @return The array of runway ends
+     */
+    public RunwayEnd[] getRunwayEnds(Query query) {
+
+        Query fullQuery = query.and(Query.whereEquals(RunwayEnd.class, RunwayEnd.AIRPORT_ID, id));
+        return RunwayEnd.selectAll(fullQuery);
     }
 
     /**

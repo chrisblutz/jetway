@@ -15,9 +15,7 @@
  */
 package com.github.chrisblutz.jetway.aixm.mappings;
 
-import com.github.chrisblutz.jetway.aixm.AIXMFeatureManager;
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMFeature;
-import com.github.chrisblutz.jetway.aixm.annotations.AIXMRoot;
 import com.github.chrisblutz.jetway.aixm.crawling.AIXMData;
 import com.github.chrisblutz.jetway.aixm.crawling.AIXMInstance;
 import com.github.chrisblutz.jetway.aixm.exceptions.AIXMException;
@@ -39,11 +37,8 @@ public class FeatureEntry {
     private String id;
     private Class<? extends Feature> featureClass;
     private FeatureMapping mapping;
-    private String rootPath = null;
-    private Class<? extends Feature> parent = null;
+    private String aixmFile = null;
     private SchemaTable schemaTable;
-
-    private String currentId = null;
 
     /**
      * This method gets the name used to identify this
@@ -90,66 +85,13 @@ public class FeatureEntry {
     }
 
     /**
-     * This method checks if this feature is the root
-     * feature for its file.
+     * This method retrieves the name of the AIXM file that contains this feature.
      *
-     * @return {@code true} if this feature is root, {@code false} otherwise
+     * @return The AIXM file that contains this feature
      */
-    public boolean isRoot() {
+    public String getAIXMFile() {
 
-        return getRootPath() != null;
-    }
-
-    /**
-     * This method gets the name of the file containing information
-     * about this feature and its children.
-     * <p>
-     * If this feature is not root, this method returns {@code null}.
-     *
-     * @return The file name for this feature, or {@code null}
-     */
-    public String getRootPath() {
-
-        return rootPath;
-    }
-
-    /**
-     * This method checks if this feature is a child of
-     * another feature (i.e. if this feature belongs to another one, like
-     * {@link com.github.chrisblutz.jetway.features.Runway Runway} belongs
-     * to {@link com.github.chrisblutz.jetway.features.Airport}).
-     *
-     * @return {@code true} if this feature is a child, {@code false} otherwise
-     */
-    public boolean isChild() {
-
-        return getParentClass() != null;
-    }
-
-    /**
-     * This method gets the parent class for this feature.
-     * <p>
-     * This method returns {@code null} if this feature is not a
-     * child feature.
-     *
-     * @return The parent class for this feature, or {@code null}
-     */
-    public Class<? extends Feature> getParentClass() {
-
-        return parent;
-    }
-
-    /**
-     * This method gets the entry for the parent feature type.
-     * <p>
-     * This method returns {@code null} if this feature is not a
-     * child feature.
-     *
-     * @return The entry for the parent feature type, or {@code null}
-     */
-    public FeatureEntry getParentEntry() {
-
-        return AIXMFeatureManager.get(getParentClass());
+        return aixmFile;
     }
 
     /**
@@ -195,8 +137,19 @@ public class FeatureEntry {
 
                 AIXMData data = getData(instanceData, path);
 
+                Object value;
+                // If field is a foreign key, extract the ID.  Otherwise, extract the data as the field type
+                if (mapping.isFieldForeignKey(field)) {
+
+                    value = data.decodeID(mapping.getForeignClassForField(field));
+
+                } else {
+
+                    value = data.get(field.getType());
+                }
+
+
                 // Fill in the field
-                Object value = data.get(field.getType());
                 field.set(featureInstance, value);
 
             } catch (IllegalAccessException e) {
@@ -230,36 +183,12 @@ public class FeatureEntry {
         return data.crawl(path);
     }
 
-    /**
-     * This method gets the ID of the most recently accessed instance
-     * of this feature.  This value is used when determining parent IDs.
-     *
-     * @return The ID of the most recently accessed instance
-     */
-    public String getCurrentID() {
-
-        return currentId;
-    }
-
-    /**
-     * This method updates the ID of the most recently accessed instance
-     * of this feature.
-     *
-     * @param currentId The ID of the most recently accessed instance
-     */
-    public void updateCurrentID(String currentId) {
-
-        this.currentId = currentId;
-    }
-
     @Override
     public String toString() {
 
         String string = "Feature{" +
                 "name='" + name + "'" +
-                ", id='" + id + "'" +
-                (rootPath == null ? "" : ", root='" + rootPath + "'") +
-                (parent == null ? "" : ", parent=" + parent.getName()) + "}\n";
+                ", id='" + id + "'}\n";
         string += mapping.toString();
 
         return string.trim();
@@ -286,21 +215,9 @@ public class FeatureEntry {
 
         entry.name = featureDetails.name();
         entry.id = featureDetails.id();
+        entry.aixmFile = featureDetails.aixmFile();
         entry.featureClass = featureClass;
         entry.mapping = FeatureMapping.build(featureClass);
-
-        // Root path handling and child handling
-        if (featureClass.isAnnotationPresent(AIXMRoot.class)) {
-
-            AIXMRoot rootDetails = featureClass.getAnnotation(AIXMRoot.class);
-            entry.rootPath = rootDetails.value();
-
-        } else if (featureDetails.parent() != Feature.class) {
-
-            // If parent is not "Feature" (i.e. if it has a valid parent)
-            // then set it
-            entry.parent = featureDetails.parent();
-        }
 
         // Fetch the schema table for database information on this feature
         entry.schemaTable = SchemaManager.get(featureClass);

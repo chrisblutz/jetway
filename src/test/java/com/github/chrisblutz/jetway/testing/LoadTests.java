@@ -106,7 +106,7 @@ public class LoadTests {
         Runway[] runways = airports[0].getRunways();
         JetwayAssertions.assertFeaturesIfChild(runways, ValidationArrays.LOAD_NO_EXTENSION_RUNWAYS, airports[0]);
 
-        RunwayEnd[] runwayEnds = runways[0].getRunwayEnds();
+        RunwayEnd[] runwayEnds = airports[0].getRunwayEnds();
         JetwayAssertions.assertFeaturesIfChild(runwayEnds, ValidationArrays.LOAD_NO_EXTENSION_RUNWAY_ENDS, runways[0]);
 
         RunwayDirection[] runwayDirections = runwayEnds[0].getRunwayDirections();

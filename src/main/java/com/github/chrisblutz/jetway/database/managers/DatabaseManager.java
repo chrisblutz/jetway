@@ -190,6 +190,22 @@ public abstract class DatabaseManager {
     public abstract boolean insertEntry(SchemaTable table, Object value);
 
     /**
+     * This method inserts a new instance of a feature, consisting
+     * only of the primary key, into the table defined by the specified
+     * {@link SchemaTable}, but <i>ONLY</i> if that primary key is not
+     * already in the table.
+     * <p>
+     * This facilitates foreign key mapping within Jetway by creating
+     * placeholder objects with primary keys to prevent issues if the
+     * actual object for that foreign key is not loaded yet.
+     *
+     * @param table      the {@link SchemaTable} to use
+     * @param primaryKey the primary key to insert
+     * @return {@code true} if the operation succeeded, {@code false} otherwise
+     */
+    public abstract boolean insertPrimaryKey(SchemaTable table, Object primaryKey);
+
+    /**
      * This method executes a {@link Query} on the database and returns the
      * set of results obtained.
      * <p>
@@ -256,11 +272,19 @@ public abstract class DatabaseManager {
 
         Class<? extends Feature> feature = singleQuery.getFeature();
         SchemaTable table = SchemaManager.get(feature);
+        addAllForeignTables(table, tables);
+    }
+
+    private void addAllForeignTables(SchemaTable table, Set<SchemaTable> tables) {
+
+        // Add itself
         tables.add(table);
 
-        while (table.hasForeignKey()) {
-            table = table.getForeignTable();
-            tables.add(table);
+        // Process any foreign tables recursively
+        for (String foreignKey : table.getForeignKeys()) {
+
+            SchemaTable foreignTable = table.getForeignTable(foreignKey);
+            addAllForeignTables(foreignTable, tables);
         }
     }
 }

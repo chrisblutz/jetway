@@ -25,7 +25,7 @@ import java.lang.annotation.Target;
 
 /**
  * A {@link DatabaseColumn} annotation denotes that a field
- * should be included as a column in the parent feature's database
+ * should be included as a column in the feature's database
  * table.
  *
  * @author Christopher Lutz
@@ -52,7 +52,7 @@ public @interface DatabaseColumn {
 
     /**
      * This attribute denotes whether this is the primary key
-     * for the parent feature's database.  Only one primary
+     * for the feature's database.  Only one primary
      * key is supported per database, so if this attribute is set
      * twice in a class, the one loaded last will take precedent.
      *
@@ -62,7 +62,7 @@ public @interface DatabaseColumn {
 
     /**
      * This attribute denotes whether this is a foreign key
-     * in the parent feature's database.  Only one foreign
+     * in the feature's database.  Only one foreign
      * key is supported per database, so if this attribute is set
      * twice in a class, the one loaded last will take precedent.
      * <p>

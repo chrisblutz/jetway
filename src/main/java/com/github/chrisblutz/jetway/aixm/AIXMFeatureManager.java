@@ -26,7 +26,7 @@ import java.util.*;
  * This class is responsible for managing all
  * {@link com.github.chrisblutz.jetway.aixm.annotations.AIXMFeature} classes.
  * The features are registered with this class, which tracks
- * root status and class-to-feature mappings.
+ * file-to-feature and class-to-feature mappings.
  *
  * @author Christopher Lutz
  */
@@ -34,33 +34,29 @@ public final class AIXMFeatureManager {
 
     private AIXMFeatureManager() {}
 
-    private static final Map<FeatureEntry, List<FeatureEntry>> childFeatureMap = new HashMap<>();
+    private static final Map<String, List<FeatureEntry>> fileToFeatureMap = new HashMap<>();
     private static final Map<Class<? extends Feature>, FeatureEntry> classToFeatureEntryMap = new HashMap<>();
 
     /**
-     * This method retrieves {@link FeatureEntry} instances for all
-     * classes where the {@link com.github.chrisblutz.jetway.aixm.annotations.AIXMRoot AIXMRoot}
-     * annotation is present.  These specific features represent the root features
-     * in each file, and are usually the parent features for other feature types.
+     * This method retrieves all AIXM file names present and used by
+     * different features.
      *
-     * @return A {@link Set} containing the root {@link FeatureEntry} instances
+     * @return A {@link Set} containing the file names
      */
-    public static Set<FeatureEntry> getRootEntries() {
+    public static Set<String> getAIXMFiles() {
 
-        return childFeatureMap.keySet();
+        return fileToFeatureMap.keySet();
     }
 
     /**
-     * This method retrieves all possible feature types given a specific root feature.
-     * These features are features that exist in the same file as the root feature,
-     * and are generally child features of that root feature.
+     * This method retrieves all possible feature types given a specific AIXM file.
      *
-     * @param rootEntry the root {@link FeatureEntry}
-     * @return A {@link List} containing all possible entries for that root's file
+     * @param aixmFile the AIXM file name
+     * @return A {@link List} containing all possible entries for that AIXM file
      */
-    public static List<FeatureEntry> getPossibleEntries(FeatureEntry rootEntry) {
+    public static List<FeatureEntry> getPossibleEntries(String aixmFile) {
 
-        return childFeatureMap.get(rootEntry);
+        return fileToFeatureMap.get(aixmFile);
     }
 
     /**
@@ -89,82 +85,35 @@ public final class AIXMFeatureManager {
 
         if (entry != null) {
 
-            FeatureEntry rootParent = getRootParent(entry);
+            logFeatureInformation(entry, featureClass);
 
-            logFeatureInformation(entry, rootParent, featureClass);
+            // Add the current entry to the list for the AIXM file (creating the list if it doesn't exist)
+            if (!fileToFeatureMap.containsKey(entry.getAIXMFile()))
+                fileToFeatureMap.put(entry.getAIXMFile(), new ArrayList<>());
+            fileToFeatureMap.get(entry.getAIXMFile()).add(entry);
 
+            // Register the current class to the built feature
             classToFeatureEntryMap.put(featureClass, entry);
 
-            boolean root = checkForRoot(entry, featureClass);
-            boolean child = checkForParent(entry, rootParent);
+            // Check if the AIXM file for this feature is null
+            if (entry.getAIXMFile() == null) {
 
-            // Check if this feature is orphaned (no parent and not root)
-            boolean orphaned = !(root || child);
-
-            if (orphaned) {
-
-                // Since this feature is neither a root nor a child, throw an error
-                AIXMFeatureException exception = new AIXMFeatureException(featureClass, "This feature is neither a root nor a child.  It will not be loaded.");
+                // Since this feature has a null AIXM file, it cannot be accessed
+                AIXMFeatureException exception = new AIXMFeatureException(featureClass, "Feature '" + featureClass.getSimpleName() + "' is inaccessible because its AIXM file is 'null'.");
                 JetwayLog.getJetwayLogger().error(exception.getMessage(), exception);
                 throw exception;
             }
         }
     }
 
-    private static boolean checkForRoot(FeatureEntry entry, Class<? extends Feature> featureClass) {
+    private static void logFeatureInformation(FeatureEntry entry, Class<? extends Feature> featureClass) {
 
-        if (entry.isRoot()) {
-
-            JetwayLog.getJetwayLogger().info("Feature '" + featureClass.getSimpleName() + "' has been registered as a root feature with file '" + entry.getRootPath() + "'.");
-
-            List<FeatureEntry> possibleEntries = new ArrayList<>();
-            possibleEntries.add(entry);
-
-            childFeatureMap.put(entry, possibleEntries);
-            return true;
-        }
-
-        // Feature was not root, so return false
-        return false;
-    }
-
-    private static boolean checkForParent(FeatureEntry entry, FeatureEntry rootParent) {
-
-        if (entry.isChild() && rootParent != null) {
-
-            // Register this entry as a sub-feature of its parent
-            childFeatureMap.get(rootParent).add(entry);
-            return true;
-        }
-
-        // Feature had no parent, so return false
-        return false;
-    }
-
-    private static void logFeatureInformation(FeatureEntry entry, FeatureEntry rootParent, Class<? extends Feature> featureClass) {
-
-        JetwayLog.getJetwayLogger().info("Generated feature entry for feature '" + featureClass.getSimpleName() + "' with name '" + entry.getName() + "' and " + entry.getMapping().getFields().size() + "' fields.");
+        JetwayLog.getJetwayLogger().info("Generated feature entry for feature '" + featureClass.getSimpleName() + "' with name '" + entry.getName() + "' and " + entry.getMapping().getFields().size() + " field(s).");
 
         if (JetwayLog.getJetwayLogger().isDebugEnabled()) {
             JetwayLog.getJetwayLogger().debug("Feature information for '" + featureClass.getSimpleName() + "':");
-            JetwayLog.getJetwayLogger().debug("\tRoot:  " + (entry.isRoot() ? "Yes, '" + entry.getRootPath() + "'" : "No"));
-            JetwayLog.getJetwayLogger().debug("\tChild: " + (entry.isChild() ? "Yes, " + entry.getParentClass().getSimpleName() : "No"));
-            JetwayLog.getJetwayLogger().debug("\tRoot AIXM Parent: " + (rootParent != null ? rootParent.getName() : "None"));
+            JetwayLog.getJetwayLogger().debug("\tAIXM File: " + entry.getAIXMFile());
         }
-    }
-
-    private static FeatureEntry getRootParent(FeatureEntry entry) {
-
-        // If this entry is root, return
-        if (entry.isRoot())
-            return entry;
-
-        // Otherwise, recursively work up the parent chain until a root is found
-        if (entry.isChild() && classToFeatureEntryMap.containsKey(entry.getParentClass()))
-            return getRootParent(classToFeatureEntryMap.get(entry.getParentClass()));
-
-        // If the entry is neither root nor child, or the parent does not exist, return null
-        return null;
     }
 
     /**
@@ -172,7 +121,7 @@ public final class AIXMFeatureManager {
      */
     public static void reset() {
 
-        childFeatureMap.clear();
+        fileToFeatureMap.clear();
         classToFeatureEntryMap.clear();
     }
 }

@@ -38,17 +38,10 @@ public final class JetwayLog {
      */
     public static Logger getJetwayLogger() {
 
-        return getJetwayLogger(true);
-    }
-
-    private static Logger getJetwayLogger(boolean logInfo) {
-
         if (jetwayLogger == null) {
 
             jetwayLogger = LogManager.getLogger("  Jetway");
-            
-            if (logInfo)
-                logSystemInformation();
+            logSystemInformation();
         }
 
         return jetwayLogger;

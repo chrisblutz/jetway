@@ -261,7 +261,7 @@ public class JetwayAssertions {
             RunwayEnd expectedRunwayEnd = (RunwayEnd) expected;
 
             assertEquals(expectedRunwayEnd.id, runwayEnd.id);
-            assertEquals(expectedRunwayEnd.runwayId, runwayEnd.runwayId);
+            assertEquals(expectedRunwayEnd.airportId, runwayEnd.airportId);
             assertEquals(expectedRunwayEnd.designator, runwayEnd.designator);
 
         } else if (value instanceof RunwayDirection && expected instanceof RunwayDirection) {
