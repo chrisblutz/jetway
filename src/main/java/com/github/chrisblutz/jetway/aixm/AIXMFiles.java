@@ -57,6 +57,8 @@ public final class AIXMFiles {
                 throw exception;
             }
 
+            JetwayLog.getJetwayLogger().info("Loading AIXM data from XML file...");
+
             // Load data into an AIXM subscriber file document
             SubscriberFileDocument doc = SubscriberFileDocument.Factory.parse(is);
 

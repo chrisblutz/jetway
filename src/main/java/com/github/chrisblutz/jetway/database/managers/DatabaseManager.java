@@ -177,33 +177,33 @@ public abstract class DatabaseManager {
     public abstract boolean setForDrops(boolean isDropping);
 
     /**
-     * This method inserts an instance of a feature into the table defined
+     * This method inserts instances of a feature into the table defined
      * by the specified {@link SchemaTable}.
      * <p>
-     * If another entry exists with the same primary key, that entry
-     * should be updated instead.
+     * If an entry exists with the same primary key as one of the instances
+     * given to this method, that entry should be updated instead.
      *
-     * @param table the {@link SchemaTable} to use
-     * @param value the feature instance to insert
+     * @param table  the {@link SchemaTable} to use
+     * @param values the feature instances to insert
      * @return {@code true} if the operation succeeded, {@code false} otherwise
      */
-    public abstract boolean insertEntry(SchemaTable table, Object value);
+    public abstract boolean insertEntries(SchemaTable table, Feature[] values);
 
     /**
-     * This method inserts a new instance of a feature, consisting
-     * only of the primary key, into the table defined by the specified
-     * {@link SchemaTable}, but <i>ONLY</i> if that primary key is not
+     * This method inserts new instances of a feature, consisting
+     * only of the primary keys, into the table defined by the specified
+     * {@link SchemaTable}, but <i>ONLY</i> if each primary key is not
      * already in the table.
      * <p>
      * This facilitates foreign key mapping within Jetway by creating
      * placeholder objects with primary keys to prevent issues if the
      * actual object for that foreign key is not loaded yet.
      *
-     * @param table      the {@link SchemaTable} to use
-     * @param primaryKey the primary key to insert
+     * @param table       the {@link SchemaTable} to use
+     * @param primaryKeys the primary keys to insert
      * @return {@code true} if the operation succeeded, {@code false} otherwise
      */
-    public abstract boolean insertPrimaryKey(SchemaTable table, Object primaryKey);
+    public abstract boolean insertPrimaryKeys(SchemaTable table, Object[] primaryKeys);
 
     /**
      * This method executes a {@link Query} on the database and returns the

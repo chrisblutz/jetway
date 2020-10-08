@@ -88,7 +88,7 @@ public final class SchemaManager {
 
     private static void logTableInformation(SchemaTable table, Class<?> featureClass) {
 
-        JetwayLog.getDatabaseLogger().info("Generated schema table for feature '" + featureClass.getSimpleName() + "' with name '" + table.getTableName() + "' and " + table.getAttributes().size() + " columns.");
+        JetwayLog.getDatabaseLogger().info("Generated schema table for feature '" + featureClass.getSimpleName() + "' with name '" + table.getTableName() + "' and " + table.getAttributes().size() + " column(s).");
 
         if (JetwayLog.getDatabaseLogger().isDebugEnabled()) {
             JetwayLog.getDatabaseLogger().debug("Table information for '" + table.getTableName() + "':");

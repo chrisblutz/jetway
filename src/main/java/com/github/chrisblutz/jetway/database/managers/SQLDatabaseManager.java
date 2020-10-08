@@ -21,8 +21,8 @@ import com.github.chrisblutz.jetway.database.SchemaManager;
 import com.github.chrisblutz.jetway.database.exceptions.DatabaseException;
 import com.github.chrisblutz.jetway.database.mappings.SchemaTable;
 import com.github.chrisblutz.jetway.database.queries.*;
+import com.github.chrisblutz.jetway.features.Feature;
 import com.github.chrisblutz.jetway.logging.JetwayLog;
-import com.github.chrisblutz.jetway.utils.ResultPair;
 
 import java.lang.reflect.Field;
 import java.sql.Connection;
@@ -244,7 +244,7 @@ public abstract class SQLDatabaseManager extends DatabaseManager {
         for (String foreignKey : table.getForeignKeys()) {
 
             String foreignSQLType = getSQLType(table.getAttributeType(foreignKey));
-            attributes.append(format(",\n\t{0} {1} NULL", foreignKey, foreignSQLType));
+            attributes.append(format(",\n\t{0} {1}", foreignKey, foreignSQLType));
         }
 
         // Append all further attribute definitions  as long as they are not special (i.e. primary or foreign keys)
@@ -281,41 +281,36 @@ public abstract class SQLDatabaseManager extends DatabaseManager {
     }
 
     @Override
-    public boolean insertEntry(SchemaTable table, Object value) {
+    public boolean insertEntries(SchemaTable table, Feature[] values) {
 
-        // First is attribute list, second is value list
-        ResultPair<String, String> results = getValuesAsSQL(table, value);
+        // Retrieve list of attributes as an array (to preserve order)
+        String[] attributes = table.getAttributes().toArray(new String[0]);
 
-        // Insert into database, replacing any entries already present
-        String query = format("REPLACE INTO {0} ({1}) VALUES ({2});", table.getTableName(), results.getFirst(), results.getSecond());
+        // Get list of SQL values for all features
+        String[] valueArray = new String[values.length];
+        for (int i = 0; i < values.length; i++)
+            valueArray[i] = getValuesAsSQL(attributes, table, values[i]);
+
+        // Generate attribute mapping for ON DUPLICATE KEY UPDATE clause
+        String duplicateUpdate = getOnDuplicateUpdateClause(attributes);
+
+        // Insert all into database, replacing any entries already present
+        String query = format("INSERT INTO {0} ({1}) VALUES\n\t{2}\nON DUPLICATE KEY UPDATE\n\t{3};", table.getTableName(), String.join(", ", attributes), String.join(",\n\t", valueArray), duplicateUpdate);
         return execute(query);
     }
 
-    private ResultPair<String, String> getValuesAsSQL(SchemaTable table, Object value) {
+    private String getValuesAsSQL(String[] attributeOrder, SchemaTable table, Object value) {
 
-        // Start with primary key value
-        String primary = table.getPrimaryKey();
-        StringBuilder attributes = new StringBuilder(primary);
-        StringBuilder values = new StringBuilder(formatAttributeAsSQLType(table, primary, value));
+        String[] values = new String[attributeOrder.length];
 
-        // Append foreign key values if this table has any
-        for (String foreignKey : table.getForeignKeys()) {
+        // Convert all values to SQL values
+        for (int i = 0; i < attributeOrder.length; i++) {
 
-            attributes.append(", ").append(foreignKey);
-            values.append(", ").append(formatAttributeAsSQLType(table, foreignKey, value));
+            String attribute = attributeOrder[i];
+            values[i] = formatAttributeAsSQLType(table, attribute, value);
         }
 
-        // Append all further attributes as long as they are not special (i.e. primary or foreign keys)
-        for (String attribute : table.getAttributes()) {
-
-            if (table.isSpecialKey(attribute))
-                continue;
-
-            attributes.append(", ").append(attribute);
-            values.append(", ").append(formatAttributeAsSQLType(table, attribute, value));
-        }
-
-        return new ResultPair<>(attributes.toString(), values.toString());
+        return "(" + String.join(", ", values) + ")";
     }
 
     private String formatAttributeAsSQLType(SchemaTable table, String attribute, Object value) {
@@ -341,14 +336,31 @@ public abstract class SQLDatabaseManager extends DatabaseManager {
         }
     }
 
+    private String getOnDuplicateUpdateClause(String[] attributes) {
+
+        // Generate attr=VALUES(attr) clause for every attribute
+        String[] updates = new String[attributes.length];
+        for (int i = 0; i < attributes.length; i++) {
+
+            String attribute = attributes[i];
+            updates[i] = attribute + " = VALUES(" + attribute + ")";
+        }
+        return String.join(",\n\t", updates);
+    }
+
     @Override
-    public boolean insertPrimaryKey(SchemaTable table, Object primaryKey) {
+    public boolean insertPrimaryKeys(SchemaTable table, Object[] primaryKeys) {
 
         String keyAttribute = table.getPrimaryKey();
-        String formattedKey = formatAsSQLType(table.getAttributeType(keyAttribute), primaryKey);
+        String[] attributes = table.getAttributes().toArray(new String[0]);
 
-        // Insert key into table, and if it already exists, set the ID to itself (i.e. change nothing)
-        String query = format("INSERT INTO {0} ({1}) VALUES ({2}) ON DUPLICATE KEY UPDATE {1} = {1};", table.getTableName(), table.getPrimaryKey(), formattedKey);
+        // Generate keys as SQL values for each key
+        String[] formattedKeys = new String[primaryKeys.length];
+        for (int i = 0; i < primaryKeys.length; i++)
+            formattedKeys[i] = "(" + formatAsSQLType(table.getAttributeType(keyAttribute), primaryKeys[i]) + ")";
+
+        // Insert keys into table, and if one already exists, set the ID to itself (i.e. change nothing)
+        String query = format("INSERT INTO {0} ({1}) VALUES {2} ON DUPLICATE KEY UPDATE {1} = {1};", table.getTableName(), table.getPrimaryKey(), String.join(", ", formattedKeys));
         return execute(query);
     }
 
