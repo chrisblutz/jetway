@@ -22,6 +22,8 @@ import com.github.chrisblutz.jetway.aixm.annotations.AIXMId;
 import com.github.chrisblutz.jetway.database.Database;
 import com.github.chrisblutz.jetway.database.DatabaseType;
 import com.github.chrisblutz.jetway.database.annotations.DatabaseColumn;
+import com.github.chrisblutz.jetway.database.annotations.DatabaseForeignKey;
+import com.github.chrisblutz.jetway.database.annotations.DatabasePrimaryKey;
 import com.github.chrisblutz.jetway.database.annotations.DatabaseTable;
 import com.github.chrisblutz.jetway.database.queries.Query;
 import com.github.chrisblutz.jetway.database.queries.Sort;
@@ -42,11 +44,13 @@ public class RunwayEnd implements NestedFeature {
 
     private RunwayDirection[] runwayDirections;
 
-    @DatabaseColumn(name = ID, type = DatabaseType.STRING, primary = true)
+    @DatabaseColumn(name = ID, type = DatabaseType.STRING)
+    @DatabasePrimaryKey
     @AIXMId
     public String id;
 
-    @DatabaseColumn(name = AIRPORT_ID, type = DatabaseType.STRING, foreign = true, foreignClass = Airport.class)
+    @DatabaseColumn(name = AIRPORT_ID, type = DatabaseType.STRING)
+    @DatabaseForeignKey(Airport.class)
     @AIXMForeign(feature = Airport.class, path = "AssociatedAirportHeliport")
     public String airportId;
 

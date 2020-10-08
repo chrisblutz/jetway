@@ -21,6 +21,7 @@ import com.github.chrisblutz.jetway.aixm.annotations.AIXMId;
 import com.github.chrisblutz.jetway.database.Database;
 import com.github.chrisblutz.jetway.database.DatabaseType;
 import com.github.chrisblutz.jetway.database.annotations.DatabaseColumn;
+import com.github.chrisblutz.jetway.database.annotations.DatabasePrimaryKey;
 import com.github.chrisblutz.jetway.database.annotations.DatabaseTable;
 import com.github.chrisblutz.jetway.database.queries.Query;
 import com.github.chrisblutz.jetway.database.queries.Sort;
@@ -65,7 +66,8 @@ public class Airport implements Feature {
     private Runway[] runways;
     private RunwayEnd[] runwayEnds;
 
-    @DatabaseColumn(name = ID, type = DatabaseType.STRING, primary = true)
+    @DatabaseColumn(name = ID, type = DatabaseType.STRING)
+    @DatabasePrimaryKey
     @AIXMId
     public String id;
 

@@ -19,6 +19,8 @@ import com.github.chrisblutz.jetway.conversion.DataConversion;
 import com.github.chrisblutz.jetway.database.DatabaseType;
 import com.github.chrisblutz.jetway.database.SchemaManager;
 import com.github.chrisblutz.jetway.database.exceptions.DatabaseException;
+import com.github.chrisblutz.jetway.database.keys.ForeignKeyData;
+import com.github.chrisblutz.jetway.database.keys.Relationship;
 import com.github.chrisblutz.jetway.database.mappings.SchemaTable;
 import com.github.chrisblutz.jetway.database.queries.*;
 import com.github.chrisblutz.jetway.features.Feature;
@@ -263,14 +265,31 @@ public abstract class SQLDatabaseManager extends DatabaseManager {
         // If the table has any foreign key, declare them
         for (String foreignKey : table.getForeignKeys()) {
 
-            SchemaTable foreignTable = table.getForeignTable(foreignKey);
+            ForeignKeyData foreignKeyData = table.getForeignKeyData(foreignKey);
+
+            SchemaTable foreignTable = foreignKeyData.getFeatureTable();
             String foreignTableName = foreignTable.getTableName();
             String foreignTablePrimary = foreignTable.getPrimaryKey();
-            attributes.append(format(",\n\tFOREIGN KEY ({0})\n\t\tREFERENCES {1}({2})\n\t\tON DELETE CASCADE",
-                    foreignKey, foreignTableName, foreignTablePrimary));
+            String deleteOp = getDeleteOp(foreignKeyData.getRelationship());
+
+            attributes.append(format(",\n\tFOREIGN KEY ({0})\n\t\tREFERENCES {1}({2})\n\t\tON DELETE {3}",
+                    foreignKey, foreignTableName, foreignTablePrimary, deleteOp));
         }
 
         return attributes.toString();
+    }
+
+    private String getDeleteOp(Relationship relationship) {
+
+        switch (relationship) {
+
+            case USES:
+                return "SET NULL";
+
+            case BELONGS_TO:
+            default:
+                return "CASCADE";
+        }
     }
 
     @Override
@@ -479,7 +498,7 @@ public abstract class SQLDatabaseManager extends DatabaseManager {
             // Go through any foreign keys that the current table has
             for (String foreignKey : table.getForeignKeys()) {
 
-                SchemaTable foreignTable = table.getForeignTable(foreignKey);
+                SchemaTable foreignTable = table.getForeignKeyData(foreignKey).getFeatureTable();
 
                 // If the foreign key refers to a table that is also referenced in the query, join on it
                 if (referencedTables.contains(foreignTable))

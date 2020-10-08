@@ -1,0 +1,46 @@
+/*
+ * Copyright 2020 Christopher Lutz
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.github.chrisblutz.jetway.database.keys;
+
+/**
+ * This enum defines the various relationships
+ * that database tables can have to each other.
+ *
+ * @author Christopher Lutz
+ */
+public enum Relationship {
+
+    /**
+     * This relationship indicates the primary feature
+     * "belongs" to the foreign one.  The primary feature
+     * in this relationship cannot exist without its parent feature,
+     * because it relies on the parent for identifying information.
+     * <p>
+     * When using this relationships, if a parent is removed from the
+     * database, all children should also be removed.
+     */
+    BELONGS_TO,
+    /**
+     * This relationship indicates that the primary feature
+     * uses the foreign one for more information.  The primary feature
+     * should be able to stand on its own without the "used" feature.
+     * <p>
+     * When using this relationship, if a parent is removed from the
+     * database, all children should have the corresponding foreign key
+     * removed (or set to the database's {@code null} value).
+     */
+    USES
+}

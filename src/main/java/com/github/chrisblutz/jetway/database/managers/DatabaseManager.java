@@ -16,6 +16,8 @@
 package com.github.chrisblutz.jetway.database.managers;
 
 import com.github.chrisblutz.jetway.database.SchemaManager;
+import com.github.chrisblutz.jetway.database.keys.ForeignKeyData;
+import com.github.chrisblutz.jetway.database.keys.Relationship;
 import com.github.chrisblutz.jetway.database.mappings.SchemaTable;
 import com.github.chrisblutz.jetway.database.queries.*;
 import com.github.chrisblutz.jetway.features.Feature;
@@ -283,8 +285,14 @@ public abstract class DatabaseManager {
         // Process any foreign tables recursively
         for (String foreignKey : table.getForeignKeys()) {
 
-            SchemaTable foreignTable = table.getForeignTable(foreignKey);
-            addAllForeignTables(foreignTable, tables);
+            ForeignKeyData foreignKeyData = table.getForeignKeyData(foreignKey);
+
+            // If the table "belongs to" the foreign feature, add it
+            if (foreignKeyData.getRelationship() == Relationship.BELONGS_TO) {
+
+                SchemaTable foreignTable = foreignKeyData.getFeatureTable();
+                addAllForeignTables(foreignTable, tables);
+            }
         }
     }
 }

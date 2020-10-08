@@ -17,9 +17,12 @@ package com.github.chrisblutz.jetway.database.mappings;
 
 import com.github.chrisblutz.jetway.aixm.exceptions.AIXMFeatureException;
 import com.github.chrisblutz.jetway.database.DatabaseType;
-import com.github.chrisblutz.jetway.database.SchemaManager;
 import com.github.chrisblutz.jetway.database.annotations.DatabaseColumn;
+import com.github.chrisblutz.jetway.database.annotations.DatabaseForeignKey;
+import com.github.chrisblutz.jetway.database.annotations.DatabasePrimaryKey;
 import com.github.chrisblutz.jetway.database.annotations.DatabaseTable;
+import com.github.chrisblutz.jetway.database.keys.ForeignKeyData;
+import com.github.chrisblutz.jetway.database.keys.Relationship;
 import com.github.chrisblutz.jetway.features.Feature;
 import com.github.chrisblutz.jetway.logging.JetwayLog;
 import com.github.chrisblutz.jetway.utils.TypeUtils;
@@ -41,7 +44,7 @@ public class SchemaTable {
     private String tableName;
     private final Map<String, Field> fieldMap = new HashMap<>();
     private final Map<String, DatabaseType> typeMap = new HashMap<>();
-    private final Map<String, Class<? extends Feature>> foreignKeyMap = new HashMap<>();
+    private final Map<String, ForeignKeyData> foreignKeyMap = new HashMap<>();
     private String primaryKey;
 
     /**
@@ -98,16 +101,18 @@ public class SchemaTable {
     }
 
     /**
-     * This method gets the table that the specified foreign key for this table
-     * links to.  If the given attribute is not a foreign key, this method returns
+     * This method gets the data for the specified foreign key, containing
+     * the feature it links to and the relationship for the key (belongs to, uses, etc.).
+     * <p>
+     * If the given attribute is not a foreign key, this method returns
      * {@code null.}
      *
      * @param foreignKey the foreign key to use
-     * @return The table linked to by the foreign key, or {@code null}
+     * @return The data for the foreign key, or {@code null}
      */
-    public SchemaTable getForeignTable(String foreignKey) {
+    public ForeignKeyData getForeignKeyData(String foreignKey) {
 
-        return SchemaManager.get(foreignKeyMap.get(foreignKey));
+        return foreignKeyMap.get(foreignKey);
     }
 
     /**
@@ -189,21 +194,34 @@ public class SchemaTable {
             throw exception;
         }
 
+        // Extract name and type data from column annotation
         DatabaseColumn columnDetails = field.getAnnotation(DatabaseColumn.class);
 
         String name = columnDetails.name();
         DatabaseType type = columnDetails.type();
-        boolean primary = columnDetails.primary();
-        boolean foreign = columnDetails.foreign();
-        Class<? extends Feature> foreignClass = columnDetails.foreignClass();
 
         table.fieldMap.put(name, field);
         table.typeMap.put(name, type);
 
-        if (primary)
+        // Check primary or foreign key status
+        checkSpecialStatus(name, field, table);
+    }
+
+    private static void checkSpecialStatus(String name, Field field, SchemaTable table) {
+
+        // Check for primary key annotation
+        if (field.isAnnotationPresent(DatabasePrimaryKey.class))
             table.primaryKey = name;
 
-        if (foreign)
-            table.foreignKeyMap.put(name, foreignClass);
+        // Check for foreign key annotation, and extract feature class and relationship
+        if (field.isAnnotationPresent(DatabaseForeignKey.class)) {
+
+            DatabaseForeignKey foreignKeyDetails = field.getAnnotation(DatabaseForeignKey.class);
+
+            Class<? extends Feature> foreignClass = foreignKeyDetails.value();
+            Relationship relationship = foreignKeyDetails.relationship();
+
+            table.foreignKeyMap.put(name, new ForeignKeyData(foreignClass, relationship));
+        }
     }
 }

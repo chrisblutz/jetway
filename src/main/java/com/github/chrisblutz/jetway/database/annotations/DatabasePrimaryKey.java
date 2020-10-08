@@ -15,8 +15,6 @@
  */
 package com.github.chrisblutz.jetway.database.annotations;
 
-import com.github.chrisblutz.jetway.database.DatabaseType;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -24,28 +22,13 @@ import java.lang.annotation.Target;
 
 /**
  * A {@link DatabaseColumn} annotation denotes that a field
- * should be included as a column in the feature's database
+ * should be the primary key in the feature's database
  * table.
+ * <p>
+ * Only one primary key is supported per table.
  *
  * @author Christopher Lutz
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface DatabaseColumn {
-
-    /**
-     * This attribute denotes the name of the column within
-     * the database.
-     *
-     * @return The column name for this field
-     */
-    String name();
-
-    /**
-     * This attribute denotes the type of value that this column contains.
-     * It must be one of the enum values in {@link DatabaseType}.
-     *
-     * @return The type of value contained in this column
-     */
-    DatabaseType type();
-}
+public @interface DatabasePrimaryKey {}

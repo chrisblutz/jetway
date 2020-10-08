@@ -17,6 +17,7 @@ package com.github.chrisblutz.jetway.testing.features;
 
 import com.github.chrisblutz.jetway.database.DatabaseType;
 import com.github.chrisblutz.jetway.database.annotations.DatabaseColumn;
+import com.github.chrisblutz.jetway.database.annotations.DatabasePrimaryKey;
 import com.github.chrisblutz.jetway.database.annotations.DatabaseTable;
 import com.github.chrisblutz.jetway.features.Feature;
 
@@ -32,7 +33,8 @@ public class PrimitiveTypeFieldFeature implements Feature {
     /**
      * This attribute should not affect the test.
      */
-    @DatabaseColumn(name = "id", type = DatabaseType.STRING, primary = true)
+    @DatabaseColumn(name = "id", type = DatabaseType.STRING)
+    @DatabasePrimaryKey
     public String id;
 
     /**

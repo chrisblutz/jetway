@@ -15,7 +15,8 @@
  */
 package com.github.chrisblutz.jetway.database.annotations;
 
-import com.github.chrisblutz.jetway.database.DatabaseType;
+import com.github.chrisblutz.jetway.database.keys.Relationship;
+import com.github.chrisblutz.jetway.features.Feature;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -24,28 +25,30 @@ import java.lang.annotation.Target;
 
 /**
  * A {@link DatabaseColumn} annotation denotes that a field
- * should be included as a column in the feature's database
+ * should be a foreign key in the feature's database
  * table.
  *
  * @author Christopher Lutz
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface DatabaseColumn {
+public @interface DatabaseForeignKey {
 
     /**
-     * This attribute denotes the name of the column within
-     * the database.
+     * This attribute defines which feature class this
+     * foreign key links to.
      *
-     * @return The column name for this field
+     * @return The feature class this key references
      */
-    String name();
+    Class<? extends Feature> value();
 
     /**
-     * This attribute denotes the type of value that this column contains.
-     * It must be one of the enum values in {@link DatabaseType}.
+     * This attribute defines the relationship between this
+     * feature and the foreign key's referenced feature.
+     * <p>
+     * See {@link Relationship} for descriptions of the values.
      *
-     * @return The type of value contained in this column
+     * @return The relationship between this feature and the referenced feature
      */
-    DatabaseType type();
+    Relationship relationship() default Relationship.BELONGS_TO;
 }
