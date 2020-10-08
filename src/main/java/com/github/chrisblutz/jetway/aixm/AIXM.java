@@ -18,7 +18,8 @@ package com.github.chrisblutz.jetway.aixm;
 import com.github.chrisblutz.jetway.aixm.crawling.AIXMInstance;
 import com.github.chrisblutz.jetway.aixm.exceptions.AIXMException;
 import com.github.chrisblutz.jetway.aixm.mappings.FeatureEntry;
-import com.github.chrisblutz.jetway.database.Database;
+import com.github.chrisblutz.jetway.database.batches.DatabaseBatching;
+import com.github.chrisblutz.jetway.features.Feature;
 import com.github.chrisblutz.jetway.logging.JetwayLog;
 import gov.faa.aixm51.SubscriberFileComponentPropertyType;
 import org.apache.logging.log4j.message.FormattedMessage;
@@ -108,6 +109,8 @@ public final class AIXM {
                 throw exception;
             }
         }
+
+        DatabaseBatching.finalizeBatches();
     }
 
     private static void loadAIXMFeature(SubscriberFileComponentPropertyType property, List<FeatureEntry> possibleEntries) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
@@ -121,18 +124,17 @@ public final class AIXM {
         AIXMInstance instance = convertToInstance(feature);
 
         // Create instance of the identified feature and fill in fields
-        Object featureInstance = feature.getEntry().instantiate();
+        Feature featureInstance = feature.getEntry().instantiate();
         fillInData(feature, instance, featureInstance);
 
         // Enter information into database
-        if (!Database.getManager().insertEntry(feature.getEntry().getSchemaTable(), featureInstance))
-            JetwayLog.getDatabaseLogger().warn("Failed to insert entry into database.  Feature: " + feature.getEntry().getName() + ", ID: " + feature.getId());
+        DatabaseBatching.addValues(feature.getEntry().getSchemaTable(), featureInstance);
 
         // Increment feature counter
         totalCount++;
     }
 
-    private static void fillInData(AIXMIdentifiedFeature feature, AIXMInstance instance, Object featureInstance) throws IllegalAccessException {
+    private static void fillInData(AIXMIdentifiedFeature feature, AIXMInstance instance, Feature featureInstance) throws IllegalAccessException {
 
         // Fill in the ID field if present
         if (feature.getEntry().getMapping().getIDField() != null) {

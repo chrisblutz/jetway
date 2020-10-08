@@ -79,7 +79,7 @@ public class FeatureEntry {
      * @throws IllegalAccessException if the constructor is not accessible
      * @throws InstantiationException if an error occurs while creating the instance
      */
-    public Object instantiate() throws IllegalAccessException, InstantiationException {
+    public Feature instantiate() throws IllegalAccessException, InstantiationException {
 
         return featureClass.newInstance();
     }
@@ -126,7 +126,7 @@ public class FeatureEntry {
      * @param featureInstance the instance of this feature type
      * @param instanceData    the AIXM data to use
      */
-    public void fillFieldsFromInstance(Object featureInstance, AIXMInstance instanceData) {
+    public void fillFieldsFromInstance(Feature featureInstance, AIXMInstance instanceData) {
 
         // Loop through all defined attributes
         for (Field field : mapping.getFields()) {

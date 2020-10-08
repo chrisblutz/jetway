@@ -18,8 +18,9 @@ package com.github.chrisblutz.jetway.aixm.crawling;
 import com.github.chrisblutz.jetway.aixm.annotations.AIXMAttribute;
 import com.github.chrisblutz.jetway.aixm.exceptions.AIXMException;
 import com.github.chrisblutz.jetway.conversion.DataConversion;
-import com.github.chrisblutz.jetway.database.Database;
 import com.github.chrisblutz.jetway.database.SchemaManager;
+import com.github.chrisblutz.jetway.database.batches.DatabaseBatching;
+import com.github.chrisblutz.jetway.database.mappings.SchemaTable;
 import com.github.chrisblutz.jetway.features.Feature;
 import com.github.chrisblutz.jetway.logging.JetwayLog;
 
@@ -100,14 +101,18 @@ public class AIXMData {
             // Pull 'href' attribute from XMLBeans property type and URL-decode it
             String href = data.getClass().getMethod("getHref").invoke(data).toString();
             href = URLDecoder.decode(href, "UTF-8");
+
             Matcher matcher = ID_PATTERN.matcher(href);
             if (matcher.matches()) {
 
                 // Extract ID from regular expression
                 String id = matcher.group(1);
 
+                // Find schema table for feature
+                SchemaTable table = SchemaManager.get(feature);
+
                 // Insert placeholder key into database to avoid foreign key constraint issues
-                Database.getManager().insertPrimaryKey(SchemaManager.get(feature), id);
+                DatabaseBatching.addPrimaryKey(table, id);
 
                 return id;
             }
