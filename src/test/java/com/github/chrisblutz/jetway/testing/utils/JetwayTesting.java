@@ -18,9 +18,12 @@ package com.github.chrisblutz.jetway.testing.utils;
 import com.github.chrisblutz.jetway.Jetway;
 import com.github.chrisblutz.jetway.aixm.source.AIXMSource;
 import com.github.chrisblutz.jetway.aixm.source.AIXMStreamSource;
+import com.github.chrisblutz.jetway.database.Database;
 import com.github.chrisblutz.jetway.database.managers.MySQLDatabaseManager;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 /**
  * This method provides general-purpose
@@ -46,6 +49,22 @@ public class JetwayTesting {
     }
 
     /**
+     * This method constructs a new {@link AIXMSource} using
+     * the specified {@link String} for the given feature file name.
+     *
+     * @param feature the feature file name
+     * @param string  the {@link String} for the feature
+     * @return The constructed {@link AIXMSource}
+     */
+    public static AIXMSource constructSource(String feature, String string) {
+
+        // Convert string into byte array stream
+        AIXMStreamSource source = new AIXMStreamSource();
+        source.addStream(feature, new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8)));
+        return source;
+    }
+
+    /**
      * This method initializes Jetway and forces it to
      * rebuild the database.
      *
@@ -65,6 +84,25 @@ public class JetwayTesting {
      *                   If {@code false}, Jetway will handle loading normally.
      */
     public static void initializeJetway(AIXMSource aixmSource, boolean rebuild) {
+
+        initializeJetway(aixmSource, rebuild, true, false);
+    }
+
+    /**
+     * This method initializes Jetway and  and forces it to
+     * rebuild the database if {@code rebuild} is {@code true}.
+     * <p>
+     * It also takes into account effective date range enforcement.
+     *
+     * @param aixmSource  the AIXM source to use
+     * @param rebuild     if {@code true}, the Jetway database will be force-rebuilt.
+     *                    If {@code false}, Jetway will handle loading normally.
+     * @param ignoreDates if {@code true}, the Jetway database ignore effective date ranges.
+     *                    If {@code false}, Jetway will try to reload out-of-date information.
+     * @param strictDates if {@code true}, the Jetway database will throw an error if it cannot find current information.
+     *                    If {@code false}, Jetway will just log a warning.
+     */
+    public static void initializeJetway(AIXMSource aixmSource, boolean rebuild, boolean ignoreDates, boolean strictDates) {
 
         Jetway.setAIXMSource(aixmSource);
         Jetway.setDatabaseManager(MySQLDatabaseManager.getInstance());
@@ -88,6 +126,9 @@ public class JetwayTesting {
 
         if (rebuild)
             Jetway.forceDatabaseRebuild();
+
+        Database.setIgnoreEffectiveRange(ignoreDates);
+        Database.setStrictEffectiveRangeEnforcement(strictDates);
 
         Jetway.initialize();
     }

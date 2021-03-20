@@ -21,6 +21,7 @@ import com.github.chrisblutz.jetway.aixm.mappings.FeatureEntry;
 import com.github.chrisblutz.jetway.database.Database;
 import com.github.chrisblutz.jetway.database.batches.DatabaseBatching;
 import com.github.chrisblutz.jetway.database.managers.metadata.Metadata;
+import com.github.chrisblutz.jetway.exceptions.JetwayException;
 import com.github.chrisblutz.jetway.features.Feature;
 import com.github.chrisblutz.jetway.logging.JetwayLog;
 import gov.faa.aixm51.SubscriberFileComponentPropertyType;
@@ -229,5 +230,21 @@ public final class AIXM {
         // Update effective date metadata
         Database.getManager().setMetadata(Metadata.EFFECTIVE_FROM_DATE, fromDate);
         Database.getManager().setMetadata(Metadata.EFFECTIVE_TO_DATE, toDate);
+
+        // Check if data being loaded is current or not (only if effective ranges are being considered)
+        if (!Database.isValid() && !Database.isIgnoringEffectiveRange()) {
+
+            // Log a warning that the data being loaded is out-of-date
+            JetwayLog.getJetwayLogger().warn("*** Data being loaded is out-of-date. ***");
+            JetwayLog.getJetwayLogger().warn("You may want to consider updating your AIXM source.");
+
+            // If not, and enforcement is strict, throw an exception
+            if (Database.isEffectiveRangeEnforcementStrict()) {
+
+                JetwayException exception = new JetwayException("AIXM source is out-of-date.");
+                JetwayLog.getJetwayLogger().error(exception.getMessage(), exception);
+                throw exception;
+            }
+        }
     }
 }

@@ -15,6 +15,7 @@
  */
 package com.github.chrisblutz.jetway.database;
 
+import com.github.chrisblutz.jetway.aixm.source.AIXMSource;
 import com.github.chrisblutz.jetway.database.exceptions.DatabaseException;
 import com.github.chrisblutz.jetway.database.managers.DatabaseManager;
 import com.github.chrisblutz.jetway.database.managers.metadata.Metadata;
@@ -40,6 +41,7 @@ public final class Database {
 
     private static DatabaseManager currentManager;
     private static boolean forceRebuild = false;
+    private static boolean ignoreDates = false, strictDates = false;
 
     /**
      * This method retrieves the currently-active database manager.
@@ -153,6 +155,12 @@ public final class Database {
                 JetwayLog.getDatabaseLogger().info("Mismatch of Jetway and database versions, rebuilding database...");
 
             drop = shouldDrop;
+        }
+
+        // If rebuild flag is not set and Jetway is NOT ignoring effective date ranges, check if data is current
+        if (!drop && !isIgnoringEffectiveRange() && !isValid()) {
+            JetwayLog.getDatabaseLogger().info("Information in Jetway database is out-of-date, rebuilding database...");
+            drop = true;
         }
 
         return drop;
@@ -317,6 +325,88 @@ public final class Database {
     }
 
     /**
+     * This method sets whether or not Jetway will consider the effective
+     * date range of data when loading/reloading the database.
+     * <p>
+     * The metadata for the database provides the date when the information
+     * in the database takes effect, as well as the date when it goes out of date.
+     * <p>
+     * If {@code true}, Jetway will not consider these dates when choosing whether
+     * or not to reload it's data.
+     * <p>
+     * If {@code false}, Jetway will reload the data in the database if the current
+     * data is out of date.
+     * <p>
+     * If this value is set to {@code true}, then {@link #setStrictEffectiveRangeEnforcement(boolean)}
+     * will have no effect.
+     *
+     * @param ignore {@code true} to ignore dates, {@code false} to consider them
+     * @see #isValid()
+     */
+    public static void setIgnoreEffectiveRange(boolean ignore) {
+
+        ignoreDates = ignore;
+    }
+
+    /**
+     * This method checks whether or not Jetway will consider the effective
+     * date range of data when loading/reloading the database.
+     * <p>
+     * See {@link #setIgnoreEffectiveRange(boolean)} for information on what
+     * each value means.
+     *
+     * @return {@code true} if effective range is ignored, {@code false} otherwise.
+     * @see #isValid()
+     * @see #setIgnoreEffectiveRange(boolean)
+     */
+    public static boolean isIgnoringEffectiveRange() {
+
+        return ignoreDates;
+    }
+
+    /**
+     * This method sets whether or not Jetway will throw an exception when the current data
+     * in the database is out of date, and either the source of data provided to
+     * {@link com.github.chrisblutz.jetway.Jetway#setAIXMSource(AIXMSource) Jetway.setAIXMSource(AIXMSource)}
+     * is either {@code null} or out of date.
+     * <p>
+     * If {@code true}, Jetway will throw an exception when it cannot find a currently-valid
+     * source of data.
+     * <p>
+     * If {@code false}, Jetway will log a warning that it cannot find a currently-valid source
+     * of data, but will allow execution to proceed.
+     * <p>
+     * If {@link #setIgnoreEffectiveRange(boolean)} is set to {@code true}, this method has no
+     * effect.
+     *
+     * @param strict {@code true} to strictly enforce effective ranges, {@code false} to leniently
+     *               enforce these ranges
+     * @see #isValid()
+     */
+    public static void setStrictEffectiveRangeEnforcement(boolean strict) {
+
+        strictDates = strict;
+    }
+
+    /**
+     * This method checks whether or not Jetway will throw an exception when the current data
+     * in the database is out of date, and either the source of data provided to
+     * {@link com.github.chrisblutz.jetway.Jetway#setAIXMSource(AIXMSource) Jetway.setAIXMSource(AIXMSource)}
+     * is either {@code null} or out of date.
+     * <p>
+     * See {@link #setStrictEffectiveRangeEnforcement(boolean)} for information on what
+     * each value means.
+     *
+     * @return {@code true} if effective range enforcement is strict, {@code false} otherwise.
+     * @see #isValid()
+     * @see #setStrictEffectiveRangeEnforcement(boolean) E
+     */
+    public static boolean isEffectiveRangeEnforcementStrict() {
+
+        return strictDates;
+    }
+
+    /**
      * This method resets the database manager after closing
      * any open connections.
      */
@@ -331,6 +421,10 @@ public final class Database {
 
         // Reset force rebuild flag
         forceRebuild = false;
+
+        // Reset effective date flags
+        ignoreDates = false;
+        strictDates = false;
     }
 
     /**
