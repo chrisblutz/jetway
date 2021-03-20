@@ -32,7 +32,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build Gradle project
-        run: ./gradlew build --stacktrace
+        run: ./gradlew check --info --stacktrace
         env:
           TEST_MYSQL_SERVER: 127.0.0.1
           TEST_MYSQL_PORT: 44646
