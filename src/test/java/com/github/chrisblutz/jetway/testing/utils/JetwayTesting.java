@@ -85,7 +85,7 @@ public class JetwayTesting {
      */
     public static void initializeJetway(AIXMSource aixmSource, boolean rebuild) {
 
-        initializeJetway(aixmSource, rebuild, true, false);
+        initializeJetway(aixmSource, rebuild, true, false, false);
     }
 
     /**
@@ -94,18 +94,27 @@ public class JetwayTesting {
      * <p>
      * It also takes into account effective date range enforcement.
      *
-     * @param aixmSource  the AIXM source to use
-     * @param rebuild     if {@code true}, the Jetway database will be force-rebuilt.
-     *                    If {@code false}, Jetway will handle loading normally.
-     * @param ignoreDates if {@code true}, the Jetway database ignore effective date ranges.
-     *                    If {@code false}, Jetway will try to reload out-of-date information.
-     * @param strictDates if {@code true}, the Jetway database will throw an error if it cannot find current information.
-     *                    If {@code false}, Jetway will just log a warning.
+     * @param aixmSource    the AIXM source to use
+     * @param rebuild       if {@code true}, the Jetway database will be force-rebuilt.
+     *                      If {@code false}, Jetway will handle loading normally.
+     * @param ignoreDates   if {@code true}, the Jetway database ignore effective date ranges.
+     *                      If {@code false}, Jetway will try to reload out-of-date information.
+     * @param strictDates   if {@code true}, the Jetway database will throw an error if it cannot
+     *                      find current information.  If {@code false}, Jetway will just log a warning.
+     * @param clearMetadata if {@code true}, the Jetway database will clear any existing metadata before loading.
+     *                      If {@code false}, Jetway will do nothing to the metadata.
      */
-    public static void initializeJetway(AIXMSource aixmSource, boolean rebuild, boolean ignoreDates, boolean strictDates) {
+    public static void initializeJetway(AIXMSource aixmSource, boolean rebuild, boolean ignoreDates, boolean strictDates, boolean clearMetadata) {
 
         Jetway.setAIXMSource(aixmSource);
         Jetway.setDatabaseManager(MySQLDatabaseManager.getInstance());
+
+        if (clearMetadata) {
+            
+            Database.getManager().setupConnection();
+            Database.getManager().clearMetadata();
+            Database.getManager().closeConnection();
+        }
 
         String server = System.getenv("TEST_MYSQL_SERVER");
         String port = System.getenv("TEST_MYSQL_PORT");

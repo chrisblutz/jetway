@@ -185,8 +185,12 @@ public abstract class SQLDatabaseManager extends DatabaseManager {
             if (resultSet == null)
                 return false;
 
-            // Check for a row, and if one exists, table must exist
-            return resultSet.next();
+            // Check for a row
+            if (!resultSet.next())
+                return false;
+
+            // Check that the count is 1
+            return resultSet.getObject("COUNT(TABLE_NAME)", Integer.class).equals(1);
 
         } catch (SQLException e) {
 
