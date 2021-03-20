@@ -15,6 +15,13 @@
  */
 package com.github.chrisblutz.jetway.database.utils;
 
+import com.github.chrisblutz.jetway.Jetway;
+import com.github.chrisblutz.jetway.logging.JetwayLog;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
 /**
  * This class provides information about Jetway versioning
  * and database versioning, which helps determine whether
@@ -59,20 +66,26 @@ public final class DatabaseVerification {
 
             isVersionLoaded = true;
 
-            Package p = Package.getPackage("com.github.chrisblutz.jetway");
-            if (p != null) {
+            try {
 
-                currentJetwayVersion = p.getImplementationVersion();
+                // Load resource as input stream, then load it into a Properties instance
+                InputStream stream = Jetway.class.getResourceAsStream("/version.properties");
+
+                Properties properties = new Properties();
+                properties.load(stream);
+
+                currentJetwayVersion = properties.getProperty("version");
+
+            } catch (IOException e) {
+
+                JetwayLog.getJetwayLogger().warn("Could not read version file.  (" + e.getMessage() + ")");
             }
 
-            // If retrieved version is null, check for the testing system
-            // property that forces the version.
-            // Use of this property in normal execution is not recommended,
-            // and it is present solely for unit testing.
-            if (currentJetwayVersion == null) {
-
+            // If either unit-test utility property is set, alter the version accordingly
+            if (System.getProperty("FORCE_JETWAY_VERSION") != null)
                 currentJetwayVersion = System.getProperty("FORCE_JETWAY_VERSION");
-            }
+            else if (System.getProperty("FORCE_NULL_JETWAY_VERSION") != null)
+                currentJetwayVersion = null;
         }
 
         return currentJetwayVersion;

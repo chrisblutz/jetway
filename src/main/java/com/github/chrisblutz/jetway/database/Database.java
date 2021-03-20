@@ -149,16 +149,21 @@ public final class Database {
 
         // If force rebuild flag was not set, check for version mismatch
         if (!drop) {
+
             String version = getManager().getMetadata(Metadata.JETWAY_VERSION);
             boolean shouldDrop = DatabaseVerification.isRebuildRequired(version);
-            if (shouldDrop)
+
+            if (shouldDrop) {
                 JetwayLog.getDatabaseLogger().info("Mismatch of Jetway and database versions, rebuilding database...");
+                JetwayLog.getDatabaseLogger().info("Current version is " + DatabaseVerification.getCurrentJetwayVersion() + ", database version is " + version + ".");
+            }
 
             drop = shouldDrop;
         }
 
         // If rebuild flag is not set and Jetway is NOT ignoring effective date ranges, check if data is current
         if (!drop && !isIgnoringEffectiveRange() && !isValid()) {
+
             JetwayLog.getDatabaseLogger().info("Information in Jetway database is out-of-date, rebuilding database...");
             drop = true;
         }
@@ -469,9 +474,14 @@ public final class Database {
     public static boolean isValid() {
 
         ZonedDateTime now = ZonedDateTime.now();
+        ZonedDateTime from = getValidFrom();
+        ZonedDateTime to = getValidTo();
+
+        // If either end of the range is null, the data is not valid
+        if (from == null || to == null)
+            return false;
 
         // Check to make sure that the current time is within the effective range
-        return now.isAfter(getValidFrom()) &&
-                now.isBefore(getValidTo());
+        return now.isAfter(from) && now.isBefore(to);
     }
 }

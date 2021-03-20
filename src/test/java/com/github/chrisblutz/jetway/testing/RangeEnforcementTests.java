@@ -58,10 +58,10 @@ public class RangeEnforcementTests {
 
         AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, template);
 
-        JetwayTesting.initializeJetway(source, false, false, true, false);
+        JetwayTesting.initializeJetway(source, false, false, true, true);
 
         Airport[] airports = Airport.selectAll(null);
-        JetwayAssertions.assertFeatures(airports, ValidationArrays.LOAD_NO_EXTENSION_AIRPORTS, 0);
+        JetwayAssertions.assertFeatures(airports, ValidationArrays.LOAD_REBUILD_INITIAL_AIRPORTS, 0);
     }
 
     /**
@@ -75,7 +75,7 @@ public class RangeEnforcementTests {
 
         AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, template);
 
-        JetwayTesting.initializeJetway(source, false, false, true, false);
+        JetwayTesting.initializeJetway(source, false, false, true, true);
     }
 
     /**
@@ -89,7 +89,7 @@ public class RangeEnforcementTests {
 
         AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, template);
 
-        JetwayTesting.initializeJetway(source, false, false, true, false);
+        JetwayTesting.initializeJetway(source, false, false, true, true);
     }
 
     /**
@@ -103,10 +103,10 @@ public class RangeEnforcementTests {
 
         AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, template);
 
-        JetwayTesting.initializeJetway(source, false, false, false, false);
+        JetwayTesting.initializeJetway(source, false, false, false, true);
 
         Airport[] airports = Airport.selectAll(null);
-        JetwayAssertions.assertFeatures(airports, ValidationArrays.LOAD_NO_EXTENSION_AIRPORTS, 0);
+        JetwayAssertions.assertFeatures(airports, ValidationArrays.LOAD_REBUILD_INITIAL_AIRPORTS, 0);
     }
 
     /**
@@ -120,10 +120,10 @@ public class RangeEnforcementTests {
 
         AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, template);
 
-        JetwayTesting.initializeJetway(source, false, false, false, false);
+        JetwayTesting.initializeJetway(source, false, false, false, true);
 
         Airport[] airports = Airport.selectAll(null);
-        JetwayAssertions.assertFeatures(airports, ValidationArrays.LOAD_NO_EXTENSION_AIRPORTS, 0);
+        JetwayAssertions.assertFeatures(airports, ValidationArrays.LOAD_REBUILD_INITIAL_AIRPORTS, 0);
     }
 
     /**
@@ -137,10 +137,10 @@ public class RangeEnforcementTests {
 
         AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, template);
 
-        JetwayTesting.initializeJetway(source, false, true, true, false);
+        JetwayTesting.initializeJetway(source, false, true, true, true);
 
         Airport[] airports = Airport.selectAll(null);
-        JetwayAssertions.assertFeatures(airports, ValidationArrays.LOAD_NO_EXTENSION_AIRPORTS, 0);
+        JetwayAssertions.assertFeatures(airports, ValidationArrays.LOAD_REBUILD_INITIAL_AIRPORTS, 0);
     }
 
     /**
@@ -154,10 +154,10 @@ public class RangeEnforcementTests {
 
         AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, template);
 
-        JetwayTesting.initializeJetway(source, false, true, true, false);
+        JetwayTesting.initializeJetway(source, false, true, true, true);
 
         Airport[] airports = Airport.selectAll(null);
-        JetwayAssertions.assertFeatures(airports, ValidationArrays.LOAD_NO_EXTENSION_AIRPORTS, 0);
+        JetwayAssertions.assertFeatures(airports, ValidationArrays.LOAD_REBUILD_INITIAL_AIRPORTS, 0);
     }
 
     /**
@@ -172,7 +172,10 @@ public class RangeEnforcementTests {
 
         AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, template);
 
-        JetwayTesting.initializeJetway(source, false, true, false, false);
+        JetwayTesting.initializeJetway(source, false, true, false, true);
+
+        // Reset Jetway so it is ready to load the next attempt
+        Jetway.reset();
 
         // Now attempt to load it again, and it should fail with strict enforcement
         template = TemplateUtils.loadResourceAsString("/aixm/range_invalid_future_template.xml");
@@ -196,6 +199,72 @@ public class RangeEnforcementTests {
 
         // Tell Jetway to clear any metadata before loading
         JetwayTesting.initializeJetway(source, false, false, true, true);
+    }
+
+    /**
+     * This method tests trying to load new data when the current data is still valid.
+     */
+    @Test
+    public void testExisting() {
+
+        String template = TemplateUtils.loadResourceAsString("/aixm/range_valid_template.xml");
+        template = replaceTemplateFields(template);
+
+        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, template);
+
+        // Tell Jetway to clear any metadata before loading
+        JetwayTesting.initializeJetway(source, true, false, true, true);
+
+        Airport[] airports = Airport.selectAll(null);
+        JetwayAssertions.assertFeatures(airports, ValidationArrays.LOAD_REBUILD_INITIAL_AIRPORTS, 0);
+
+        // Reset Jetway so it is ready to load the next attempt
+        Jetway.reset();
+
+        // Attempt to load new data (shouldn't load since current data is valid)
+        template = TemplateUtils.loadResourceAsString("/aixm/range_valid_new_template.xml");
+        template = replaceTemplateFields(template);
+
+        source = JetwayTesting.constructSource(Airport.AIXM_FILE, template);
+
+        // Tell Jetway to clear any metadata before loading
+        JetwayTesting.initializeJetway(source, false, false, true, false);
+
+        airports = Airport.selectAll(null);
+        JetwayAssertions.assertFeatures(airports, ValidationArrays.LOAD_REBUILD_INITIAL_AIRPORTS, 0);
+    }
+
+    /**
+     * This method tests trying to load new data when the current data is out-of-date.
+     */
+    @Test
+    public void testExistingOld() {
+
+        String template = TemplateUtils.loadResourceAsString("/aixm/range_invalid_past_template.xml");
+        template = replaceTemplateFields(template);
+
+        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, template);
+
+        // Tell Jetway to clear any metadata before loading
+        JetwayTesting.initializeJetway(source, true, true, false, true);
+
+        Airport[] airports = Airport.selectAll(null);
+        JetwayAssertions.assertFeatures(airports, ValidationArrays.LOAD_REBUILD_INITIAL_AIRPORTS, 0);
+
+        // Reset Jetway so it is ready to load the next attempt
+        Jetway.reset();
+
+        // Attempt to load new data (should load since current data is invalid)
+        template = TemplateUtils.loadResourceAsString("/aixm/range_valid_new_template.xml");
+        template = replaceTemplateFields(template);
+
+        source = JetwayTesting.constructSource(Airport.AIXM_FILE, template);
+
+        // Tell Jetway to clear any metadata before loading
+        JetwayTesting.initializeJetway(source, false, false, true, false);
+
+        airports = Airport.selectAll(null);
+        JetwayAssertions.assertFeatures(airports, ValidationArrays.LOAD_REBUILD_FINAL_AIRPORTS, 0);
     }
 
     private String replaceTemplateFields(String template) {

@@ -20,7 +20,7 @@ package com.github.chrisblutz.jetway.database.managers.metadata;
  *
  * @author Christopher Lutz
  */
-public class Metadata {
+public final class Metadata {
 
     private static final String JETWAY_VERSION_COLUMN = "jetway_version";
     private static final String EFFECTIVE_FROM_DATE_COLUMN = "effective_from";

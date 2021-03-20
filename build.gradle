@@ -28,7 +28,15 @@ dependencies {
     compile name: 'nasr-aixm'
 }
 
+task writeVersionInformation() {
+    new File(sourceSets.main.output.resourcesDir, "version.properties").text =
+"""version=$version
+"""
+}
+
 jar {
+    doFirst { writeVersionInformation }
+
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
 
     manifest {
@@ -45,6 +53,8 @@ tasks.withType(Jar) {
 }
 
 test {
+    doFirst { writeVersionInformation }
+
     testLogging {
         events "passed", "skipped", "failed", "standardOut", "standardError"
     }

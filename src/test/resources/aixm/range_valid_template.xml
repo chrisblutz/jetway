@@ -13,12 +13,12 @@
                 <aixm:AirportHeliportTimeSlice gml:id="AIRPORT_HELIPORT_TS_0000001">
                     <aixm:interpretation>BASELINE</aixm:interpretation>
                     <aixm:designator>TST</aixm:designator>
-                    <aixm:name>TEST AIRPORT</aixm:name>
+                    <aixm:name>AIRPORT A</aixm:name>
                     <aixm:locationIndicatorICAO>KTST</aixm:locationIndicatorICAO>
                     <aixm:type>AH</aixm:type>
                     <aixm:privateUse>NO</aixm:privateUse>
                     <aixm:controlType>CIVIL</aixm:controlType>
-                    <aixm:fieldElevation uom="FT">19.5</aixm:fieldElevation>
+                    <aixm:fieldElevation uom="FT">20</aixm:fieldElevation>
                     <aixm:magneticVariation>07</aixm:magneticVariation>
                     <aixm:dateMagneticVariation>2000</aixm:dateMagneticVariation>
                     <aixm:windDirectionIndicator>YES</aixm:windDirectionIndicator>
@@ -29,7 +29,7 @@
                     </aixm:servedCity>
                     <aixm:ARP>
                         <aixm:ElevatedPoint gml:id="AIRPORT_HELIPORT_ELEVATED_POINT_ARP_0000001" srsName="urn:ogc:def:crs:OGC:1.3:CRS83">
-                            <gml:pos>-170.1234 50.5678</gml:pos>
+                            <gml:pos>-170 60</gml:pos>
                         </aixm:ElevatedPoint>
                     </aixm:ARP>
                 </aixm:AirportHeliportTimeSlice>

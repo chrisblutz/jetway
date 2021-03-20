@@ -262,6 +262,7 @@ public class LoadTests {
 
         // Force Jetway version to null for this test
         System.clearProperty("FORCE_JETWAY_VERSION");
+        System.setProperty("FORCE_NULL_JETWAY_VERSION", "true");
 
         source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/rebuild_final.xml"));
         JetwayTesting.initializeJetway(source, false);
@@ -269,6 +270,8 @@ public class LoadTests {
         // Check that the airport is now the new airport, because a rebuild was required due to version mismatch
         airports = Airport.selectAll(null);
         JetwayAssertions.assertFeatures(airports, ValidationArrays.LOAD_REBUILD_FINAL_AIRPORTS, 0);
+
+        System.clearProperty("FORCE_NULL_JETWAY_VERSION");
     }
 
     /**
