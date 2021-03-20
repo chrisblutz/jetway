@@ -21,6 +21,8 @@ import com.github.chrisblutz.jetway.database.SchemaManager;
 import com.github.chrisblutz.jetway.database.exceptions.DatabaseException;
 import com.github.chrisblutz.jetway.database.keys.ForeignKeyData;
 import com.github.chrisblutz.jetway.database.keys.Relationship;
+import com.github.chrisblutz.jetway.database.managers.metadata.BasicMetadata;
+import com.github.chrisblutz.jetway.database.managers.metadata.Metadata;
 import com.github.chrisblutz.jetway.database.mappings.SchemaTable;
 import com.github.chrisblutz.jetway.database.queries.*;
 import com.github.chrisblutz.jetway.features.Feature;
@@ -43,14 +45,26 @@ import java.util.*;
 public abstract class SQLDatabaseManager extends DatabaseManager {
 
     /**
-     * This field defines the name of the Jetway version table in the database.
+     * This field defines the name of the table containing Jetway's
+     * metadata information.
      */
-    protected static final String VERSION_TABLE = "jetway_version";
+    protected static final String METADATA_TABLE = "metadata";
+
     /**
-     * This field defines the name of the column containing the version of
-     * Jetway used to generate the database.
+     * This field defines the name of the primary key used in the metadata table
      */
-    protected static final String VERSION_COLUMN = "version";
+    protected static final String METADATA_KEY = "id";
+
+    /**
+     * This field defines the type of the primary key used in the metadata table
+     */
+    protected static final DatabaseType METADATA_KEY_TYPE = DatabaseType.INTEGER;
+
+    /**
+     * This field defines the value of the primary key used in the metadata table,
+     * since this is a singleton table (only one row)
+     */
+    protected static final int METADATA_KEY_VALUE = 0;
 
     /**
      * This method retrieves the SQL {@link Connection} to the database.
@@ -113,69 +127,112 @@ public abstract class SQLDatabaseManager extends DatabaseManager {
     }
 
     @Override
-    public String getJetwayVersion() {
+    public <T> T getMetadata(BasicMetadata<T> metadata) {
 
-        // Check that version table exists in the database
-        if (!checkVersionTableExists()) {
-            JetwayLog.getDatabaseLogger().info("Jetway version table does not exist, defaulting to 'null' version.");
+        // If metadata table does not exist, return null
+        if (!getMetadataTableExists())
             return null;
-        }
 
-        // Select the current version from the version table
-        return getVersionFromVersionTable();
+        // Extract value from table
+        String value = getMetadataColumnValue(metadata.getName());
+
+        // If value is null, return null (don't try to convert)
+        if (value == null)
+            return null;
+
+        // If value is not null, convert to type and return
+        return metadata.fromString(value);
     }
 
-    private boolean checkVersionTableExists() {
+    @Override
+    public <T> boolean setMetadata(BasicMetadata<T> metadata, T value) {
 
-        // Check INFORMATION_SCHEMA to see if version table exists
-        JetwayLog.getDatabaseLogger().info("Checking to see if Jetway version table exists...");
-        String query = "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES;";
+        // Create metadata table (will not do anything if table already exists)
+        if (!createMetadataTable())
+            return false;
+
+        // If value is null, insert null into table.  Otherwise convert to String.
+        String valueString = value != null ? metadata.toString(value) : null;
+
+        return setMetadataColumnValue(metadata.getName(), valueString);
+    }
+
+    @Override
+    public boolean clearMetadata() {
+
+        // Drop the metadata table
+        JetwayLog.getDatabaseLogger().info("Dropping metadata table if it exists...");
+        String dropQuery = "DROP TABLE IF EXISTS " + METADATA_TABLE + ";";
+        return execute(dropQuery);
+    }
+
+    private boolean getMetadataTableExists() {
+
+        // Select the table name from the database schema
+        JetwayLog.getDatabaseLogger().info("Checking to see if metadata table exists...");
+        String query = "SELECT COUNT(TABLE_NAME) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = \"" + METADATA_TABLE + "\";";
         Statement statement = executeWithResult(query);
 
-        // If statement is null (i.e. something went wrong during execution, return false
+        // If statement is null, check failed
         if (statement == null)
             return false;
 
-        return checkResultsForTable(statement);
-    }
-
-    private boolean checkResultsForTable(Statement statement) {
-
         try {
 
-            // Search through available table names for the version table name
             ResultSet resultSet = statement.getResultSet();
 
-            boolean exists = false;
-            while (resultSet.next()) {
-                String column = resultSet.getString("TABLE_NAME");
+            // If result set is null, check failed
+            if (resultSet == null)
+                return false;
 
-                // If column name is found, set exists to true
-                if (column.equals(VERSION_TABLE)) {
-                    exists = true;
-                    break;
-                }
-            }
-
-            statement.close();
-            return exists;
+            // Check for a row, and if one exists, table must exist
+            return resultSet.next();
 
         } catch (SQLException e) {
 
-            DatabaseException exception = new DatabaseException("An error occurred while checking if Jetway version data exists.", e);
+            DatabaseException exception = new DatabaseException("An error occurred while checking if metadata table exists.", e);
             JetwayLog.getDatabaseLogger().error(exception.getMessage(), exception);
             throw exception;
         }
     }
 
-    private String getVersionFromVersionTable() {
+    private boolean createMetadataTable() {
 
-        // Select the current version from the version table
-        JetwayLog.getDatabaseLogger().info("Retrieving Jetway version from database...");
-        String query = "SELECT " + VERSION_COLUMN + " FROM " + VERSION_TABLE + ";";
+        // Create the jetway_version table if it doesn't exist
+        JetwayLog.getDatabaseLogger().info("Creating metadata table...");
+        String query = format("CREATE TABLE IF NOT EXISTS {0} (\n{1}\n);", METADATA_TABLE, getMetadataAttributes());
+        return execute(query);
+    }
+
+    private String getMetadataAttributes() {
+
+        // Get SQL types for the primary key and all metadata columns
+        String primarySQLType = getSQLType(METADATA_KEY_TYPE);
+        String metadataSQLType = getSQLType(DatabaseType.STRING);
+
+        // Start string with primary key entry
+        StringBuilder attributes = new StringBuilder(format("\t{0} {1} NOT NULL", METADATA_KEY, primarySQLType));
+
+        // Create new line for each metadata column
+        for (BasicMetadata<?> metadata : Metadata.METADATA)
+            attributes.append(format(",\n\t{0} {1}", metadata.getName(), metadataSQLType));
+
+        // Declare the primary key column
+        attributes.append(format(",\n\tPRIMARY KEY ({0})", METADATA_KEY));
+
+        return attributes.toString();
+    }
+
+    private String getMetadataColumnValue(String column) {
+
+        // Convert primary key to SQL string
+        String primaryKey = formatAsSQLType(METADATA_KEY_TYPE, METADATA_KEY_VALUE);
+
+        // Pull value from table (extract singleton row)
+        String query = format("SELECT {0} FROM {1} WHERE {2} = {3};", column, METADATA_TABLE, METADATA_KEY, primaryKey);
         Statement statement = executeWithResult(query);
 
-        // If statement is null (i.e. something went wrong during execution, return null
+        // If statement is null, return null
         if (statement == null)
             return null;
 
@@ -183,49 +240,40 @@ public abstract class SQLDatabaseManager extends DatabaseManager {
 
             ResultSet resultSet = statement.getResultSet();
 
-            // If result set has no next line, then the table does not contain a version
-            if (!resultSet.next()) {
-                JetwayLog.getDatabaseLogger().info("No version data present in the database, defaulting to 'null' version.");
+            // If result set is null, return null
+            if (resultSet == null)
                 return null;
-            }
 
-            String version = resultSet.getString(VERSION_COLUMN);
+            // Check for a row, and if one does not exist, return null
+            if (!resultSet.next())
+                return null;
 
-            statement.close();
-            return version;
+            // Extract column value as string
+            return resultSet.getString(column);
 
         } catch (SQLException e) {
 
-            DatabaseException exception = new DatabaseException("An error occurred while retrieving Jetway version data.", e);
+            DatabaseException exception = new DatabaseException("An error occurred while retrieving '" + column + "' metadata.", e);
             JetwayLog.getDatabaseLogger().error(exception.getMessage(), exception);
             throw exception;
         }
     }
 
-    @Override
-    public boolean setJetwayVersion(String version) {
+    private boolean setMetadataColumnValue(String column, String value) {
 
-        // Create the jetway_version table if it doesn't exist
-        JetwayLog.getDatabaseLogger().info("Recreating Jetway version table with '" + VERSION_COLUMN + "' column...");
-        String createQuery = "CREATE TABLE IF NOT EXISTS " + VERSION_TABLE + " (\n\t" + VERSION_COLUMN +
-                " VARCHAR(50) NOT NULL,\n\tPRIMARY KEY(" + VERSION_COLUMN + "));";
-        boolean create = execute(createQuery);
+        // Convert primary key to SQL string
+        String primaryKey = formatAsSQLType(METADATA_KEY_TYPE, METADATA_KEY_VALUE);
 
-        // Insert current version into jetway_version table
-        JetwayLog.getDatabaseLogger().info("Inserting Jetway version into table '" + VERSION_TABLE + "'...");
-        String insertQuery = format("INSERT INTO " + VERSION_TABLE + " VALUES ({0});", formatAsSQLType(DatabaseType.STRING, version));
-        boolean insert = execute(insertQuery);
+        // Convert value to SQL value
+        String sqlValue = formatAsSQLType(DatabaseType.STRING, value);
 
-        return create && insert;
-    }
+        // Create list of attributes/values, in this case it will be primary key followed by the attribute being changed
+        String[] attributes = new String[]{METADATA_KEY, column};
+        String[] values = new String[]{primaryKey, sqlValue};
 
-    @Override
-    public boolean dropVersionTable() {
-
-        // Drop the version table if it exists
-        JetwayLog.getDatabaseLogger().info("Dropping Jetway version table if it exists...");
-        String dropQuery = "DROP TABLE IF EXISTS " + VERSION_TABLE + ";";
-        return execute(dropQuery);
+        // Insert entry into database, and if it already exists, update column to new value
+        String query = format("INSERT INTO {0} ({1}) VALUES\n\t({2})\nON DUPLICATE KEY UPDATE\n\t{3} = {4};", METADATA_TABLE, String.join(", ", attributes), String.join(",\n\t", values), column, sqlValue);
+        return execute(query);
     }
 
     @Override
@@ -371,7 +419,6 @@ public abstract class SQLDatabaseManager extends DatabaseManager {
     public boolean insertPrimaryKeys(SchemaTable table, Object[] primaryKeys) {
 
         String keyAttribute = table.getPrimaryKey();
-        String[] attributes = table.getAttributes().toArray(new String[0]);
 
         // Generate keys as SQL values for each key
         String[] formattedKeys = new String[primaryKeys.length];

@@ -18,6 +18,7 @@ package com.github.chrisblutz.jetway.database.managers;
 import com.github.chrisblutz.jetway.database.SchemaManager;
 import com.github.chrisblutz.jetway.database.keys.ForeignKeyData;
 import com.github.chrisblutz.jetway.database.keys.Relationship;
+import com.github.chrisblutz.jetway.database.managers.metadata.BasicMetadata;
 import com.github.chrisblutz.jetway.database.mappings.SchemaTable;
 import com.github.chrisblutz.jetway.database.queries.*;
 import com.github.chrisblutz.jetway.features.Feature;
@@ -108,35 +109,33 @@ public abstract class DatabaseManager {
     public abstract void closeConnection();
 
     /**
-     * This method retrieves the Jetway version stored in the database.
+     * This method retrieves a specific piece of metadata from the database.
      * <p>
-     * This value is used to determine if Jetway versions have changed,
-     * and if the database needs to be rebuilt from source data.
-     * <p>
-     * If no version is stored, return {@code null}.
+     * If the metadata table does not exist, or if the specific metadata instance
+     * has no stored value, this method will return {@code null}.
      *
-     * @return The Jetway version stored in the database
+     * @param metadata the metadata instance to retrieve
+     * @param <T>      the type of metadata value being retrieved
+     * @return The retrieved metadata information, or {@code null} if no metadata was found
      */
-    public abstract String getJetwayVersion();
+    public abstract <T> T getMetadata(BasicMetadata<T> metadata);
 
     /**
-     * This method stores the specified Jetway version in the database
-     * for future use.
-     * <p>
-     * This value will be used in future runs to determine if
-     * Jetway versions have changed.
+     * This method inserts a piece of metadata into the database.
      *
-     * @param version the Jetway version to store
+     * @param metadata the metadata instance to store
+     * @param value    the metadata value to store
+     * @param <T>      the type of metadata value being stored
      * @return {@code true} if the operation succeeded, {@code false} otherwise
      */
-    public abstract boolean setJetwayVersion(String version);
+    public abstract <T> boolean setMetadata(BasicMetadata<T> metadata, T value);
 
     /**
-     * This method drops the Jetway version table from the database.
+     * This method clears all metadata stored in the database.
      *
      * @return {@code true} if the operation succeeded, {@code false} otherwise
      */
-    public abstract boolean dropVersionTable();
+    public abstract boolean clearMetadata();
 
     /**
      * This method builds a table in the database as defined

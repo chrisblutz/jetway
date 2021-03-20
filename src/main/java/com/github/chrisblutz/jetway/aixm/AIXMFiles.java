@@ -18,8 +18,8 @@ package com.github.chrisblutz.jetway.aixm;
 import com.github.chrisblutz.jetway.Jetway;
 import com.github.chrisblutz.jetway.aixm.exceptions.AIXMException;
 import com.github.chrisblutz.jetway.logging.JetwayLog;
-import gov.faa.aixm51.SubscriberFileComponentPropertyType;
 import gov.faa.aixm51.SubscriberFileDocument;
+import gov.faa.aixm51.SubscriberFileType;
 import org.apache.xmlbeans.XmlException;
 
 import java.io.IOException;
@@ -40,9 +40,9 @@ public final class AIXMFiles {
      * as XMLBeans types.
      *
      * @param featureFileName the feature file to load
-     * @return The array of XMLBeans properties that were loaded
+     * @return The subscriber file loaded
      */
-    public static SubscriberFileComponentPropertyType[] loadAIXMFile(String featureFileName) {
+    public static SubscriberFileType loadAIXMFile(String featureFileName) {
 
         try {
 
@@ -65,8 +65,8 @@ public final class AIXMFiles {
             // Close AIXM source after loading
             Jetway.getAIXMSource().close();
 
-            // Extract array of properties and return
-            return doc.getSubscriberFile().getMemberArray();
+            // Extract subscriber file
+            return doc.getSubscriberFile();
 
         } catch (IOException | XmlException e) {
 

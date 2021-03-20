@@ -18,13 +18,18 @@ package com.github.chrisblutz.jetway.aixm;
 import com.github.chrisblutz.jetway.aixm.crawling.AIXMInstance;
 import com.github.chrisblutz.jetway.aixm.exceptions.AIXMException;
 import com.github.chrisblutz.jetway.aixm.mappings.FeatureEntry;
+import com.github.chrisblutz.jetway.database.Database;
 import com.github.chrisblutz.jetway.database.batches.DatabaseBatching;
+import com.github.chrisblutz.jetway.database.managers.metadata.Metadata;
 import com.github.chrisblutz.jetway.features.Feature;
 import com.github.chrisblutz.jetway.logging.JetwayLog;
 import gov.faa.aixm51.SubscriberFileComponentPropertyType;
+import gov.faa.aixm51.SubscriberFileType;
 import org.apache.logging.log4j.message.FormattedMessage;
 
 import java.lang.reflect.InvocationTargetException;
+import java.time.ZonedDateTime;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -38,6 +43,7 @@ public final class AIXM {
     private AIXM() {}
 
     private static int totalCount = 0;
+    private static long dbTime = 0;
 
     /**
      * This method begins the load sequence for all registered AIXM files.
@@ -69,7 +75,13 @@ public final class AIXM {
 
         // Load AIXM properties from file
         JetwayLog.getJetwayLogger().info("Loading AIXM file into memory...");
-        final SubscriberFileComponentPropertyType[] properties = AIXMFiles.loadAIXMFile(aixmFile);
+        final SubscriberFileType subFile = AIXMFiles.loadAIXMFile(aixmFile);
+
+        // Extract date range when this NASR data is valid
+        extractEffectiveRange(subFile);
+
+        // Extract individual features as array
+        final SubscriberFileComponentPropertyType[] properties = subFile.getMemberArray();
 
         // Find all possible AIXM features that may be in this file
         JetwayLog.getJetwayLogger().info("Retrieving all possible features for this file...");
@@ -87,13 +99,17 @@ public final class AIXM {
 
         double totalParseTime = (parseTime - loadTime) / 1000d;
         double totalTime = (parseTime - startTime) / 1000d;
+        double totalDbTime = dbTime / 1000d;
 
         // Print stats
-        JetwayLog.getJetwayLogger().info(new FormattedMessage("Generated %,d entries in %,.3f seconds.", totalCount, totalParseTime));
+        JetwayLog.getJetwayLogger().info(new FormattedMessage("Generated %,d entries in %,.3f seconds (%,.3fs performing database operations).", totalCount, totalParseTime, totalDbTime));
         JetwayLog.getJetwayLogger().info(new FormattedMessage("Complete load time was %,.3f seconds.", totalTime));
     }
 
     private static void loadAll(SubscriberFileComponentPropertyType[] properties, List<FeatureEntry> possibleEntries) {
+
+        // Reset time taken by database
+        dbTime = 0;
 
         for (SubscriberFileComponentPropertyType property : properties) {
 
@@ -110,7 +126,13 @@ public final class AIXM {
             }
         }
 
+        // Track time taken by database operations
+        long startTime = System.currentTimeMillis();
+
         DatabaseBatching.finalizeBatches();
+
+        // Add up time taken by database operations
+        dbTime += System.currentTimeMillis() - startTime;
     }
 
     private static void loadAIXMFeature(SubscriberFileComponentPropertyType property, List<FeatureEntry> possibleEntries) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
@@ -127,8 +149,14 @@ public final class AIXM {
         Feature featureInstance = feature.getEntry().instantiate();
         fillInData(feature, instance, featureInstance);
 
+        // Track time taken by database operations
+        long startTime = System.currentTimeMillis();
+
         // Enter information into database
         DatabaseBatching.addValues(feature.getEntry().getSchemaTable(), featureInstance);
+
+        // Add up time taken by database operations
+        dbTime += System.currentTimeMillis() - startTime;
 
         // Increment feature counter
         totalCount++;
@@ -182,5 +210,24 @@ public final class AIXM {
 
         // If this feature did not match, return null
         return null;
+    }
+
+    private static void extractEffectiveRange(SubscriberFileType subFile) {
+
+        // Extract "from" date (data is effective on and after this date)
+        Calendar from = subFile.getValidFrom();
+
+        // Calculate "to" date (data is only effective prior to this date)
+        // In the subscriber file, this value is "null", so it is calculated as 28 days after the "from" date
+        Calendar to = (Calendar) from.clone();
+        to.add(Calendar.DATE, 28);
+
+        // Convert Calendar instances into ZonedDateTime instances
+        ZonedDateTime fromDate = ZonedDateTime.ofInstant(from.toInstant(), from.getTimeZone().toZoneId());
+        ZonedDateTime toDate = ZonedDateTime.ofInstant(to.toInstant(), to.getTimeZone().toZoneId());
+
+        // Update effective date metadata
+        Database.getManager().setMetadata(Metadata.EFFECTIVE_FROM_DATE, fromDate);
+        Database.getManager().setMetadata(Metadata.EFFECTIVE_TO_DATE, toDate);
     }
 }

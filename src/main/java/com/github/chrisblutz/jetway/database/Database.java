@@ -17,6 +17,7 @@ package com.github.chrisblutz.jetway.database;
 
 import com.github.chrisblutz.jetway.database.exceptions.DatabaseException;
 import com.github.chrisblutz.jetway.database.managers.DatabaseManager;
+import com.github.chrisblutz.jetway.database.managers.metadata.Metadata;
 import com.github.chrisblutz.jetway.database.mappings.SchemaTable;
 import com.github.chrisblutz.jetway.database.queries.DatabaseResult;
 import com.github.chrisblutz.jetway.database.queries.Query;
@@ -24,6 +25,8 @@ import com.github.chrisblutz.jetway.database.queries.Sort;
 import com.github.chrisblutz.jetway.database.utils.DatabaseVerification;
 import com.github.chrisblutz.jetway.features.Feature;
 import com.github.chrisblutz.jetway.logging.JetwayLog;
+
+import java.time.ZonedDateTime;
 
 /**
  * This method handles all registration and use of {@link DatabaseManager} instances,
@@ -144,7 +147,8 @@ public final class Database {
 
         // If force rebuild flag was not set, check for version mismatch
         if (!drop) {
-            boolean shouldDrop = DatabaseVerification.isRebuildRequired(getManager().getJetwayVersion());
+            String version = getManager().getMetadata(Metadata.JETWAY_VERSION);
+            boolean shouldDrop = DatabaseVerification.isRebuildRequired(version);
             if (shouldDrop)
                 JetwayLog.getDatabaseLogger().info("Mismatch of Jetway and database versions, rebuilding database...");
 
@@ -160,9 +164,9 @@ public final class Database {
         JetwayLog.getDatabaseLogger().info("Setting up database to drop tables...");
         if (getManager().setForDrops(true)) {
 
-            // Drop Jetway version table
-            if (!getManager().dropVersionTable())
-                JetwayLog.getDatabaseLogger().warn("Failed to drop Jetway version table.");
+            // Clear all metadata
+            if (!getManager().clearMetadata())
+                JetwayLog.getDatabaseLogger().warn("Failed to clear metadata.");
 
             // Drop all feature tables
             dropAllFeatureTables();
@@ -196,8 +200,9 @@ public final class Database {
         if (DatabaseVerification.getCurrentJetwayVersion() != null) {
             JetwayLog.getDatabaseLogger().info("Storing Jetway version in the database...");
 
-            if (!getManager().setJetwayVersion(DatabaseVerification.getCurrentJetwayVersion()))
-                JetwayLog.getDatabaseLogger().warn("Failed to insert Jetway version into database.");
+            // Set metadata for Jetway version
+            if (!getManager().setMetadata(Metadata.JETWAY_VERSION, DatabaseVerification.getCurrentJetwayVersion()))
+                JetwayLog.getDatabaseLogger().warn("Failed to update Jetway version metadata.");
         }
     }
 
@@ -326,5 +331,53 @@ public final class Database {
 
         // Reset force rebuild flag
         forceRebuild = false;
+    }
+
+    /**
+     * This method returns the date that the currently-loaded
+     * data goes into effect.  This is determined from the NASR
+     * data provided by the FAA.
+     * <p>
+     * Each NASR subscription file is valid for 28 days.
+     *
+     * @return The date this data goes into effect
+     */
+    public static ZonedDateTime getValidFrom() {
+
+        return getManager().getMetadata(Metadata.EFFECTIVE_FROM_DATE);
+    }
+
+    /**
+     * This method returns the date that the currently-loaded
+     * data becomes out-of-date.  This is determined from the NASR
+     * data provided by the FAA.
+     * <p>
+     * Each NASR subscription file is valid for 28 days.
+     *
+     * @return The date this data becomes out-of-date
+     */
+    public static ZonedDateTime getValidTo() {
+
+        return getManager().getMetadata(Metadata.EFFECTIVE_TO_DATE);
+    }
+
+    /**
+     * This method determines if the data in the database is currently valid.
+     * Data is defined to be valid when the current date is within the 'valid from'
+     * and 'valid to' range provided by the FAA for each NASR subscription release.
+     * <p>
+     * Each NASR subscription file is valid for 28 days.
+     *
+     * @return {@code true} if the data is valid, {@code false} otherwise
+     * @see #getValidFrom()
+     * @see #getValidTo()
+     */
+    public static boolean isValid() {
+
+        ZonedDateTime now = ZonedDateTime.now();
+
+        // Check to make sure that the current time is within the effective range
+        return now.isAfter(getValidFrom()) &&
+                now.isBefore(getValidTo());
     }
 }
