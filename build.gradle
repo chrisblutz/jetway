@@ -29,13 +29,17 @@ dependencies {
 }
 
 task writeVersionInformation() {
+    if (!sourceSets.main.output.resourcesDir.exists()) {
+        sourceSets.main.output.resourcesDir.mkdirs()
+    }
+
     new File(sourceSets.main.output.resourcesDir, "version.properties").text =
-"""version=$version
+            """version=$version
 """
 }
 
 jar {
-    doFirst { writeVersionInformation }
+    dependsOn writeVersionInformation
 
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
 
@@ -53,7 +57,7 @@ tasks.withType(Jar) {
 }
 
 test {
-    doFirst { writeVersionInformation }
+    dependsOn writeVersionInformation
 
     testLogging {
         events "passed", "skipped", "failed", "standardOut", "standardError"
