@@ -171,7 +171,20 @@ public final class Database {
         return drop;
     }
 
-    private static void dropAllTables() {
+    /**
+     * This method drops all tables in Jetway's database.
+     * This effectively clears all of Jetway's data, and you
+     * will need to re-initialize Jetway to recreate it.
+     */
+    public static void dropAllTables() {
+
+        // If database manager is not connected, connect it and attempt to create the database
+        // createDatabase() shouldn't re-create a database that already exists
+        if (!getManager().isConnected()) {
+
+            getManager().setupConnection();
+            getManager().createDatabase();
+        }
 
         // Set database manager to drop tables in bulk
         JetwayLog.getDatabaseLogger().info("Setting up database to drop tables...");

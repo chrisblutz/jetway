@@ -44,6 +44,8 @@ public abstract class DatabaseManager {
      */
     protected static final String DATABASE_NAME = "jetway";
 
+    private boolean connected = false;
+
     /**
      * This method sets the server address to be used
      * by this database manager.
@@ -89,7 +91,22 @@ public abstract class DatabaseManager {
      *
      * @return {@code true} if the operation succeeded, {@code false} otherwise
      */
-    public abstract boolean setupConnection();
+    public boolean setupConnection() {
+
+        connected = setupConnectionSpecific();
+        return connected;
+    }
+
+    /**
+     * This method is the manager-specific implementation for
+     * {@link #setupConnection()}.
+     * <p>
+     * This method does the heavy-lifting, while the wrapper
+     * tracks if the connection is open or not.
+     *
+     * @return {@code true} if the operation succeeded, {@code false} otherwise
+     */
+    protected abstract boolean setupConnectionSpecific();
 
     /**
      * This method creates the Jetway database
@@ -106,7 +123,31 @@ public abstract class DatabaseManager {
      * This method closes the connection to
      * the database.
      */
-    public abstract void closeConnection();
+    public void closeConnection() {
+
+        connected = false;
+        closeConnectionSpecific();
+    }
+
+    /**
+     * This method is the manager-specific implementation for
+     * {@link #closeConnection()} ()}.
+     * <p>
+     * This method does the heavy-lifting, while the wrapper
+     * tracks if the connection is open or not.
+     */
+    protected abstract void closeConnectionSpecific();
+
+    /**
+     * This method determines if the database connection
+     * is currently open.
+     *
+     * @return {@code true} if the database connection is open, {@code false} otherwise
+     */
+    public boolean isConnected() {
+
+        return connected;
+    }
 
     /**
      * This method retrieves a specific piece of metadata from the database.

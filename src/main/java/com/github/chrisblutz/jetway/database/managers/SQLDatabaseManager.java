@@ -111,7 +111,7 @@ public abstract class SQLDatabaseManager extends DatabaseManager {
     }
 
     @Override
-    public void closeConnection() {
+    protected void closeConnectionSpecific() {
 
         try {
 

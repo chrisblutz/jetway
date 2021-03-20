@@ -71,7 +71,7 @@ public class MySQLDatabaseManager extends SQLDatabaseManager {
     }
 
     @Override
-    public boolean setupConnection() {
+    protected boolean setupConnectionSpecific() {
 
         try {
 

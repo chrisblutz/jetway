@@ -196,7 +196,7 @@ public class LoadTests {
         Jetway.reset();
 
         source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/rebuild_final.xml"));
-        JetwayTesting.initializeJetway(source, false);
+        JetwayTesting.initializeJetway(source, false, true, false, false);
 
         // Check that the airport is still the same as before (no rebuild, so it wasn't overwritten)
         airports = Airport.selectAll(null);
@@ -230,7 +230,7 @@ public class LoadTests {
         System.setProperty("FORCE_JETWAY_VERSION", "test2");
 
         source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/rebuild_final.xml"));
-        JetwayTesting.initializeJetway(source, false);
+        JetwayTesting.initializeJetway(source, false, true, false, false);
 
         // Check that the airport is now the new airport, because a rebuild was required due to version mismatch
         airports = Airport.selectAll(null);
@@ -265,7 +265,7 @@ public class LoadTests {
         System.setProperty("FORCE_NULL_JETWAY_VERSION", "true");
 
         source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/rebuild_final.xml"));
-        JetwayTesting.initializeJetway(source, false);
+        JetwayTesting.initializeJetway(source, false, true, false, false);
 
         // Check that the airport is now the new airport, because a rebuild was required due to version mismatch
         airports = Airport.selectAll(null);
@@ -296,7 +296,7 @@ public class LoadTests {
 
         // Reload Jetway but set the force-rebuild flag
         source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/rebuild_final.xml"));
-        JetwayTesting.initializeJetway(source, true);
+        JetwayTesting.initializeJetway(source, true, true, false, false);
 
         // Check that the airport is now the new airport, because a rebuild was forced
         airports = Airport.selectAll(null);
