@@ -1,3 +1,22 @@
+abstract class VersionInformationTask extends DefaultTask {
+    @Input
+    abstract String versionProperty
+
+    @Input
+    abstract File outputDir
+
+    @TaskAction
+    def write() {
+        if (!outputDir.exists()) {
+            outputDir.mkdirs()
+        }
+
+        new File(outputDir, "version.properties").text =
+"""version=$versionProperty
+"""
+    }
+}
+
 plugins {
     id 'java'
     id 'jacoco'
@@ -28,14 +47,9 @@ dependencies {
     compile name: 'nasr-aixm'
 }
 
-task writeVersionInformation() {
-    if (!sourceSets.main.output.resourcesDir.exists()) {
-        sourceSets.main.output.resourcesDir.mkdirs()
-    }
-
-    new File(sourceSets.main.output.resourcesDir, "version.properties").text =
-            """version=$version
-"""
+task writeVersionInformation(type: VersionInformationTask) {
+    outputDir = sourceSets.main.output.resourcesDir
+    versionProperty = version
 }
 
 jar {
