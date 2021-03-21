@@ -16,10 +16,11 @@
 package com.github.chrisblutz.jetway.database;
 
 import com.github.chrisblutz.jetway.aixm.source.AIXMSource;
+import com.github.chrisblutz.jetway.database.batches.DatabaseBatching;
 import com.github.chrisblutz.jetway.database.exceptions.DatabaseException;
 import com.github.chrisblutz.jetway.database.managers.DatabaseManager;
-import com.github.chrisblutz.jetway.database.metadata.Metadata;
 import com.github.chrisblutz.jetway.database.mappings.SchemaTable;
+import com.github.chrisblutz.jetway.database.metadata.Metadata;
 import com.github.chrisblutz.jetway.database.queries.DatabaseResult;
 import com.github.chrisblutz.jetway.database.queries.Query;
 import com.github.chrisblutz.jetway.database.queries.Sort;
@@ -186,33 +187,21 @@ public final class Database {
             getManager().createDatabase();
         }
 
-        // Set database manager to drop tables in bulk
-        JetwayLog.getDatabaseLogger().info("Setting up database to drop tables...");
-        if (getManager().setForDrops(true)) {
+        // Clear all metadata
+        if (!getManager().clearMetadata())
+            JetwayLog.getDatabaseLogger().warn("Failed to clear metadata.");
 
-            // Clear all metadata
-            if (!getManager().clearMetadata())
-                JetwayLog.getDatabaseLogger().warn("Failed to clear metadata.");
-
-            // Drop all feature tables
-            dropAllFeatureTables();
-
-            // Reset database manager after dropping tables in bulk
-            JetwayLog.getDatabaseLogger().info("Resetting database after dropping tables...");
-            if (!getManager().setForDrops(false))
-                JetwayLog.getDatabaseLogger().warn("Failed to reset database after dropping tables.");
-
-        } else {
-
-            JetwayLog.getDatabaseLogger().warn("Failed to set database up to drop tables.");
-        }
+        // Drop all feature tables
+        dropAllFeatureTables();
     }
 
     private static void dropAllFeatureTables() {
 
-        for (Class<? extends Feature> featureClass : SchemaManager.getFeatures()) {
+        JetwayLog.getDatabaseLogger().info("Dropping all feature tables...");
 
-            SchemaTable table = SchemaManager.get(featureClass);
+        // Drop tables in bottom-up dependency order (starting with the child tables)
+        for (SchemaTable table : SchemaManager.getChildFirstDependencyTree()) {
+
             JetwayLog.getDatabaseLogger().info("Dropping table '" + table.getTableName() + "'...");
 
             if (!getManager().dropTable(table))
@@ -443,6 +432,9 @@ public final class Database {
         // Reset effective date flags
         ignoreDates = false;
         strictDates = false;
+
+        // Reset batch information
+        DatabaseBatching.reset();
     }
 
     /**

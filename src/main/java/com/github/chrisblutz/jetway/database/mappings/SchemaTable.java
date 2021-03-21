@@ -28,9 +28,7 @@ import com.github.chrisblutz.jetway.logging.JetwayLog;
 import com.github.chrisblutz.jetway.utils.TypeUtils;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This class represents a schema for a database table, based on
@@ -46,6 +44,8 @@ public class SchemaTable {
     private final Map<String, DatabaseType> typeMap = new HashMap<>();
     private final Map<String, ForeignKeyData> foreignKeyMap = new HashMap<>();
     private String primaryKey;
+
+    private SchemaTable[] parentDependencies = null;
 
     /**
      * This method retrieves the {@link Field} linked
@@ -135,6 +135,50 @@ public class SchemaTable {
     public DatabaseType getAttributeType(String attribute) {
 
         return typeMap.get(attribute);
+    }
+
+    /**
+     * This method checks if this table has any {@link Relationship#BELONGS_TO BELONGS_TO}
+     * relationships, which indicate that it has at least one parent table.
+     *
+     * @return {@code true} if this table has a parent, {@code false} otherwise
+     */
+    public boolean hasParentDependencies() {
+
+        return getParentDependencies().length > 0;
+    }
+
+    /**
+     * This method retrieves all tables that this table has a
+     * {@link Relationship#BELONGS_TO BELONGS_TO} relationship with.
+     *
+     * @return The array of all parent tables
+     */
+    public SchemaTable[] getParentDependencies() {
+
+        // Create cached value if it doesn't exist
+        if (parentDependencies == null) {
+
+            // If this table has no foreign keys, it has no dependencies
+            if (getForeignKeys().isEmpty())
+                return new SchemaTable[0];
+
+            List<SchemaTable> parents = new ArrayList<>();
+
+            // Otherwise, check if any foreign keys have BELONGS_TO relationships
+            // If they do, this table has that table as a parent
+            for (String foreignKey : getForeignKeys()) {
+
+                ForeignKeyData data = getForeignKeyData(foreignKey);
+                if (data.getRelationship() == Relationship.BELONGS_TO)
+                    parents.add(data.getFeatureTable());
+            }
+
+            parentDependencies = parents.toArray(new SchemaTable[0]);
+        }
+
+        // Return cached value
+        return parentDependencies;
     }
 
     @Override

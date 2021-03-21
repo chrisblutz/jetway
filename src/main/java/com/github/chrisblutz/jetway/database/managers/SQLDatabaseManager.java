@@ -383,6 +383,10 @@ public abstract class SQLDatabaseManager extends DatabaseManager {
     @Override
     public boolean insertEntries(SchemaTable table, Feature[] values) {
 
+        // If there are no entries to insert, complete successfully
+        if (values.length == 0)
+            return true;
+
         // Retrieve list of attributes as an array (to preserve order)
         String[] attributes = table.getAttributes().toArray(new String[0]);
 
@@ -450,6 +454,10 @@ public abstract class SQLDatabaseManager extends DatabaseManager {
 
     @Override
     public boolean insertPrimaryKeys(SchemaTable table, Object[] primaryKeys) {
+
+        // If there are no keys to insert, complete successfully
+        if (primaryKeys.length == 0)
+            return true;
 
         String keyAttribute = table.getPrimaryKey();
 

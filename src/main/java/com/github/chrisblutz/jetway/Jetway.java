@@ -62,6 +62,9 @@ public final class Jetway {
         FeatureManager.register(RunwayEnd.class);
         FeatureManager.register(RunwayDirection.class);
 
+        // Generate dependency information for schema tables
+        SchemaManager.generateDependenceTrees();
+
         // Initialize the database, and if necessary, rebuild the tables from source AIXM data
         boolean rebuild = Database.initializeDatabase();
         if (rebuild)

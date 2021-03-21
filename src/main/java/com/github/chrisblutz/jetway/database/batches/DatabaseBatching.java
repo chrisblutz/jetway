@@ -16,6 +16,7 @@
 package com.github.chrisblutz.jetway.database.batches;
 
 import com.github.chrisblutz.jetway.database.Database;
+import com.github.chrisblutz.jetway.database.SchemaManager;
 import com.github.chrisblutz.jetway.database.mappings.SchemaTable;
 import com.github.chrisblutz.jetway.features.Feature;
 import com.github.chrisblutz.jetway.logging.JetwayLog;
@@ -36,7 +37,10 @@ public final class DatabaseBatching {
      */
     public static final int BATCH_LIMIT = 1000;
 
-    private static final ValueBatch batch = new ValueBatch();
+    private static final BatchData batch = new BatchData();
+
+    // Track number of batches submitted
+    private static int batchCount = 0;
 
     /**
      * This method adds a new feature instance to the current batch,
@@ -84,23 +88,58 @@ public final class DatabaseBatching {
 
     private static void commitBatch() {
 
-        // Insert all necessary primary keys to meet foreign key constraints
-        for (SchemaTable table : batch.getPrimaryKeySchemaTables()) {
+        // Add one batch to the total count
+        batchCount++;
+
+        batch.split();
+
+        // Insert all necessary primary keys to meet foreign key constraints, in top-down dependency order (parents first)
+        for (SchemaTable table : SchemaManager.getParentFirstDependencyTree()) {
 
             Object[] keys = batch.getPrimaryKeys(table);
+
+            // If there are no keys, skip
+            if (keys.length == 0)
+                continue;
+
             if (!Database.getManager().insertPrimaryKeys(table, keys))
                 JetwayLog.getDatabaseLogger().warn("Failed to insert " + keys.length + " primary keys into the '" + table.getTableName() + "' table.");
         }
 
-        // Insert all features
-        for (SchemaTable table : batch.getFeatureSchemaTables()) {
+        // Insert all features, in top-down dependency order (parents first)
+        for (SchemaTable table : SchemaManager.getParentFirstDependencyTree()) {
 
             Feature[] features = batch.getFeatures(table);
+
+            // If there are no features, skip
+            if (features.length == 0)
+                continue;
+
             if (!Database.getManager().insertEntries(table, features))
                 JetwayLog.getDatabaseLogger().warn("Failed to insert " + features.length + " features into the '" + table.getTableName() + "' table.");
         }
 
         // Remove all entries from the batch
+        batch.clear();
+    }
+
+    /**
+     * This method retrieves the total number of batches of information submitted
+     * to the database.
+     *
+     * @return The number of batches submitted.
+     */
+    public static int getBatchCount() {
+
+        return batchCount;
+    }
+
+    /**
+     * This method resets the batching system for Jetway's database operations.
+     */
+    public static void reset() {
+
+        batchCount = 0;
         batch.clear();
     }
 }

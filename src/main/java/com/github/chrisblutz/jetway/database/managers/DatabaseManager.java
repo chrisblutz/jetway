@@ -202,23 +202,6 @@ public abstract class DatabaseManager {
     public abstract boolean dropTable(SchemaTable table);
 
     /**
-     * This method is a utility method that allows database
-     * managers to set themselves up for dropping multiple
-     * tables at once.
-     * <p>
-     * For instance, {@link MySQLDatabaseManager} uses this method
-     * to disable/re-enable foreign key checks that would normally
-     * prohibit bulk table dropping.
-     *
-     * @param isDropping {@code true} if this method should set up
-     *                   to drop tables, {@code false} if
-     *                   this method should reset after
-     *                   dropping tables
-     * @return {@code true} if the operation succeeded, {@code false} otherwise
-     */
-    public abstract boolean setForDrops(boolean isDropping);
-
-    /**
      * This method inserts instances of a feature into the table defined
      * by the specified {@link SchemaTable}.
      * <p>

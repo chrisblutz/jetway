@@ -103,7 +103,7 @@ public final class AIXM {
         double totalDbTime = dbTime / 1000d;
 
         // Print stats
-        JetwayLog.getJetwayLogger().info(new FormattedMessage("Generated %,d entries in %,.3f seconds (%,.3fs performing database operations).", totalCount, totalParseTime, totalDbTime));
+        JetwayLog.getJetwayLogger().info(new FormattedMessage("Generated %,d entries in %,.3f seconds (%,.3fs performing database operations, in %,d total batches).", totalCount, totalParseTime, totalDbTime, DatabaseBatching.getBatchCount()));
         JetwayLog.getJetwayLogger().info(new FormattedMessage("Complete load time was %,.3f seconds.", totalTime));
     }
 

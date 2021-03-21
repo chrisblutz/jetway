@@ -18,7 +18,10 @@ package com.github.chrisblutz.jetway.database.batches;
 import com.github.chrisblutz.jetway.database.mappings.SchemaTable;
 import com.github.chrisblutz.jetway.features.Feature;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This class handles batches of database data while
@@ -26,22 +29,12 @@ import java.util.*;
  *
  * @author Christopher Lutz
  */
-public class ValueBatch {
+public class BatchData {
 
-    private final Map<SchemaTable, List<Feature>> features = new HashMap<>();
-    private final Map<SchemaTable, Set<Object>> primaryKeys = new HashMap<>();
+    private final Map<SchemaTable, Map<Object, Feature>> tableFeatureMap = new HashMap<>();
+    private final Map<SchemaTable, Object[]> primaryKeys = new HashMap<>();
+    private final Map<SchemaTable, Feature[]> features = new HashMap<>();
     private int size = 0;
-
-    /**
-     * This method returns all {@link SchemaTable} instances
-     * that have features waiting to be inserted into the database.
-     *
-     * @return The {@link Set} of the schema tables
-     */
-    public Set<SchemaTable> getFeatureSchemaTables() {
-
-        return features.keySet();
-    }
 
     /**
      * This method adds a new feature to the batch.
@@ -51,10 +44,11 @@ public class ValueBatch {
      */
     public void addFeature(SchemaTable table, Feature value) {
 
-        if (!features.containsKey(table))
-            features.put(table, new ArrayList<>());
+        if (!tableFeatureMap.containsKey(table))
+            tableFeatureMap.put(table, new HashMap<>());
 
-        features.get(table).add(value);
+        // Insert feature with primary key into mapping
+        tableFeatureMap.get(table).put(value.getId(), value);
         size++;
     }
 
@@ -62,24 +56,16 @@ public class ValueBatch {
      * This method retrieves all features waiting to
      * be inserted into the database for the specified
      * {@link SchemaTable}.
+     * <p>
+     * The {@link #split()} method must be called for this
+     * method to return any useful results.
      *
      * @param table the {@link SchemaTable} to look for
      * @return The array of features waiting to be inserted
      */
     public Feature[] getFeatures(SchemaTable table) {
 
-        return features.getOrDefault(table, new ArrayList<>()).toArray(new Feature[0]);
-    }
-
-    /**
-     * This method returns all {@link SchemaTable} instances
-     * that have primary keys waiting to be inserted into the database.
-     *
-     * @return The {@link Set} of the schema tables
-     */
-    public Set<SchemaTable> getPrimaryKeySchemaTables() {
-
-        return primaryKeys.keySet();
+        return features.getOrDefault(table, new Feature[0]);
     }
 
     /**
@@ -90,23 +76,57 @@ public class ValueBatch {
      */
     public void addPrimaryKey(SchemaTable table, Object primaryKey) {
 
-        if (!primaryKeys.containsKey(table))
-            primaryKeys.put(table, new HashSet<>());
+        if (!tableFeatureMap.containsKey(table))
+            tableFeatureMap.put(table, new HashMap<>());
 
-        primaryKeys.get(table).add(primaryKey);
+        // Insert feature with primary key into mapping, checking first to make sure it doesn't already exist
+        tableFeatureMap.get(table).putIfAbsent(primaryKey, null);
     }
 
     /**
      * This method retrieves all primary keys waiting to
      * be inserted into the database for the specified
      * {@link SchemaTable}.
+     * <p>
+     * The {@link #split()} method must be called for this
+     * method to return any useful results.
      *
      * @param table the {@link SchemaTable} to look for
      * @return The array of primary keys waiting to be inserted
      */
     public Object[] getPrimaryKeys(SchemaTable table) {
 
-        return primaryKeys.getOrDefault(table, new HashSet<>()).toArray(new Object[0]);
+        return primaryKeys.getOrDefault(table, new Object[0]);
+    }
+
+    /**
+     * This method splits the submitted batch data into primary key-only entries
+     * and full feature entries.
+     * <p>
+     * These sets are then available using the {@link #getPrimaryKeys(SchemaTable)}
+     * and {@link #getFeatures(SchemaTable)} methods.
+     */
+    public void split() {
+
+        for (SchemaTable table : tableFeatureMap.keySet()) {
+
+            List<Object> primaryKeyList = new ArrayList<>();
+            List<Feature> featureList = new ArrayList<>();
+
+            // Iterate over all features, and split the primary key-only entries from the rest
+            for (Object primaryKey : tableFeatureMap.get(table).keySet()) {
+                Feature feature = tableFeatureMap.get(table).get(primaryKey);
+
+                // If feature is null, this is a primary key-only entry
+                if (feature == null)
+                    primaryKeyList.add(primaryKey);
+                else
+                    featureList.add(feature);
+            }
+
+            primaryKeys.put(table, primaryKeyList.toArray());
+            features.put(table, featureList.toArray(new Feature[0]));
+        }
     }
 
     /**
@@ -127,6 +147,7 @@ public class ValueBatch {
      */
     public void clear() {
 
+        tableFeatureMap.clear();
         features.clear();
         primaryKeys.clear();
         size = 0;

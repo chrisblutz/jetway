@@ -88,15 +88,6 @@ public class MySQLDatabaseManager extends SQLDatabaseManager {
     }
 
     @Override
-    public boolean setForDrops(boolean isDropping) {
-
-        // Disable or enable foreign key checks so that tables can be dropped in bulk
-        JetwayLog.getDatabaseLogger().info("Turning MySQL foreign key checks " + (isDropping ? "off" : "on") + "...");
-        String query = format("SET FOREIGN_KEY_CHECKS = {0};", isDropping ? 0 : 1);
-        return execute(query);
-    }
-
-    @Override
     public Connection getConnection() {
 
         return connection;
