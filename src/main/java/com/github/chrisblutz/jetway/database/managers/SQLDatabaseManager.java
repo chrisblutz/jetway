@@ -21,9 +21,9 @@ import com.github.chrisblutz.jetway.database.SchemaManager;
 import com.github.chrisblutz.jetway.database.exceptions.DatabaseException;
 import com.github.chrisblutz.jetway.database.keys.ForeignKeyData;
 import com.github.chrisblutz.jetway.database.keys.Relationship;
+import com.github.chrisblutz.jetway.database.mappings.SchemaTable;
 import com.github.chrisblutz.jetway.database.metadata.BasicMetadata;
 import com.github.chrisblutz.jetway.database.metadata.Metadata;
-import com.github.chrisblutz.jetway.database.mappings.SchemaTable;
 import com.github.chrisblutz.jetway.database.queries.*;
 import com.github.chrisblutz.jetway.features.Feature;
 import com.github.chrisblutz.jetway.logging.JetwayLog;
@@ -83,6 +83,23 @@ public abstract class SQLDatabaseManager extends DatabaseManager {
     protected abstract String getSQLType(DatabaseType type);
 
     /**
+     * This method converts the specified {@link String}, which is a
+     * representation of a value of the specified {@link DatabaseType},
+     * to the {@link String} representation of the SQL value.  This
+     * may include adding quotes to a string/text value, altering
+     * capitalization for keywords, etc.
+     * <p>
+     * These values are used in SQL {@code INSERT} statements, so they
+     * should include all necessary punctuation or delimiters (i.e.
+     * quotation marks for string values, etc.").
+     *
+     * @param type  the {@link DatabaseType} of the value
+     * @param value the value itself as a {@link String}
+     * @return The value formatted as a SQL type
+     */
+    protected abstract String formatAsSQLType(DatabaseType type, String value);
+
+    /**
      * This method converts the specified {@link Object}, which is a
      * value of the specified {@link DatabaseType}, to the {@link String}
      * representation of the SQL value.
@@ -90,12 +107,24 @@ public abstract class SQLDatabaseManager extends DatabaseManager {
      * These values are used in SQL {@code INSERT} statements, so they
      * should include all necessary punctuation or delimiters (i.e.
      * quotation marks for string values, etc.").
+     * <p>
+     * Internally, this method converts the value into a {@link String}
+     * using {@link DataConversion}'s string conversion methods,
+     * then passes that {@link String} off to
+     * {@link #formatAsSQLType(DatabaseType, String)}
+     * for final formatting.
      *
      * @param type  the {@link DatabaseType} of the value
      * @param value the value itself
      * @return The value formatted as a SQL type
      */
-    protected abstract String formatAsSQLType(DatabaseType type, Object value);
+    protected String formatAsSQLType(DatabaseType type, Object value) {
+
+        // Convert to string and pass to database-specific manager
+        // for final formatting
+        String string = DataConversion.convertToString(value);
+        return formatAsSQLType(type, string);
+    }
 
     @Override
     public boolean createDatabase() {
