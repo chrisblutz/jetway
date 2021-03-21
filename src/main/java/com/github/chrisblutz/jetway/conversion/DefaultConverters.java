@@ -15,8 +15,9 @@
  */
 package com.github.chrisblutz.jetway.conversion;
 
-import aero.aixm.v5.CodeYesNoType;
-import aero.aixm.v5.impl.CodeYesNoTypeImpl;
+import com.github.chrisblutz.jetway.conversion.types.BooleanConverter;
+import com.github.chrisblutz.jetway.conversion.types.OwnershipConverter;
+import com.github.chrisblutz.jetway.features.fields.Ownership;
 import com.github.chrisblutz.jetway.logging.JetwayLog;
 
 /**
@@ -32,79 +33,52 @@ public final class DefaultConverters {
     /**
      * This converter converts basic XMLBeans types and basic {@link Object}s into {@link Boolean} values.
      */
-    public static final Converter<Boolean> BOOLEAN_CONVERTER = new Converter<Boolean>() {
-
-        @Override
-        public Boolean convert(Object value) {
-
-            if (value instanceof CodeYesNoType) {
-
-                return ((CodeYesNoType) value).getObjectValue() == CodeYesNoTypeImpl.YES;
-
-            } else {
-
-                return false;
-            }
-        }
-
-        @Override
-        public Boolean convert(String value) {
-
-            return Boolean.parseBoolean(value);
-        }
-
-        @Override
-        public Class<Boolean> getProducedType() {
-
-            return Boolean.class;
-        }
-
-        @Override
-        public Class<?>[] getAcceptedTypes() {
-
-            return new Class<?>[]{CodeYesNoType.class};
-        }
-    };
+    public static final Converter<Boolean> BOOLEAN_CONVERTER = new BooleanConverter();
 
     /**
      * This converter converts basic XMLBeans types and basic {@link Object}s into {@link Byte} values.
      */
-    public static final Converter<Byte> BYTE_CONVERTER = new BasicConverter<>(Byte.class, Byte::parseByte);
+    public static final Converter<Byte> BYTE_CONVERTER = new BasicConverter<>(Byte.class, Byte::parseByte, (value) -> Byte.toString(value));
 
     /**
      * This converter converts basic XMLBeans types and basic {@link Object}s into {@link Character} values.
      */
-    public static final Converter<Character> CHARACTER_CONVERTER = new BasicConverter<>(Character.class, string -> string.length() == 1 ? string.charAt(0) : '\0');
+    public static final Converter<Character> CHARACTER_CONVERTER = new BasicConverter<>(Character.class, string -> string.length() == 1 ? string.charAt(0) : '\0', (value) -> Character.toString(value));
 
     /**
      * This converter converts basic XMLBeans types and basic {@link Object}s into {@link Double} values.
      */
-    public static final Converter<Double> DOUBLE_CONVERTER = new BasicConverter<>(Double.class, Double::parseDouble);
+    public static final Converter<Double> DOUBLE_CONVERTER = new BasicConverter<>(Double.class, Double::parseDouble, (value) -> Double.toString(value));
 
     /**
      * This converter converts basic XMLBeans types and basic {@link Object}s into {@link Float} values.
      */
-    public static final Converter<Float> FLOAT_CONVERTER = new BasicConverter<>(Float.class, Float::parseFloat);
+    public static final Converter<Float> FLOAT_CONVERTER = new BasicConverter<>(Float.class, Float::parseFloat, (value) -> Float.toString(value));
 
     /**
      * This converter converts basic XMLBeans types and basic {@link Object}s into {@link Integer} values.
      */
-    public static final Converter<Integer> INTEGER_CONVERTER = new BasicConverter<>(Integer.class, Integer::parseInt);
+    public static final Converter<Integer> INTEGER_CONVERTER = new BasicConverter<>(Integer.class, Integer::parseInt, (value) -> Integer.toString(value));
 
     /**
      * This converter converts basic XMLBeans types and basic {@link Object}s into {@link Long} values.
      */
-    public static final Converter<Long> LONG_CONVERTER = new BasicConverter<>(Long.class, Long::parseLong);
+    public static final Converter<Long> LONG_CONVERTER = new BasicConverter<>(Long.class, Long::parseLong, (value) -> Long.toString(value));
 
     /**
      * This converter converts basic XMLBeans types and basic {@link Object}s into {@link String} values.
      */
-    public static final Converter<String> STRING_CONVERTER = new BasicConverter<>(String.class, string -> string);
+    public static final Converter<String> STRING_CONVERTER = new BasicConverter<>(String.class, string -> string, value -> value);
 
     /**
      * This converter converts basic XMLBeans types and basic {@link Object}s into {@link Short} values.
      */
-    public static final Converter<Short> SHORT_CONVERTER = new BasicConverter<>(Short.class, Short::parseShort);
+    public static final Converter<Short> SHORT_CONVERTER = new BasicConverter<>(Short.class, Short::parseShort, (value) -> Short.toString(value));
+
+    /**
+     * This converter converts AIXM ownership enum types into {@link Ownership} values.
+     */
+    public static final Converter<Ownership> OWNERSHIP_CONVERTER = new OwnershipConverter();
 
     /**
      * This method registers converters for the main Java types, including
@@ -114,6 +88,7 @@ public final class DefaultConverters {
 
         JetwayLog.getJetwayLogger().info("Registering default value converters...");
 
+        // Basic type converters
         DataConversion.registerConverter(BOOLEAN_CONVERTER);
         DataConversion.registerConverter(BYTE_CONVERTER);
         DataConversion.registerConverter(CHARACTER_CONVERTER);
@@ -123,5 +98,8 @@ public final class DefaultConverters {
         DataConversion.registerConverter(LONG_CONVERTER);
         DataConversion.registerConverter(STRING_CONVERTER);
         DataConversion.registerConverter(SHORT_CONVERTER);
+
+        // Enum converters
+        DataConversion.registerConverter(OWNERSHIP_CONVERTER);
     }
 }

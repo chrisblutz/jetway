@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.chrisblutz.jetway.database.managers.metadata;
+package com.github.chrisblutz.jetway.database.metadata;
 
 /**
  * This class represents a generic piece of metadata.  It provides

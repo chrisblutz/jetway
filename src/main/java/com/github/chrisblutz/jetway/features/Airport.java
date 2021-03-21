@@ -25,6 +25,7 @@ import com.github.chrisblutz.jetway.database.annotations.DatabasePrimaryKey;
 import com.github.chrisblutz.jetway.database.annotations.DatabaseTable;
 import com.github.chrisblutz.jetway.database.queries.Query;
 import com.github.chrisblutz.jetway.database.queries.Sort;
+import com.github.chrisblutz.jetway.features.fields.Ownership;
 
 /**
  * An {@code Airport} represents an airport or a
@@ -55,6 +56,7 @@ public class Airport implements Feature {
     public static final String COUNTY = "County";
     public static final String STATE = "State";
     public static final String SERVED_CITY = "ServedCity";
+    public static final String OWNERSHIP = "Ownership";
     public static final String NUMBER_OF_SINGLE_ENGINE_AIRCRAFT = "NumberOfSingleEngineAircraft";
     public static final String NUMBER_OF_MULTI_ENGINE_AIRCRAFT = "NumberOfMultiEngineAircraft";
     public static final String NUMBER_OF_JET_ENGINE_AIRCRAFT = "NumberOfJetEngineAircraft";
@@ -117,7 +119,11 @@ public class Airport implements Feature {
     @AIXMAttribute("Feature/ServedCityArray[0]/City/AIXMName")
     public String servedCity;
 
-    // TODO ownership? facilityType?
+    @DatabaseColumn(name = OWNERSHIP, type = DatabaseType.STRING)
+    @AIXMAttribute("Extension/OwnershipType")
+    public Ownership ownership;
+
+    // TODO facilityType?
 
     @DatabaseColumn(name = NUMBER_OF_SINGLE_ENGINE_AIRCRAFT, type = DatabaseType.INTEGER)
     @AIXMAttribute("Extension/NumberOfSingleEngineAircraft")

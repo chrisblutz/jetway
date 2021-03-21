@@ -13,36 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.chrisblutz.jetway.database.managers.metadata;
+package com.github.chrisblutz.jetway.database.metadata;
+
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * This class represents a piece of metadata in the form
- * of a {@link String}.
+ * of a {@link ZonedDateTime}.
  *
  * @author Christopher Lutz
  * @see BasicMetadata
  */
-public class StringMetadata extends BasicMetadata<String> {
+public class DateMetadata extends BasicMetadata<ZonedDateTime> {
 
     /**
      * Creates a new metadata instance with the specified column name.
      *
      * @param name the name of the column to be used
      */
-    public StringMetadata(String name) {
+    public DateMetadata(String name) {
 
         super(name);
     }
 
     @Override
-    public String fromString(String data) {
+    public ZonedDateTime fromString(String data) {
 
-        return data;
+        return ZonedDateTime.parse(data);
     }
 
     @Override
-    public String toString(String object) {
+    public String toString(ZonedDateTime object) {
 
-        return object;
+        return object.format(DateTimeFormatter.ISO_ZONED_DATE_TIME);
     }
 }

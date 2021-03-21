@@ -69,10 +69,38 @@ public final class DataConversion {
     }
 
     /**
+     * This method converts the specified value to a {@link String}
+     * using one of the registered {@link Converter} instances.
+     * <p>
+     * If no converter is found, this method returns {@code null}.
+     * <p>
+     * This method is primarily used when inserting data into a database.
+     *
+     * @param data the value to convert
+     * @param <T>  the type of value being converted
+     * @return The data converted to a {@link String}, or {@code null}
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> String convertToString(T data) {
+
+        // Find the correct converter for the type and convert
+        if (converterMap.containsKey(data.getClass())) {
+            Converter<T> converter = (Converter<T>) converterMap.get(data.getClass());
+
+            return converter.convertToString(data);
+        }
+
+        // If no converter was found, return null
+        return null;
+    }
+
+    /**
      * This method converts the specified {@link String} to the requested type
      * using one of the registered {@link Converter} instances.
      * <p>
      * If no converter is found, this method returns {@code null}.
+     * <p>
+     * This method is primarily used when retrieving data from a database.
      *
      * @param data      the {@link String} to convert
      * @param typeClass the type to convert to

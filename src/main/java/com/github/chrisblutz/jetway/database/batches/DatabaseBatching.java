@@ -26,7 +26,9 @@ import com.github.chrisblutz.jetway.logging.JetwayLog;
  *
  * @author Christopher Lutz
  */
-public class DatabaseBatching {
+public final class DatabaseBatching {
+
+    private DatabaseBatching() {}
 
     /**
      * This constant determines the size limit for batches

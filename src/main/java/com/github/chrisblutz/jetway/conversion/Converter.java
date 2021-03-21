@@ -34,9 +34,20 @@ public interface Converter<T> {
      *
      * @param value the value to convert
      * @return The converted value, or {@code null} if conversion is
-     * not possible
+     * not possible.
      */
     T convert(Object value);
+
+    /**
+     * This method converts a value into a {@link String}.
+     * <p>
+     * If conversion is not possible, {@code null} should be returned.
+     *
+     * @param value the value to convert
+     * @return The value as a {@link String}, or {@code null} if
+     * conversion is not possible.
+     */
+    String convertToString(T value);
 
     /**
      * This method converts {@link String} into the conversion type.
@@ -45,7 +56,7 @@ public interface Converter<T> {
      *
      * @param value the {@link String} to convert
      * @return The converted value, or {@code null} if conversion is
-     * not possible
+     * not possible.
      */
     T convert(String value);
 
@@ -53,7 +64,7 @@ public interface Converter<T> {
      * This method returns the {@link Class} of the objects
      * returned by this converter.
      *
-     * @return The type created by this converter
+     * @return The type created by this converter.
      */
     Class<T> getProducedType();
 
@@ -62,7 +73,7 @@ public interface Converter<T> {
      * to this converter.  {@link #convert(Object)} should be
      * able to handle all types in this array.
      *
-     * @return An array of acceptable input types
+     * @return An array of acceptable input types.
      */
     Class<?>[] getAcceptedTypes();
 }

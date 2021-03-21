@@ -15,6 +15,7 @@
  */
 package com.github.chrisblutz.jetway.database.managers;
 
+import com.github.chrisblutz.jetway.conversion.DataConversion;
 import com.github.chrisblutz.jetway.database.DatabaseType;
 import com.github.chrisblutz.jetway.database.exceptions.DatabaseException;
 import com.github.chrisblutz.jetway.logging.JetwayLog;
@@ -125,16 +126,20 @@ public class MySQLDatabaseManager extends SQLDatabaseManager {
     @Override
     protected String formatAsSQLType(DatabaseType type, Object value) {
 
+        String converted = DataConversion.convertToString(value);
+
+        if (converted == null)
+            return "NULL";
+
         switch (type) {
             case INTEGER:
             case FLOAT:
             case DOUBLE:
-                return value.toString();
+            case BOOLEAN:
+                return converted;
             case STRING:
             case TEXT:
-                return "\"" + value.toString().replace("\"", "\\\"") + "\"";
-            case BOOLEAN:
-                return (Boolean) value ? "1" : "0";
+                return "\"" + converted.replace("\"", "\\\"") + "\"";
             default:
                 return "NULL";
         }

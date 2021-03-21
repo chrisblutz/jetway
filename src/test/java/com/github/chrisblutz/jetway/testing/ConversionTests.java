@@ -18,11 +18,15 @@ package com.github.chrisblutz.jetway.testing;
 import com.github.chrisblutz.jetway.Jetway;
 import com.github.chrisblutz.jetway.conversion.DataConversion;
 import com.github.chrisblutz.jetway.conversion.DefaultConverters;
+import com.github.chrisblutz.jetway.features.fields.Ownership;
+import gov.faa.aixm51.apt.AirportHeliportExtensionType;
+import gov.faa.aixm51.apt.impl.AirportHeliportExtensionTypeImpl;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 /**
@@ -75,5 +79,34 @@ public class ConversionTests {
         File invalidType = new File("");
         Object result = DataConversion.get(invalidType, Boolean.class);
         assertNull(result);
+    }
+
+    /**
+     * This method tests that the Ownership enum
+     * converter works as expected.
+     */
+    @Test
+    public void testOwnershipEnum() {
+
+        // Test all variations of ownership, plus a "null" conversion
+        AirportHeliportExtensionType.OwnershipType.Enum airForceOwnership = AirportHeliportExtensionTypeImpl.OwnershipTypeImpl.MA;
+        AirportHeliportExtensionType.OwnershipType.Enum navyOwnership = AirportHeliportExtensionTypeImpl.OwnershipTypeImpl.MN;
+        AirportHeliportExtensionType.OwnershipType.Enum armyOwnership = AirportHeliportExtensionTypeImpl.OwnershipTypeImpl.MR;
+        AirportHeliportExtensionType.OwnershipType.Enum privateOwnership = AirportHeliportExtensionTypeImpl.OwnershipTypeImpl.PR;
+        AirportHeliportExtensionType.OwnershipType.Enum publicOwnership = AirportHeliportExtensionTypeImpl.OwnershipTypeImpl.PU;
+
+        Ownership expectedAirForceOwnership = (Ownership) DataConversion.get(airForceOwnership, Ownership.class);
+        Ownership expectedNavyOwnership = (Ownership) DataConversion.get(navyOwnership, Ownership.class);
+        Ownership expectedArmyOwnership = (Ownership) DataConversion.get(armyOwnership, Ownership.class);
+        Ownership expectedPrivateOwnership = (Ownership) DataConversion.get(privateOwnership, Ownership.class);
+        Ownership expectedPublicOwnership = (Ownership) DataConversion.get(publicOwnership, Ownership.class);
+        Ownership expectedNull = (Ownership) DataConversion.get(null, Ownership.class);
+
+        assertEquals(expectedAirForceOwnership, Ownership.AIR_FORCE);
+        assertEquals(expectedNavyOwnership, Ownership.NAVY);
+        assertEquals(expectedArmyOwnership, Ownership.ARMY);
+        assertEquals(expectedPrivateOwnership, Ownership.PRIVATE);
+        assertEquals(expectedPublicOwnership, Ownership.PUBLIC);
+        assertNull(expectedNull);
     }
 }

@@ -19,6 +19,7 @@ import com.github.chrisblutz.jetway.features.Airport;
 import com.github.chrisblutz.jetway.features.Runway;
 import com.github.chrisblutz.jetway.features.RunwayDirection;
 import com.github.chrisblutz.jetway.features.RunwayEnd;
+import com.github.chrisblutz.jetway.features.fields.Ownership;
 
 /**
  * This class handles arrays used for verification
@@ -126,6 +127,7 @@ public class ValidationArrays {
         loadExtensionAirport.siteNumber = "50000.*A";
         loadExtensionAirport.county = "TEST COUNTY";
         loadExtensionAirport.state = "TEST STATE";
+        loadExtensionAirport.ownership = Ownership.PUBLIC;
         loadExtensionAirport.numberOfSingleEngineAircraft = 1;
         loadExtensionAirport.numberOfMultiEngineAircraft = 2;
         loadExtensionAirport.numberOfJetEngineAircraft = 3;

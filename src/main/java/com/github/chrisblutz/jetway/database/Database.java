@@ -18,7 +18,7 @@ package com.github.chrisblutz.jetway.database;
 import com.github.chrisblutz.jetway.aixm.source.AIXMSource;
 import com.github.chrisblutz.jetway.database.exceptions.DatabaseException;
 import com.github.chrisblutz.jetway.database.managers.DatabaseManager;
-import com.github.chrisblutz.jetway.database.managers.metadata.Metadata;
+import com.github.chrisblutz.jetway.database.metadata.Metadata;
 import com.github.chrisblutz.jetway.database.mappings.SchemaTable;
 import com.github.chrisblutz.jetway.database.queries.DatabaseResult;
 import com.github.chrisblutz.jetway.database.queries.Query;

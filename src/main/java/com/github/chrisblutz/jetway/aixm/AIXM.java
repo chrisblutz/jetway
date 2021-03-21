@@ -20,7 +20,7 @@ import com.github.chrisblutz.jetway.aixm.exceptions.AIXMException;
 import com.github.chrisblutz.jetway.aixm.mappings.FeatureEntry;
 import com.github.chrisblutz.jetway.database.Database;
 import com.github.chrisblutz.jetway.database.batches.DatabaseBatching;
-import com.github.chrisblutz.jetway.database.managers.metadata.Metadata;
+import com.github.chrisblutz.jetway.database.metadata.Metadata;
 import com.github.chrisblutz.jetway.exceptions.JetwayException;
 import com.github.chrisblutz.jetway.features.Feature;
 import com.github.chrisblutz.jetway.logging.JetwayLog;

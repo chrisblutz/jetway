@@ -236,6 +236,7 @@ public class JetwayAssertions {
             assertEquals(expectedAirport.landArea, airport.landArea);
             assertEquals(expectedAirport.county, airport.county);
             assertEquals(expectedAirport.state, airport.state);
+            assertEquals(expectedAirport.ownership, airport.ownership);
             assertEquals(expectedAirport.numberOfSingleEngineAircraft, airport.numberOfSingleEngineAircraft);
             assertEquals(expectedAirport.numberOfMultiEngineAircraft, airport.numberOfMultiEngineAircraft);
             assertEquals(expectedAirport.numberOfJetEngineAircraft, airport.numberOfJetEngineAircraft);
