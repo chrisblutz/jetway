@@ -49,6 +49,7 @@ public class Airport implements Feature {
     public static final String IATA_DESIGNATOR = "IATA";
     public static final String ICAO = "ICAO";
     public static final String SITE_NUMBER = "SiteNumber";
+    public static final String PRIVATE_USE_ONLY = "PrivateUse";
     public static final String FIELD_ELEVATION = "FieldElevation";
     public static final String LAND_AREA = "LandArea";
     public static final String LATITUDE = "Latitude";
@@ -89,7 +90,9 @@ public class Airport implements Feature {
     @AIXMAttribute("Extension/AirportSiteNumber")
     public String siteNumber;
 
-    // TODO public use?
+    @DatabaseColumn(name = PRIVATE_USE_ONLY, type = DatabaseType.BOOLEAN)
+    @AIXMAttribute("Feature/PrivateUse")
+    public Boolean privateUseOnly;
 
     @DatabaseColumn(name = FIELD_ELEVATION, type = DatabaseType.DOUBLE)
     @AIXMAttribute("Feature/FieldElevation")

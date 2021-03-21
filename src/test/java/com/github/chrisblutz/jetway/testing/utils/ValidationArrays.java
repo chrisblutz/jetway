@@ -127,6 +127,7 @@ public class ValidationArrays {
         loadExtensionAirport.siteNumber = "50000.*A";
         loadExtensionAirport.county = "TEST COUNTY";
         loadExtensionAirport.state = "TEST STATE";
+        loadExtensionAirport.privateUseOnly = true;
         loadExtensionAirport.ownership = Ownership.PUBLIC;
         loadExtensionAirport.numberOfSingleEngineAircraft = 1;
         loadExtensionAirport.numberOfMultiEngineAircraft = 2;
@@ -144,6 +145,7 @@ public class ValidationArrays {
         loadNoExtensionAirport.latitude = 50.5678;
         loadNoExtensionAirport.longitude = -170.1234;
         loadNoExtensionAirport.servedCity = "TEST CITY";
+        loadNoExtensionAirport.privateUseOnly = false;
         loadNoExtensionAirport.iataDesignator = "TST";
         loadNoExtensionAirport.icao = "KTST";
         LOAD_NO_EXTENSION_AIRPORTS = new Airport[]{loadNoExtensionAirport};
@@ -195,6 +197,7 @@ public class ValidationArrays {
         loadMultipleAirport1.latitude = 50.5678;
         loadMultipleAirport1.longitude = -170.1234;
         loadMultipleAirport1.servedCity = "TEST CITY 1";
+        loadMultipleAirport1.privateUseOnly = false;
         loadMultipleAirport1.iataDesignator = "TST1";
         loadMultipleAirport1.icao = "KTS1";
 
@@ -205,6 +208,7 @@ public class ValidationArrays {
         loadMultipleAirport2.latitude = -20.8765;
         loadMultipleAirport2.longitude = 120.4321;
         loadMultipleAirport2.servedCity = "TEST CITY 2";
+        loadMultipleAirport2.privateUseOnly = true;
         loadMultipleAirport2.iataDesignator = "TST2";
         loadMultipleAirport2.icao = "KTS2";
 
@@ -221,6 +225,7 @@ public class ValidationArrays {
         loadRebuildInitialAirport.latitude = 60d;
         loadRebuildInitialAirport.longitude = -170d;
         loadRebuildInitialAirport.servedCity = "TEST CITY";
+        loadRebuildInitialAirport.privateUseOnly = false;
         loadRebuildInitialAirport.iataDesignator = "TST";
         loadRebuildInitialAirport.icao = "KTST";
         LOAD_REBUILD_INITIAL_AIRPORTS = new Airport[]{loadRebuildInitialAirport};
@@ -232,6 +237,7 @@ public class ValidationArrays {
         loadRebuildFinalAirport.latitude = 50d;
         loadRebuildFinalAirport.longitude = -160d;
         loadRebuildFinalAirport.servedCity = "TEST CITY";
+        loadRebuildFinalAirport.privateUseOnly = false;
         loadRebuildFinalAirport.iataDesignator = "TST";
         loadRebuildFinalAirport.icao = "KTST";
         LOAD_REBUILD_FINAL_AIRPORTS = new Airport[]{loadRebuildFinalAirport};
@@ -247,6 +253,7 @@ public class ValidationArrays {
         queryBasicAirport1.latitude = 42d;
         queryBasicAirport1.longitude = -155d;
         queryBasicAirport1.servedCity = "FIRST CITY";
+        queryBasicAirport1.privateUseOnly = false;
         queryBasicAirport1.iataDesignator = "TST";
         queryBasicAirport1.icao = "KTST";
 
@@ -257,6 +264,7 @@ public class ValidationArrays {
         queryBasicAirport2.latitude = 44d;
         queryBasicAirport2.longitude = -160d;
         queryBasicAirport2.servedCity = "SECOND CITY";
+        queryBasicAirport2.privateUseOnly = false;
         queryBasicAirport2.iataDesignator = "TST";
         queryBasicAirport2.icao = "KTST";
 
@@ -267,6 +275,7 @@ public class ValidationArrays {
         queryBasicAirport3.latitude = 46d;
         queryBasicAirport3.longitude = -165d;
         queryBasicAirport3.servedCity = "FIRST CITY";
+        queryBasicAirport3.privateUseOnly = false;
         queryBasicAirport3.iataDesignator = "TST";
         queryBasicAirport3.icao = "KTST";
 
@@ -277,6 +286,7 @@ public class ValidationArrays {
         queryBasicAirport4.latitude = 48d;
         queryBasicAirport4.longitude = -170d;
         queryBasicAirport4.servedCity = "SECOND CITY";
+        queryBasicAirport4.privateUseOnly = false;
         queryBasicAirport4.iataDesignator = "TST";
         queryBasicAirport4.icao = "KTST";
 
@@ -287,6 +297,7 @@ public class ValidationArrays {
         queryBasicAirport5.latitude = 50d;
         queryBasicAirport5.longitude = -175d;
         queryBasicAirport5.servedCity = "THIRD CITY";
+        queryBasicAirport5.privateUseOnly = false;
         queryBasicAirport5.iataDesignator = "TST";
         queryBasicAirport5.icao = "KTST";
 
@@ -304,6 +315,7 @@ public class ValidationArrays {
         queryNestedAirport.latitude = 60d;
         queryNestedAirport.longitude = -155d;
         queryNestedAirport.servedCity = "FIRST CITY";
+        queryNestedAirport.privateUseOnly = false;
         queryNestedAirport.iataDesignator = "TST";
         queryNestedAirport.icao = "KTST";
         QUERY_NESTED_AIRPORTS = new Airport[]{queryNestedAirport};
@@ -362,6 +374,7 @@ public class ValidationArrays {
         sortingBasicAirport1.latitude = 60d;
         sortingBasicAirport1.longitude = -155d;
         sortingBasicAirport1.servedCity = "FIRST CITY";
+        sortingBasicAirport1.privateUseOnly = false;
         sortingBasicAirport1.iataDesignator = "TST";
         sortingBasicAirport1.icao = "KTST";
 
@@ -372,6 +385,7 @@ public class ValidationArrays {
         sortingBasicAirport2.latitude = 48d;
         sortingBasicAirport2.longitude = -160d;
         sortingBasicAirport2.servedCity = "SECOND CITY";
+        sortingBasicAirport2.privateUseOnly = false;
         sortingBasicAirport2.iataDesignator = "TST";
         sortingBasicAirport2.icao = "KTST";
 
@@ -382,6 +396,7 @@ public class ValidationArrays {
         sortingBasicAirport3.latitude = 46d;
         sortingBasicAirport3.longitude = -165d;
         sortingBasicAirport3.servedCity = "FIRST CITY";
+        sortingBasicAirport3.privateUseOnly = false;
         sortingBasicAirport3.iataDesignator = "TST";
         sortingBasicAirport3.icao = "KTST";
 
@@ -392,6 +407,7 @@ public class ValidationArrays {
         sortingBasicAirport4.latitude = 52d;
         sortingBasicAirport4.longitude = -170d;
         sortingBasicAirport4.servedCity = "SECOND CITY";
+        sortingBasicAirport4.privateUseOnly = false;
         sortingBasicAirport4.iataDesignator = "TST";
         sortingBasicAirport4.icao = "KTST";
 
@@ -402,6 +418,7 @@ public class ValidationArrays {
         sortingBasicAirport5.latitude = 50d;
         sortingBasicAirport5.longitude = -175d;
         sortingBasicAirport5.servedCity = "THIRD CITY";
+        sortingBasicAirport5.privateUseOnly = false;
         sortingBasicAirport5.iataDesignator = "TST";
         sortingBasicAirport5.icao = "KTST";
 
@@ -419,6 +436,7 @@ public class ValidationArrays {
         sortingNestedAirport1.latitude = 60d;
         sortingNestedAirport1.longitude = -155d;
         sortingNestedAirport1.servedCity = "FIRST CITY";
+        sortingNestedAirport1.privateUseOnly = false;
         sortingNestedAirport1.iataDesignator = "TST";
         sortingNestedAirport1.icao = "KTST";
 
@@ -429,6 +447,7 @@ public class ValidationArrays {
         sortingNestedAirport2.latitude = 48d;
         sortingNestedAirport2.longitude = -160d;
         sortingNestedAirport2.servedCity = "SECOND CITY";
+        sortingNestedAirport2.privateUseOnly = false;
         sortingNestedAirport2.iataDesignator = "TST";
         sortingNestedAirport2.icao = "KTST";
 
@@ -439,6 +458,7 @@ public class ValidationArrays {
         sortingNestedAirport3.latitude = 46d;
         sortingNestedAirport3.longitude = -165d;
         sortingNestedAirport3.servedCity = "FIRST CITY";
+        sortingNestedAirport3.privateUseOnly = false;
         sortingNestedAirport3.iataDesignator = "TST";
         sortingNestedAirport3.icao = "KTST";
 

@@ -42,9 +42,9 @@ public class TestObject {
         return new CodeYesNoTypeImpl(null) {
 
             @Override
-            public Object getObjectValue() {
+            public String getStringValue() {
 
-                return YES;
+                return "YES";
             }
         };
     }

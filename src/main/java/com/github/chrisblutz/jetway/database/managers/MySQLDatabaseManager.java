@@ -135,8 +135,9 @@ public class MySQLDatabaseManager extends SQLDatabaseManager {
             case INTEGER:
             case FLOAT:
             case DOUBLE:
-            case BOOLEAN:
                 return converted;
+            case BOOLEAN:
+                return converted.toUpperCase(); // MySQL uses uppercase keywords TRUE/FALSE
             case STRING:
             case TEXT:
                 return "\"" + converted.replace("\"", "\\\"") + "\"";

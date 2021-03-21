@@ -15,9 +15,8 @@
  */
 package com.github.chrisblutz.jetway.conversion.types;
 
-import aero.aixm.v5.CodeYesNoType;
-import aero.aixm.v5.impl.CodeYesNoTypeImpl;
 import com.github.chrisblutz.jetway.conversion.Converter;
+import org.apache.xmlbeans.XmlAnySimpleType;
 
 /**
  * This class takes AIXM XML types or basic Java objects
@@ -30,14 +29,18 @@ public class BooleanConverter implements Converter<Boolean> {
     @Override
     public Boolean convert(Object value) {
 
-        if (value instanceof CodeYesNoType) {
+        // Convert value to string
+        String string = "";
+        if (value instanceof XmlAnySimpleType)
+            string = ((XmlAnySimpleType) value).getStringValue();
 
-            return ((CodeYesNoType) value).getObjectValue() == CodeYesNoTypeImpl.YES;
-
-        } else {
-
+        // Convert YES/NO values into booleans (or null if the value was invalid)
+        if (string.equals("YES"))
+            return true;
+        else if (string.equals("NO"))
             return false;
-        }
+        else
+            return null;
     }
 
     @Override
@@ -66,6 +69,6 @@ public class BooleanConverter implements Converter<Boolean> {
     @Override
     public Class<?>[] getAcceptedTypes() {
 
-        return new Class<?>[]{CodeYesNoType.class};
+        return new Class<?>[]{XmlAnySimpleType.class};
     }
 }

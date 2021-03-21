@@ -45,7 +45,7 @@
                     <aixm:name>TEST AIRPORT 2</aixm:name>
                     <aixm:locationIndicatorICAO>KTS2</aixm:locationIndicatorICAO>
                     <aixm:type>AH</aixm:type>
-                    <aixm:privateUse>NO</aixm:privateUse>
+                    <aixm:privateUse>YES</aixm:privateUse>
                     <aixm:controlType>CIVIL</aixm:controlType>
                     <aixm:fieldElevation uom="FT">10.0</aixm:fieldElevation>
                     <aixm:magneticVariation>07</aixm:magneticVariation>
