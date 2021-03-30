@@ -94,29 +94,21 @@ public final class DatabaseBatching {
         batch.split();
 
         // Insert all necessary primary keys to meet foreign key constraints, in top-down dependency order (parents first)
+        // Then, insert all full features
         for (SchemaTable table : SchemaManager.getParentFirstDependencyTree()) {
 
             Object[] keys = batch.getPrimaryKeys(table);
-
-            // If there are no keys, skip
-            if (keys.length == 0)
-                continue;
-
-            if (!Database.getManager().insertPrimaryKeys(table, keys))
-                JetwayLog.getDatabaseLogger().warn("Failed to insert " + keys.length + " primary keys into the '" + table.getTableName() + "' table.");
-        }
-
-        // Insert all features, in top-down dependency order (parents first)
-        for (SchemaTable table : SchemaManager.getParentFirstDependencyTree()) {
-
             Feature[] features = batch.getFeatures(table);
 
-            // If there are no features, skip
-            if (features.length == 0)
-                continue;
+            // Check that there are keys to insert (avoid empty database operations)
+            if (keys.length != 0)
+                if (!Database.getManager().insertPrimaryKeys(table, keys))
+                    JetwayLog.getDatabaseLogger().warn("Failed to insert " + keys.length + " primary keys into the '" + table.getTableName() + "' table.");
 
-            if (!Database.getManager().insertEntries(table, features))
-                JetwayLog.getDatabaseLogger().warn("Failed to insert " + features.length + " features into the '" + table.getTableName() + "' table.");
+            // Check that there are features to insert (avoid empty database operations)
+            if (features.length != 0)
+                if (!Database.getManager().insertEntries(table, features))
+                    JetwayLog.getDatabaseLogger().warn("Failed to insert " + features.length + " features into the '" + table.getTableName() + "' table.");
         }
 
         // Remove all entries from the batch
