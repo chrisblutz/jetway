@@ -62,7 +62,6 @@ public final class Database {
     public static void setManager(DatabaseManager manager) {
 
         Database.currentManager = manager;
-        JetwayLog.getDatabaseLogger().info("Selected " + manager.getClass().getSimpleName() + " as the database manager.");
     }
 
     /**
@@ -78,6 +77,11 @@ public final class Database {
      * @return {@code true} if a full AIXM rebuild is necessary, {@code false} otherwise
      */
     public static boolean initializeDatabase() {
+
+        JetwayLog.getDatabaseLogger().info("Using " + getManager().getClass().getSimpleName() + " as the database manager.");
+
+        // Setup the database batching system
+        DatabaseBatching.initialize();
 
         // Create Jetway database if it doesn't exist
         setupDatabase();
@@ -120,7 +124,6 @@ public final class Database {
         // Set up basic connection to create the database
         JetwayLog.getDatabaseLogger().info("Setting up initial connection for database creation...");
         if (getManager().setupConnection()) {
-            JetwayLog.getDatabaseLogger().warn("Database connection failed.");
 
             // Create the database
             JetwayLog.getDatabaseLogger().info("Creating database...");

@@ -44,7 +44,6 @@ public final class AIXM {
     private AIXM() {}
 
     private static int totalCount = 0;
-    private static long dbTime = 0;
 
     /**
      * This method begins the load sequence for all registered AIXM files.
@@ -95,23 +94,23 @@ public final class AIXM {
         JetwayLog.getJetwayLogger().info("Reading entries and submitting to the database (this will take a while)...");
         loadAll(properties, possibleEntries);
 
+        // Wait for all batches to be completed
+        DatabaseBatching.awaitTermination();
+
         // Calculate time spent in seconds
         long parseTime = System.currentTimeMillis();
 
         double totalParseTime = (parseTime - loadTime) / 1000d;
         double totalTime = (parseTime - startTime) / 1000d;
-        double totalDbTime = dbTime / 1000d;
 
         // Print stats
-        JetwayLog.getJetwayLogger().info(new FormattedMessage("Generated %,d entries in %,.3f seconds (%,.3fs performing database operations, in %,d total batches).", totalCount, totalParseTime, totalDbTime, DatabaseBatching.getBatchCount()));
+        JetwayLog.getJetwayLogger().info(new FormattedMessage("Generated %,d entries in %,.3f seconds (%,d total database batches).", totalCount, totalParseTime, DatabaseBatching.getBatchCount()));
         JetwayLog.getJetwayLogger().info(new FormattedMessage("Complete load time was %,.3f seconds.", totalTime));
     }
 
     private static void loadAll(SubscriberFileComponentPropertyType[] properties, List<FeatureEntry> possibleEntries) {
 
-        // Reset time taken by database
-        dbTime = 0;
-
+        // Loop through all components and try to load them
         for (SubscriberFileComponentPropertyType property : properties) {
 
             try {
@@ -127,13 +126,8 @@ public final class AIXM {
             }
         }
 
-        // Track time taken by database operations
-        long startTime = System.currentTimeMillis();
-
+        // Submit final batch if it has data
         DatabaseBatching.finalizeBatches();
-
-        // Add up time taken by database operations
-        dbTime += System.currentTimeMillis() - startTime;
     }
 
     private static void loadAIXMFeature(SubscriberFileComponentPropertyType property, List<FeatureEntry> possibleEntries) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
@@ -150,14 +144,8 @@ public final class AIXM {
         Feature featureInstance = feature.getEntry().instantiate();
         fillInData(feature, instance, featureInstance);
 
-        // Track time taken by database operations
-        long startTime = System.currentTimeMillis();
-
         // Enter information into database
         DatabaseBatching.addValues(feature.getEntry().getSchemaTable(), featureInstance);
-
-        // Add up time taken by database operations
-        dbTime += System.currentTimeMillis() - startTime;
 
         // Increment feature counter
         totalCount++;

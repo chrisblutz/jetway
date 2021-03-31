@@ -15,11 +15,13 @@
  */
 package com.github.chrisblutz.jetway.database.batches;
 
-import com.github.chrisblutz.jetway.database.Database;
-import com.github.chrisblutz.jetway.database.SchemaManager;
 import com.github.chrisblutz.jetway.database.mappings.SchemaTable;
 import com.github.chrisblutz.jetway.features.Feature;
 import com.github.chrisblutz.jetway.logging.JetwayLog;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This class handles the batching of database entries
@@ -37,10 +39,28 @@ public final class DatabaseBatching {
      */
     public static final int BATCH_LIMIT = 1000;
 
-    private static final BatchData batch = new BatchData();
+    // Number of threads for batching system
+    private static int threadCount = 8;
+    // Time-out for database batch termination
+    private static long timeoutMillis = 10000;
 
     // Track number of batches submitted
     private static int batchCount = 0;
+    // Batch data (features, primary keys, etc.)
+    private static BatchData batch = new BatchData();
+    // Thread pool for parallelization of batches
+    private static ExecutorService threadPool;
+
+    /**
+     * This method initializes the batching system and
+     * sets up the batch thread pool, which will contain
+     * the number of threads defined by {@link #setThreadCount(int)}.
+     */
+    public static void initialize() {
+
+        // Initialize thread pool
+        threadPool = Executors.newFixedThreadPool(threadCount);
+    }
 
     /**
      * This method adds a new feature instance to the current batch,
@@ -91,28 +111,11 @@ public final class DatabaseBatching {
         // Add one batch to the total count
         batchCount++;
 
-        batch.split();
+        // Submit a batch task for the current batch to the thread pool
+        threadPool.submit(new BatchTask(batch));
 
-        // Insert all necessary primary keys to meet foreign key constraints, in top-down dependency order (parents first)
-        // Then, insert all full features
-        for (SchemaTable table : SchemaManager.getParentFirstDependencyTree()) {
-
-            Object[] keys = batch.getPrimaryKeys(table);
-            Feature[] features = batch.getFeatures(table);
-
-            // Check that there are keys to insert (avoid empty database operations)
-            if (keys.length != 0)
-                if (!Database.getManager().insertPrimaryKeys(table, keys))
-                    JetwayLog.getDatabaseLogger().warn("Failed to insert " + keys.length + " primary keys into the '" + table.getTableName() + "' table.");
-
-            // Check that there are features to insert (avoid empty database operations)
-            if (features.length != 0)
-                if (!Database.getManager().insertEntries(table, features))
-                    JetwayLog.getDatabaseLogger().warn("Failed to insert " + features.length + " features into the '" + table.getTableName() + "' table.");
-        }
-
-        // Remove all entries from the batch
-        batch.clear();
+        // Create a new batch entry
+        batch = new BatchData();
     }
 
     /**
@@ -127,11 +130,72 @@ public final class DatabaseBatching {
     }
 
     /**
+     * This method defines how many threads the batching
+     * system should use when submitting batches to the
+     * database.
+     * <p>
+     * The default value used is 8 threads.
+     *
+     * @param threadCount the number of threads
+     */
+    public static void setThreadCount(int threadCount) {
+
+        DatabaseBatching.threadCount = threadCount;
+    }
+
+    /**
+     * This method defines how long the batch system should
+     * wait after a shutdown is requested before it begins
+     * force-stopping the batch thread pool.
+     * <p>
+     * The default value used is 10000 milliseconds.
+     *
+     * @param timeoutMillis the timeout in milliseconds
+     */
+    public static void setTimeoutMillis(long timeoutMillis) {
+
+        DatabaseBatching.timeoutMillis = timeoutMillis;
+    }
+
+    /**
+     * This method sends a shutdown request to the batch thread
+     * pool and waits for it to terminate.  If the thread pool
+     * does not terminate within the time specified by
+     * {@link #setTimeoutMillis(long)}, or if the thread is
+     * interrupted, the thread pool is force-stopped.
+     */
+    public static void awaitTermination() {
+
+        JetwayLog.getDatabaseLogger().info("Waiting for database batching to complete...");
+        threadPool.shutdown();
+        try {
+
+            // If thread pool does not shut down within the allocated time, force it to shut down
+            if (!threadPool.awaitTermination(timeoutMillis, TimeUnit.MILLISECONDS)) {
+                JetwayLog.getDatabaseLogger().warn("Time-out exceeded, force-stopping batch thread pool...");
+                threadPool.shutdownNow();
+            }
+
+        } catch (InterruptedException e) {
+
+            // If the thread is interrupted, force the thread pool to shut down
+            JetwayLog.getDatabaseLogger().warn("Thread interrupted, force-stopping batch thread pool...");
+            threadPool.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    /**
      * This method resets the batching system for Jetway's database operations.
      */
     public static void reset() {
 
+        // If thread pool is not shut down, shut it down
+        if (threadPool != null && !threadPool.isShutdown())
+            threadPool.shutdown();
+
+        // Reset batch count and create a new batch object
         batchCount = 0;
-        batch.clear();
+        batch = new BatchData();
     }
 }

@@ -141,15 +141,4 @@ public class BatchData {
 
         return size;
     }
-
-    /**
-     * This method clears the batch and resets the size to 0.
-     */
-    public void clear() {
-
-        tableFeatureMap.clear();
-        features.clear();
-        primaryKeys.clear();
-        size = 0;
-    }
 }

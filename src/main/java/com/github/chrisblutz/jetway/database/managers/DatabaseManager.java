@@ -18,8 +18,8 @@ package com.github.chrisblutz.jetway.database.managers;
 import com.github.chrisblutz.jetway.database.SchemaManager;
 import com.github.chrisblutz.jetway.database.keys.ForeignKeyData;
 import com.github.chrisblutz.jetway.database.keys.Relationship;
-import com.github.chrisblutz.jetway.database.metadata.BasicMetadata;
 import com.github.chrisblutz.jetway.database.mappings.SchemaTable;
+import com.github.chrisblutz.jetway.database.metadata.BasicMetadata;
 import com.github.chrisblutz.jetway.database.queries.*;
 import com.github.chrisblutz.jetway.features.Feature;
 
@@ -93,7 +93,9 @@ public abstract class DatabaseManager {
      */
     public boolean setupConnection() {
 
-        connected = setupConnectionSpecific();
+        if (!connected)
+            connected = setupConnectionSpecific();
+
         return connected;
     }
 
