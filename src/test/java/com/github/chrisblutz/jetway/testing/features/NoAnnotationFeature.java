@@ -37,4 +37,9 @@ public class NoAnnotationFeature implements Feature {
 
         return null;
     }
+
+    @Override
+    public void cacheDependencies() {
+        // Do nothing
+    }
 }

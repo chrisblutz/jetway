@@ -29,4 +29,13 @@ public interface Feature {
      * @return The unique ID for this feature
      */
     String getId();
+
+    /**
+     * This method loads and caches all dependent features
+     * for this feature.
+     * <p>
+     * It is used during eager loading, where a feature
+     * and its dependencies are all loaded at once.
+     */
+    void cacheDependencies();
 }

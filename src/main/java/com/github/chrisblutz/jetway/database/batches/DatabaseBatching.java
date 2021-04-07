@@ -33,16 +33,16 @@ public final class DatabaseBatching {
 
     private DatabaseBatching() {}
 
-    /**
-     * This constant determines the size limit for batches
-     * before they are inserted into the database.
-     */
-    public static final int BATCH_LIMIT = 1000;
+    private static final int THREAD_COUNT_DEFAULT = 1000;
+    private static final int TIMEOUT_MILLIS_DEFAULT = 1000;
+    private static final int BATCH_LIMIT_DEFAULT = 1000;
 
     // Number of threads for batching system
-    private static int threadCount = 8;
+    private static int threadCount = THREAD_COUNT_DEFAULT;
     // Time-out for database batch termination
-    private static long timeoutMillis = 10000;
+    private static long timeoutMillis = TIMEOUT_MILLIS_DEFAULT;
+    // Maximum features in a batch
+    private static int batchLimit = BATCH_LIMIT_DEFAULT;
 
     // Track number of batches submitted
     private static int batchCount = 0;
@@ -64,7 +64,8 @@ public final class DatabaseBatching {
 
     /**
      * This method adds a new feature instance to the current batch,
-     * and if the batch hits the limit defined in {@link #BATCH_LIMIT},
+     * and if the batch hits the limit defined by
+     * {@link #setBatchLimit(int)} (default is 1,000)
      * it commits the data to the database.
      *
      * @param table the {@link SchemaTable} for the feature
@@ -76,7 +77,7 @@ public final class DatabaseBatching {
         batch.addFeature(table, value);
 
         // If batch size is at the limit, commit the batch to the database
-        if (batch.size() >= BATCH_LIMIT)
+        if (batch.size() >= batchLimit)
             commitBatch();
     }
 
@@ -148,13 +149,29 @@ public final class DatabaseBatching {
      * wait after a shutdown is requested before it begins
      * force-stopping the batch thread pool.
      * <p>
-     * The default value used is 10000 milliseconds.
+     * The default value used is 10,000 milliseconds.
      *
      * @param timeoutMillis the timeout in milliseconds
      */
     public static void setTimeoutMillis(long timeoutMillis) {
 
         DatabaseBatching.timeoutMillis = timeoutMillis;
+    }
+
+    /**
+     * This method defines how the maximum number of entries for
+     * a batch.  When a batch reaches this limit, it will be
+     * submitted to the database. Larger batch limits mean fewer
+     * batches, but each batch is larger.  Smaller batch limits
+     * mean more batches, but each batch is smaller.
+     * <p>
+     * The default value is 1,000 features.
+     *
+     * @param batchLimit the maximum feature count for a batch
+     */
+    public static void setBatchLimit(int batchLimit) {
+
+        DatabaseBatching.batchLimit = batchLimit;
     }
 
     /**
@@ -193,6 +210,11 @@ public final class DatabaseBatching {
         // If thread pool is not shut down, shut it down
         if (threadPool != null && !threadPool.isShutdown())
             threadPool.shutdown();
+
+        // Reset configuration
+        threadCount = THREAD_COUNT_DEFAULT;
+        timeoutMillis = TIMEOUT_MILLIS_DEFAULT;
+        batchLimit = BATCH_LIMIT_DEFAULT;
 
         // Reset batch count and create a new batch object
         batchCount = 0;

@@ -47,4 +47,9 @@ public class InvalidIdFeature implements Feature {
 
         return null;
     }
+
+    @Override
+    public void cacheDependencies() {
+        // Do nothing
+    }
 }

@@ -42,6 +42,7 @@ public final class Database {
 
     private static DatabaseManager currentManager;
     private static boolean forceRebuild = false;
+    private static boolean eagerLoad = false;
     private static Enforcement dateRangeEnforcement = Enforcement.LENIENT;
 
     /**
@@ -335,6 +336,51 @@ public final class Database {
     }
 
     /**
+     * This method either enables or disables eager loading
+     * of features.  When eager loading is enabled, features
+     * automatically load and cache their dependent features
+     * (i.e. {@code Airport} instances automatically load
+     * their respective {@code Runway} instances).
+     * <p>
+     * Lazy loading (when eager loading is disabled), does not
+     * load dependent features until they are needed.
+     * <p>
+     * Eager loading is useful if access to dependent features will
+     * be needed quickly and the extra space required to store
+     * them in memory is acceptable.
+     * <p>
+     * Lazy loading is useful if access to dependent features is
+     * not always necessary or if the extra space required
+     * to store them in memory is potentially prohibitive.
+     * <p>
+     * By default, Jetway's database uses lazy loading.
+     *
+     * @param enable {@code true} to enable eager loading,
+     *               {@code false} to disable it (lazy loading)
+     */
+    public static void enableEagerLoading(boolean enable) {
+
+        eagerLoad = enable;
+    }
+
+    /**
+     * This method checks if eager loading is enabled
+     * or disabled.
+     * <p>
+     * See {@link #enableEagerLoading(boolean)} for a
+     * description of how eager loading works (vs. lazy
+     * loading, when eager loading is disabled).
+     *
+     * @return {@code true} if eager loading is enabled,
+     * {@code false} if it is disabled (lazy loading)
+     * @see #enableEagerLoading(boolean)
+     */
+    public static boolean isEagerLoadingEnabled() {
+
+        return eagerLoad;
+    }
+
+    /**
      * This method sets the enforcement level for warnings and errors if
      * loaded data is out of date.  This occurs when the current date is
      * outside of the valid date range for the loaded data (the period of
@@ -397,6 +443,9 @@ public final class Database {
 
         // Reset force rebuild flag
         forceRebuild = false;
+
+        // Reset eager loading flag
+        eagerLoad = false;
 
         // Reset effective date enforcement
         dateRangeEnforcement = Enforcement.LENIENT;

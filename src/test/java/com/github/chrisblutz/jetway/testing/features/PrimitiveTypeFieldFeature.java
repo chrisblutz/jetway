@@ -49,4 +49,9 @@ public class PrimitiveTypeFieldFeature implements Feature {
 
         return id;
     }
+
+    @Override
+    public void cacheDependencies() {
+        // Do nothing
+    }
 }

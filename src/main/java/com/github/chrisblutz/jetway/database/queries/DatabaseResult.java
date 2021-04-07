@@ -15,7 +15,9 @@
  */
 package com.github.chrisblutz.jetway.database.queries;
 
+import com.github.chrisblutz.jetway.database.Database;
 import com.github.chrisblutz.jetway.database.mappings.SchemaTable;
+import com.github.chrisblutz.jetway.features.Feature;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -55,7 +57,7 @@ public class DatabaseResult {
      * @return The empty array created
      */
     @SuppressWarnings("unchecked")
-    public <T> T[] getEmptyArray(Class<T> type) {
+    public <T extends Feature> T[] getEmptyArray(Class<T> type) {
 
         return (T[]) Array.newInstance(type, 0);
     }
@@ -75,7 +77,7 @@ public class DatabaseResult {
      * @throws IllegalAccessException if the constructor or field is not accessible
      * @throws InstantiationException if an error occurs while creating the instance
      */
-    public <T> T[] constructAll(Class<T> type, SchemaTable table) throws IllegalAccessException, InstantiationException {
+    public <T extends Feature> T[] constructAll(Class<T> type, SchemaTable table) throws IllegalAccessException, InstantiationException {
 
         // Track current ID so we don't duplicate objects
         Object currentPrimary = null;
@@ -107,7 +109,7 @@ public class DatabaseResult {
      * @throws IllegalAccessException if the constructor or field is not accessible
      * @throws InstantiationException if an error occurs while creating the instance
      */
-    public <T> T construct(Class<T> type, SchemaTable table) throws InstantiationException, IllegalAccessException {
+    public <T extends Feature> T construct(Class<T> type, SchemaTable table) throws InstantiationException, IllegalAccessException {
 
         if (results.isEmpty())
             return null;
@@ -115,7 +117,7 @@ public class DatabaseResult {
         return constructSingle(type, table, results.get(0));
     }
 
-    private <T> T constructSingle(Class<T> type, SchemaTable table, Map<String, Object> result) throws IllegalAccessException, InstantiationException {
+    private <T extends Feature> T constructSingle(Class<T> type, SchemaTable table, Map<String, Object> result) throws IllegalAccessException, InstantiationException {
 
         T newInstance = type.newInstance();
 
@@ -125,6 +127,10 @@ public class DatabaseResult {
             Object value = result.get(attribute);
             field.set(newInstance, value);
         }
+
+        // If eager loading is enabled, load and all dependent features
+        if (Database.isEagerLoadingEnabled())
+            newInstance.cacheDependencies();
 
         return newInstance;
     }

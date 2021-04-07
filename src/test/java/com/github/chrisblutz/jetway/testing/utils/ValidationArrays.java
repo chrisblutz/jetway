@@ -107,6 +107,14 @@ public class ValidationArrays {
      * Runway directions from sorting_nested.xml
      */
     public static final RunwayDirection[] SORTING_NESTED_RUNWAY_DIRECTIONS;
+    /**
+     * Airport used during eager loading testing
+     */
+    public static final Airport EAGER_LOADING_AIRPORT;
+    /**
+     * Runways used during eager loading testing
+     */
+    public static final Runway[] EAGER_LOADING_RUNWAYS;
 
     static {
 
@@ -661,5 +669,38 @@ public class ValidationArrays {
                 sortingNestedRunwayDirectionBaseR1A3, sortingNestedRunwayDirectionReciprocalR1A3,
                 sortingNestedRunwayDirectionBaseR2A3, sortingNestedRunwayDirectionReciprocalR2A3
         };
+
+        // =====================================================
+        // * * * * *          EAGER LOADING            * * * * *
+        // =====================================================
+
+        Airport eagerLoadAirport = new Airport();
+        eagerLoadAirport.id = "AH_0000001";
+        eagerLoadAirport.name = "TEST AIRPORT";
+        eagerLoadAirport.fieldElevation = 19.5;
+        eagerLoadAirport.latitude = 50.5678;
+        eagerLoadAirport.longitude = -170.1234;
+        eagerLoadAirport.servedCity = "TEST CITY";
+        eagerLoadAirport.privateUseOnly = false;
+        eagerLoadAirport.iataDesignator = "TST";
+        eagerLoadAirport.icao = "KTST";
+
+        EAGER_LOADING_AIRPORT = eagerLoadAirport;
+
+        Runway eagerLoad1Runway = new Runway();
+        eagerLoad1Runway.id = "RWY_0000001_1";
+        eagerLoad1Runway.airportId = eagerLoadAirport.id;
+        eagerLoad1Runway.designator = "1";
+        eagerLoad1Runway.length = 8525d;
+        eagerLoad1Runway.width = 200d;
+
+        Runway eagerLoad2Runway = new Runway();
+        eagerLoad2Runway.id = "RWY_0000001_1";
+        eagerLoad2Runway.airportId = eagerLoadAirport.id;
+        eagerLoad2Runway.designator = "2";
+        eagerLoad2Runway.length = 8525d;
+        eagerLoad2Runway.width = 200d;
+
+        EAGER_LOADING_RUNWAYS = new Runway[]{eagerLoad1Runway, eagerLoad2Runway};
     }
 }

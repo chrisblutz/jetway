@@ -163,6 +163,18 @@ public class Airport implements Feature {
     }
 
     @Override
+    public void cacheDependencies() {
+
+        // Load and cache runways
+        Query runwayQuery = Query.whereEquals(Runway.class, Runway.AIRPORT_ID, id);
+        runways = Runway.selectAll(runwayQuery);
+
+        // Load and cache runway ends
+        Query runwayEndQuery = Query.whereEquals(RunwayEnd.class, RunwayEnd.AIRPORT_ID, id);
+        runwayEnds = RunwayEnd.selectAll(runwayEndQuery);
+    }
+
+    @Override
     public String toString() {
 
         return "Airport{" +

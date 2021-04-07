@@ -60,4 +60,9 @@ public class InvalidForeignKeyFeature implements NestedFeature {
 
         return null;
     }
+
+    @Override
+    public void cacheDependencies() {
+        // Do nothing
+    }
 }

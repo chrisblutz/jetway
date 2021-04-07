@@ -71,6 +71,14 @@ public class RunwayEnd implements NestedFeature {
     }
 
     @Override
+    public void cacheDependencies() {
+
+        // Load and cache runway directions
+        Query runwayDirectionQuery = Query.whereEquals(RunwayDirection.class, RunwayDirection.RUNWAY_END_ID, id);
+        runwayDirections = RunwayDirection.selectAll(runwayDirectionQuery);
+    }
+
+    @Override
     public String toString() {
 
         return "RunwayEnd{" +

@@ -80,6 +80,12 @@ public class Runway implements NestedFeature {
     }
 
     @Override
+    public void cacheDependencies() {
+
+        // No dependencies exist
+    }
+
+    @Override
     public String toString() {
 
         return "Runway{" +
