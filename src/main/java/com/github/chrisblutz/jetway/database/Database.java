@@ -15,8 +15,8 @@
  */
 package com.github.chrisblutz.jetway.database;
 
-import com.github.chrisblutz.jetway.aixm.source.AIXMSource;
 import com.github.chrisblutz.jetway.database.batches.DatabaseBatching;
+import com.github.chrisblutz.jetway.database.enforcement.Enforcement;
 import com.github.chrisblutz.jetway.database.exceptions.DatabaseException;
 import com.github.chrisblutz.jetway.database.managers.DatabaseManager;
 import com.github.chrisblutz.jetway.database.mappings.SchemaTable;
@@ -42,7 +42,7 @@ public final class Database {
 
     private static DatabaseManager currentManager;
     private static boolean forceRebuild = false;
-    private static boolean ignoreDates = false, strictDates = false;
+    private static Enforcement dateRangeEnforcement = Enforcement.LENIENT;
 
     /**
      * This method retrieves the currently-active database manager.
@@ -166,7 +166,7 @@ public final class Database {
         }
 
         // If rebuild flag is not set and Jetway is NOT ignoring effective date ranges, check if data is current
-        if (!drop && !isIgnoringEffectiveRange() && !isValid()) {
+        if (!drop && getEffectiveRangeEnforcement() != Enforcement.IGNORE && !isValid()) {
 
             JetwayLog.getDatabaseLogger().info("Information in Jetway database is out-of-date, rebuilding database...");
             drop = true;
@@ -335,85 +335,51 @@ public final class Database {
     }
 
     /**
-     * This method sets whether or not Jetway will consider the effective
-     * date range of data when loading/reloading the database.
+     * This method sets the enforcement level for warnings and errors if
+     * loaded data is out of date.  This occurs when the current date is
+     * outside of the valid date range for the loaded data (the period of
+     * time between the date that the data goes into effect and the date
+     * that the data expires, as defined by the FAA).
      * <p>
-     * The metadata for the database provides the date when the information
-     * in the database takes effect, as well as the date when it goes out of date.
+     * Jetway uses this data to determine if it should log any errors
+     * when loading data that is out of date, and if it should attempt
+     * to rebuild its database when it finds out-of-date data.
      * <p>
-     * If {@code true}, Jetway will not consider these dates when choosing whether
-     * or not to reload it's data.
+     * When the enforcement is set to {@link Enforcement#IGNORE IGNORE},
+     * Jetway will not issue warnings or throw any errors when out-of-date
+     * data is loaded.
      * <p>
-     * If {@code false}, Jetway will reload the data in the database if the current
-     * data is out of date.
+     * When the enforcement is set to {@link Enforcement#LENIENT LENIENT},
+     * Jetway will log a warning that the data is out-of-date and attempt
+     * to rebuild the database, but it will not throw an error when it finds
+     * out-of-date data.
      * <p>
-     * If this value is set to {@code true}, then {@link #setStrictEffectiveRangeEnforcement(boolean)}
-     * will have no effect.
+     * When the enforcement is set to {@link Enforcement#STRICT STRICT},
+     * Jetway will log a warning that the data is out-of-date, but if the
+     * data is still out of date after the database has been rebuilt,
+     * it will throw an error.
      *
-     * @param ignore {@code true} to ignore dates, {@code false} to consider them
-     * @see #isValid()
+     * @param enforcement the {@link Enforcement} level to use
      */
-    public static void setIgnoreEffectiveRange(boolean ignore) {
+    public static void setEffectiveRangeEnforcement(Enforcement enforcement) {
 
-        ignoreDates = ignore;
+        dateRangeEnforcement = enforcement;
     }
 
     /**
-     * This method checks whether or not Jetway will consider the effective
-     * date range of data when loading/reloading the database.
+     * This method retrieves the current level of enforcement for
+     * warnings and errors when Jetway attempts to load data that
+     * is out of date.
      * <p>
-     * See {@link #setIgnoreEffectiveRange(boolean)} for information on what
-     * each value means.
+     * See {@link #setEffectiveRangeEnforcement(Enforcement)} for
+     * descriptions on the effects of different enforcement levels.
      *
-     * @return {@code true} if effective range is ignored, {@code false} otherwise.
-     * @see #isValid()
-     * @see #setIgnoreEffectiveRange(boolean)
+     * @return The {@link Enforcement} level for out-of-date data
+     * @see #setEffectiveRangeEnforcement(Enforcement)
      */
-    public static boolean isIgnoringEffectiveRange() {
+    public static Enforcement getEffectiveRangeEnforcement() {
 
-        return ignoreDates;
-    }
-
-    /**
-     * This method sets whether or not Jetway will throw an exception when the current data
-     * in the database is out of date, and either the source of data provided to
-     * {@link com.github.chrisblutz.jetway.Jetway#setAIXMSource(AIXMSource) Jetway.setAIXMSource(AIXMSource)}
-     * is either {@code null} or out of date.
-     * <p>
-     * If {@code true}, Jetway will throw an exception when it cannot find a currently-valid
-     * source of data.
-     * <p>
-     * If {@code false}, Jetway will log a warning that it cannot find a currently-valid source
-     * of data, but will allow execution to proceed.
-     * <p>
-     * If {@link #setIgnoreEffectiveRange(boolean)} is set to {@code true}, this method has no
-     * effect.
-     *
-     * @param strict {@code true} to strictly enforce effective ranges, {@code false} to leniently
-     *               enforce these ranges
-     * @see #isValid()
-     */
-    public static void setStrictEffectiveRangeEnforcement(boolean strict) {
-
-        strictDates = strict;
-    }
-
-    /**
-     * This method checks whether or not Jetway will throw an exception when the current data
-     * in the database is out of date, and either the source of data provided to
-     * {@link com.github.chrisblutz.jetway.Jetway#setAIXMSource(AIXMSource) Jetway.setAIXMSource(AIXMSource)}
-     * is either {@code null} or out of date.
-     * <p>
-     * See {@link #setStrictEffectiveRangeEnforcement(boolean)} for information on what
-     * each value means.
-     *
-     * @return {@code true} if effective range enforcement is strict, {@code false} otherwise.
-     * @see #isValid()
-     * @see #setStrictEffectiveRangeEnforcement(boolean) E
-     */
-    public static boolean isEffectiveRangeEnforcementStrict() {
-
-        return strictDates;
+        return dateRangeEnforcement;
     }
 
     /**
@@ -432,9 +398,8 @@ public final class Database {
         // Reset force rebuild flag
         forceRebuild = false;
 
-        // Reset effective date flags
-        ignoreDates = false;
-        strictDates = false;
+        // Reset effective date enforcement
+        dateRangeEnforcement = Enforcement.LENIENT;
 
         // Reset batch information
         DatabaseBatching.reset();

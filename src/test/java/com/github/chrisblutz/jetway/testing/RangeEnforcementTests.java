@@ -17,6 +17,7 @@ package com.github.chrisblutz.jetway.testing;
 
 import com.github.chrisblutz.jetway.Jetway;
 import com.github.chrisblutz.jetway.aixm.source.AIXMSource;
+import com.github.chrisblutz.jetway.database.enforcement.Enforcement;
 import com.github.chrisblutz.jetway.exceptions.JetwayException;
 import com.github.chrisblutz.jetway.features.Airport;
 import com.github.chrisblutz.jetway.testing.utils.JetwayAssertions;
@@ -58,7 +59,7 @@ public class RangeEnforcementTests {
 
         AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, template);
 
-        JetwayTesting.initializeJetway(source, false, false, true, true);
+        JetwayTesting.initializeJetway(source, false, Enforcement.STRICT, true);
 
         Airport[] airports = Airport.selectAll(null);
         JetwayAssertions.assertFeatures(airports, ValidationArrays.LOAD_REBUILD_INITIAL_AIRPORTS, 0);
@@ -75,7 +76,7 @@ public class RangeEnforcementTests {
 
         AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, template);
 
-        JetwayTesting.initializeJetway(source, false, false, true, true);
+        JetwayTesting.initializeJetway(source, false, Enforcement.STRICT, true);
     }
 
     /**
@@ -89,7 +90,7 @@ public class RangeEnforcementTests {
 
         AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, template);
 
-        JetwayTesting.initializeJetway(source, false, false, true, true);
+        JetwayTesting.initializeJetway(source, false, Enforcement.STRICT, true);
     }
 
     /**
@@ -103,7 +104,7 @@ public class RangeEnforcementTests {
 
         AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, template);
 
-        JetwayTesting.initializeJetway(source, false, false, false, true);
+        JetwayTesting.initializeJetway(source, false, Enforcement.LENIENT, true);
 
         Airport[] airports = Airport.selectAll(null);
         JetwayAssertions.assertFeatures(airports, ValidationArrays.LOAD_REBUILD_INITIAL_AIRPORTS, 0);
@@ -120,41 +121,7 @@ public class RangeEnforcementTests {
 
         AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, template);
 
-        JetwayTesting.initializeJetway(source, false, false, false, true);
-
-        Airport[] airports = Airport.selectAll(null);
-        JetwayAssertions.assertFeatures(airports, ValidationArrays.LOAD_REBUILD_INITIAL_AIRPORTS, 0);
-    }
-
-    /**
-     * This method tests using an out-of-date range from the past using ignored, strict enforcement.
-     */
-    @Test
-    public void testPastLoadIgnoreStrict() {
-
-        String template = TemplateUtils.loadResourceAsString("/aixm/range_invalid_past_template.xml");
-        template = replaceTemplateFields(template);
-
-        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, template);
-
-        JetwayTesting.initializeJetway(source, false, true, true, true);
-
-        Airport[] airports = Airport.selectAll(null);
-        JetwayAssertions.assertFeatures(airports, ValidationArrays.LOAD_REBUILD_INITIAL_AIRPORTS, 0);
-    }
-
-    /**
-     * This method tests using a range from the future using ignored, strict enforcement.
-     */
-    @Test
-    public void testFutureLoadIgnoreStrict() {
-
-        String template = TemplateUtils.loadResourceAsString("/aixm/range_invalid_future_template.xml");
-        template = replaceTemplateFields(template);
-
-        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, template);
-
-        JetwayTesting.initializeJetway(source, false, true, true, true);
+        JetwayTesting.initializeJetway(source, false, Enforcement.LENIENT, true);
 
         Airport[] airports = Airport.selectAll(null);
         JetwayAssertions.assertFeatures(airports, ValidationArrays.LOAD_REBUILD_INITIAL_AIRPORTS, 0);
@@ -172,7 +139,7 @@ public class RangeEnforcementTests {
 
         AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, template);
 
-        JetwayTesting.initializeJetway(source, false, true, false, true);
+        JetwayTesting.initializeJetway(source, false, Enforcement.IGNORE, true);
 
         // Reset Jetway so it is ready to load the next attempt
         Jetway.reset();
@@ -183,7 +150,7 @@ public class RangeEnforcementTests {
 
         source = JetwayTesting.constructSource(Airport.AIXM_FILE, template);
 
-        JetwayTesting.initializeJetway(source, false, false, true, false);
+        JetwayTesting.initializeJetway(source, false, Enforcement.STRICT, false);
     }
 
     /**
@@ -198,7 +165,7 @@ public class RangeEnforcementTests {
         AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, template);
 
         // Tell Jetway to clear any metadata before loading
-        JetwayTesting.initializeJetway(source, false, false, true, true);
+        JetwayTesting.initializeJetway(source, false, Enforcement.STRICT, true);
     }
 
     /**
@@ -213,7 +180,7 @@ public class RangeEnforcementTests {
         AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, template);
 
         // Tell Jetway to clear any metadata before loading
-        JetwayTesting.initializeJetway(source, true, false, true, true);
+        JetwayTesting.initializeJetway(source, true, Enforcement.STRICT, true);
 
         Airport[] airports = Airport.selectAll(null);
         JetwayAssertions.assertFeatures(airports, ValidationArrays.LOAD_REBUILD_INITIAL_AIRPORTS, 0);
@@ -228,7 +195,7 @@ public class RangeEnforcementTests {
         source = JetwayTesting.constructSource(Airport.AIXM_FILE, template);
 
         // Tell Jetway to clear any metadata before loading
-        JetwayTesting.initializeJetway(source, false, false, true, false);
+        JetwayTesting.initializeJetway(source, false, Enforcement.STRICT, false);
 
         airports = Airport.selectAll(null);
         JetwayAssertions.assertFeatures(airports, ValidationArrays.LOAD_REBUILD_INITIAL_AIRPORTS, 0);
@@ -246,7 +213,7 @@ public class RangeEnforcementTests {
         AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, template);
 
         // Tell Jetway to clear any metadata before loading
-        JetwayTesting.initializeJetway(source, true, true, false, true);
+        JetwayTesting.initializeJetway(source, true, Enforcement.IGNORE, true);
 
         Airport[] airports = Airport.selectAll(null);
         JetwayAssertions.assertFeatures(airports, ValidationArrays.LOAD_REBUILD_INITIAL_AIRPORTS, 0);
@@ -261,7 +228,7 @@ public class RangeEnforcementTests {
         source = JetwayTesting.constructSource(Airport.AIXM_FILE, template);
 
         // Tell Jetway to clear any metadata before loading
-        JetwayTesting.initializeJetway(source, false, false, true, false);
+        JetwayTesting.initializeJetway(source, false, Enforcement.STRICT, false);
 
         airports = Airport.selectAll(null);
         JetwayAssertions.assertFeatures(airports, ValidationArrays.LOAD_REBUILD_FINAL_AIRPORTS, 0);

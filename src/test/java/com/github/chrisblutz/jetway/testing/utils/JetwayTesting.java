@@ -19,6 +19,7 @@ import com.github.chrisblutz.jetway.Jetway;
 import com.github.chrisblutz.jetway.aixm.source.AIXMSource;
 import com.github.chrisblutz.jetway.aixm.source.AIXMStreamSource;
 import com.github.chrisblutz.jetway.database.Database;
+import com.github.chrisblutz.jetway.database.enforcement.Enforcement;
 import com.github.chrisblutz.jetway.database.managers.MySQLDatabaseManager;
 
 import java.io.ByteArrayInputStream;
@@ -85,7 +86,7 @@ public class JetwayTesting {
      */
     public static void initializeJetway(AIXMSource aixmSource, boolean rebuild) {
 
-        initializeJetway(aixmSource, rebuild, true, false, true);
+        initializeJetway(aixmSource, rebuild, Enforcement.IGNORE, true);
     }
 
     /**
@@ -97,14 +98,11 @@ public class JetwayTesting {
      * @param aixmSource  the AIXM source to use
      * @param rebuild     if {@code true}, the Jetway database will be force-rebuilt.
      *                    If {@code false}, Jetway will handle loading normally.
-     * @param ignoreDates if {@code true}, the Jetway database ignore effective date ranges.
-     *                    If {@code false}, Jetway will try to reload out-of-date information.
-     * @param strictDates if {@code true}, the Jetway database will throw an error if it cannot
-     *                    find current information.  If {@code false}, Jetway will just log a warning.
+     * @param enforcement the level of {@link Enforcement} to be used for out-of-date data
      * @param clearData   if {@code true}, the Jetway database will clear any existing data before loading.
      *                    If {@code false}, Jetway will not touch existing data.
      */
-    public static void initializeJetway(AIXMSource aixmSource, boolean rebuild, boolean ignoreDates, boolean strictDates, boolean clearData) {
+    public static void initializeJetway(AIXMSource aixmSource, boolean rebuild, Enforcement enforcement, boolean clearData) {
 
         Jetway.setAIXMSource(aixmSource);
         Jetway.setDatabaseManager(MySQLDatabaseManager.getInstance());
@@ -129,8 +127,7 @@ public class JetwayTesting {
         if (rebuild)
             Jetway.forceDatabaseRebuild();
 
-        Database.setIgnoreEffectiveRange(ignoreDates);
-        Database.setStrictEffectiveRangeEnforcement(strictDates);
+        Database.setEffectiveRangeEnforcement(enforcement);
 
         if (clearData)
             Database.dropAllTables();

@@ -20,6 +20,7 @@ import com.github.chrisblutz.jetway.aixm.exceptions.AIXMException;
 import com.github.chrisblutz.jetway.aixm.mappings.FeatureEntry;
 import com.github.chrisblutz.jetway.database.Database;
 import com.github.chrisblutz.jetway.database.batches.DatabaseBatching;
+import com.github.chrisblutz.jetway.database.enforcement.Enforcement;
 import com.github.chrisblutz.jetway.database.metadata.Metadata;
 import com.github.chrisblutz.jetway.exceptions.JetwayException;
 import com.github.chrisblutz.jetway.features.Feature;
@@ -220,14 +221,14 @@ public final class AIXM {
         Database.getManager().setMetadata(Metadata.EFFECTIVE_TO_DATE, toDate);
 
         // Check if data being loaded is current or not (only if effective ranges are being considered)
-        if (!Database.isValid() && !Database.isIgnoringEffectiveRange()) {
+        if (!Database.isValid() && Database.getEffectiveRangeEnforcement() != Enforcement.IGNORE) {
 
             // Log a warning that the data being loaded is out-of-date
             JetwayLog.getJetwayLogger().warn("*** Data being loaded is out-of-date. ***");
             JetwayLog.getJetwayLogger().warn("You may want to consider updating your AIXM source.");
 
             // If not, and enforcement is strict, throw an exception
-            if (Database.isEffectiveRangeEnforcementStrict()) {
+            if (Database.getEffectiveRangeEnforcement() == Enforcement.STRICT) {
 
                 JetwayException exception = new JetwayException("AIXM source is out-of-date.");
                 JetwayLog.getJetwayLogger().error(exception.getMessage(), exception);
