@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--suppress ALL -->
+<faa:SubscriberFile gml:id="Subscriber-0000000" validFrom="{file.validFrom}" AIXMVersion="AIXM5.1"
+                    SubscriberFileType="APT"
+                    xsi:schemaLocation="http://www.faa.gov/aixm5.1 ../AIXM/extension/SubscriberFile-AIXM.xsd"
+                    xmlns:faa="http://www.faa.gov/aixm5.1" xmlns:apt="http://www.faa.gov/aixm5.1/apt"
+                    xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xmlns:aixm="http://www.aixm.aero/schema/5.1"
+                    xmlns:xlink="http://www.w3.org/1999/xlink"
+>
+    {file.contents}
+</faa:SubscriberFile>

@@ -18,18 +18,12 @@ package com.github.chrisblutz.jetway.testing;
 import com.github.chrisblutz.jetway.Jetway;
 import com.github.chrisblutz.jetway.aixm.source.AIXMSource;
 import com.github.chrisblutz.jetway.database.queries.Query;
-import com.github.chrisblutz.jetway.features.Airport;
-import com.github.chrisblutz.jetway.features.Runway;
-import com.github.chrisblutz.jetway.features.RunwayDirection;
-import com.github.chrisblutz.jetway.features.RunwayEnd;
-import com.github.chrisblutz.jetway.testing.utils.JetwayAssertions;
-import com.github.chrisblutz.jetway.testing.utils.JetwayTesting;
-import com.github.chrisblutz.jetway.testing.utils.ValidationArrays;
+import com.github.chrisblutz.jetway.features.*;
+import com.github.chrisblutz.jetway.testing.utils.*;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * This class handles testing of {@link Query}
@@ -49,22 +43,22 @@ public class QueryTests {
     }
 
     /**
-     * This method ensures that all features in the {@code query_basic.xml}
-     * file are correctly recognized by Jetway.  This allows for easier
-     * bug-finding when errors arise.  If this test fails, the error is most
-     * likely in the loader itself.  If other tests fail when this one passes,
-     * the error is most likely in the query functionality.
+     * This method ensures that all query features are correctly recognized by Jetway.
+     * This allows for easier bug-finding when errors arise.  If this test fails,
+     * the error is most likely in the loader itself.  If other tests fail when this
+     * one passes, the error is most likely in the query functionality.
      */
     @Test
     public void testAll() {
 
         // Make sure assertions are correct by selecting all
 
-        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/query_basic.xml"));
-        JetwayTesting.initializeJetway(source);
+        Airport[] validation = ValidationFeatures.QUERY_AIRPORTS;
+        AIXMSource source = AIXMUtils.createSourceForFeatures(Airport.AIXM_FILE, validation);
+        TestUtils.initializeJetway(source);
 
         Airport[] airports = Airport.selectAll(null);
-        JetwayAssertions.assertFeatures(airports, ValidationArrays.QUERY_BASIC_AIRPORTS, 0, 1, 2, 3, 4);
+        AssertionUtils.assertFeatures(airports, validation, ValidationFeatures.QUERY_AIRPORT_ALL_INDICES);
     }
 
     /**
@@ -75,14 +69,15 @@ public class QueryTests {
     @Test
     public void testEquals() {
 
-        // Checking SERVED_CITY = "FIRST CITY"
+        // Checking SERVED_CITY = "CITY 1"
 
-        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/query_basic.xml"));
-        JetwayTesting.initializeJetway(source);
+        Airport[] validation = ValidationFeatures.QUERY_AIRPORTS;
+        AIXMSource source = AIXMUtils.createSourceForFeatures(Airport.AIXM_FILE, validation);
+        TestUtils.initializeJetway(source);
 
-        Query query = Query.whereEquals(Airport.class, Airport.SERVED_CITY, "FIRST CITY");
+        Query query = Query.whereEquals(Airport.class, Airport.SERVED_CITY, "CITY 1");
         Airport[] airports = Airport.selectAll(query);
-        JetwayAssertions.assertFeatures(airports, ValidationArrays.QUERY_BASIC_AIRPORTS, 0, 2);
+        AssertionUtils.assertFeatures(airports, validation, ValidationFeatures.QUERY_AIRPORT_EQUALS_INDICES);
     }
 
     /**
@@ -93,14 +88,15 @@ public class QueryTests {
     @Test
     public void testNotEquals() {
 
-        // Checking SERVED_CITY != "FIRST CITY"
+        // Checking SERVED_CITY != "CITY 1"
 
-        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/query_basic.xml"));
-        JetwayTesting.initializeJetway(source);
+        Airport[] validation = ValidationFeatures.QUERY_AIRPORTS;
+        AIXMSource source = AIXMUtils.createSourceForFeatures(Airport.AIXM_FILE, validation);
+        TestUtils.initializeJetway(source);
 
-        Query query = Query.whereNotEquals(Airport.class, Airport.SERVED_CITY, "FIRST CITY");
+        Query query = Query.whereNotEquals(Airport.class, Airport.SERVED_CITY, "CITY 1");
         Airport[] airports = Airport.selectAll(query);
-        JetwayAssertions.assertFeatures(airports, ValidationArrays.QUERY_BASIC_AIRPORTS, 1, 3, 4);
+        AssertionUtils.assertFeatures(airports, validation, ValidationFeatures.QUERY_AIRPORT_NOT_EQUALS_INDICES);
     }
 
     /**
@@ -113,12 +109,13 @@ public class QueryTests {
 
         // Checking FIELD_ELEVATION > 14
 
-        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/query_basic.xml"));
-        JetwayTesting.initializeJetway(source);
+        Airport[] validation = ValidationFeatures.QUERY_AIRPORTS;
+        AIXMSource source = AIXMUtils.createSourceForFeatures(Airport.AIXM_FILE, validation);
+        TestUtils.initializeJetway(source);
 
         Query query = Query.whereGreaterThan(Airport.class, Airport.FIELD_ELEVATION, 14);
         Airport[] airports = Airport.selectAll(query);
-        JetwayAssertions.assertFeatures(airports, ValidationArrays.QUERY_BASIC_AIRPORTS, 3, 4);
+        AssertionUtils.assertFeatures(airports, validation, ValidationFeatures.QUERY_AIRPORT_GREATER_THAN_INDICES);
     }
 
     /**
@@ -131,12 +128,14 @@ public class QueryTests {
 
         // Checking FIELD_ELEVATION >= 14
 
-        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/query_basic.xml"));
-        JetwayTesting.initializeJetway(source);
+        Airport[] validation = ValidationFeatures.QUERY_AIRPORTS;
+        AIXMSource source = AIXMUtils.createSourceForFeatures(Airport.AIXM_FILE, validation);
+        TestUtils.initializeJetway(source);
 
         Query query = Query.whereGreaterThanEquals(Airport.class, Airport.FIELD_ELEVATION, 14);
         Airport[] airports = Airport.selectAll(query);
-        JetwayAssertions.assertFeatures(airports, ValidationArrays.QUERY_BASIC_AIRPORTS, 2, 3, 4);
+        AssertionUtils.assertFeatures(airports, validation,
+                ValidationFeatures.QUERY_AIRPORT_GREATER_THAN_EQUALS_INDICES);
     }
 
     /**
@@ -149,12 +148,13 @@ public class QueryTests {
 
         // Checking FIELD_ELEVATION < 14
 
-        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/query_basic.xml"));
-        JetwayTesting.initializeJetway(source);
+        Airport[] validation = ValidationFeatures.QUERY_AIRPORTS;
+        AIXMSource source = AIXMUtils.createSourceForFeatures(Airport.AIXM_FILE, validation);
+        TestUtils.initializeJetway(source);
 
         Query query = Query.whereLessThan(Airport.class, Airport.FIELD_ELEVATION, 14);
         Airport[] airports = Airport.selectAll(query);
-        JetwayAssertions.assertFeatures(airports, ValidationArrays.QUERY_BASIC_AIRPORTS, 0, 1);
+        AssertionUtils.assertFeatures(airports, validation, ValidationFeatures.QUERY_AIRPORT_LESS_THAN_INDICES);
     }
 
     /**
@@ -167,12 +167,14 @@ public class QueryTests {
 
         // Checking FIELD_ELEVATION <= 14
 
-        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/query_basic.xml"));
-        JetwayTesting.initializeJetway(source);
+        Airport[] validation = ValidationFeatures.QUERY_AIRPORTS;
+        AIXMSource source = AIXMUtils.createSourceForFeatures(Airport.AIXM_FILE, validation);
+        TestUtils.initializeJetway(source);
 
         Query query = Query.whereLessThanEquals(Airport.class, Airport.FIELD_ELEVATION, 14);
         Airport[] airports = Airport.selectAll(query);
-        JetwayAssertions.assertFeatures(airports, ValidationArrays.QUERY_BASIC_AIRPORTS, 0, 1, 2);
+        AssertionUtils.assertFeatures(airports, validation,
+                ValidationFeatures.QUERY_AIRPORT_LESS_THAN_EQUALS_INDICES);
     }
 
     /**
@@ -185,12 +187,13 @@ public class QueryTests {
 
         // Checking NAME LIKE "%INTL"
 
-        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/query_basic.xml"));
-        JetwayTesting.initializeJetway(source);
+        Airport[] validation = ValidationFeatures.QUERY_AIRPORTS;
+        AIXMSource source = AIXMUtils.createSourceForFeatures(Airport.AIXM_FILE, validation);
+        TestUtils.initializeJetway(source);
 
         Query query = Query.whereLike(Airport.class, Airport.NAME, "%INTL");
         Airport[] airports = Airport.selectAll(query);
-        JetwayAssertions.assertFeatures(airports, ValidationArrays.QUERY_BASIC_AIRPORTS, 0, 3);
+        AssertionUtils.assertFeatures(airports, validation, ValidationFeatures.QUERY_AIRPORT_LIKE_INDICES);
     }
 
     /**
@@ -203,8 +206,9 @@ public class QueryTests {
 
         // Check FIELD_ELEVATION > 12 AND LATITUDE < 50
 
-        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/query_basic.xml"));
-        JetwayTesting.initializeJetway(source);
+        Airport[] validation = ValidationFeatures.QUERY_AIRPORTS;
+        AIXMSource source = AIXMUtils.createSourceForFeatures(Airport.AIXM_FILE, validation);
+        TestUtils.initializeJetway(source);
 
         Query firstQuery = Query.whereGreaterThan(Airport.class, Airport.FIELD_ELEVATION, 12);
         Query secondQuery = Query.whereLessThan(Airport.class, Airport.LATITUDE, 50);
@@ -212,12 +216,12 @@ public class QueryTests {
         // Check "and" on first
         Query query = firstQuery.and(secondQuery);
         Airport[] airports = Airport.selectAll(query);
-        JetwayAssertions.assertFeatures(airports, ValidationArrays.QUERY_BASIC_AIRPORTS, 2, 3);
+        AssertionUtils.assertFeatures(airports, validation, ValidationFeatures.QUERY_AIRPORT_AND_INDICES);
 
         // Check "and" on second (other way round)
         query = secondQuery.and(firstQuery);
         airports = Airport.selectAll(query);
-        JetwayAssertions.assertFeatures(airports, ValidationArrays.QUERY_BASIC_AIRPORTS, 2, 3);
+        AssertionUtils.assertFeatures(airports, validation, ValidationFeatures.QUERY_AIRPORT_AND_INDICES);
     }
 
     /**
@@ -230,8 +234,9 @@ public class QueryTests {
 
         // Check FIELD_ELEVATION < 12 OR LATITUDE > 46
 
-        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/query_basic.xml"));
-        JetwayTesting.initializeJetway(source);
+        Airport[] validation = ValidationFeatures.QUERY_AIRPORTS;
+        AIXMSource source = AIXMUtils.createSourceForFeatures(Airport.AIXM_FILE, validation);
+        TestUtils.initializeJetway(source);
 
         Query firstQuery = Query.whereLessThan(Airport.class, Airport.FIELD_ELEVATION, 12);
         Query secondQuery = Query.whereGreaterThan(Airport.class, Airport.LATITUDE, 46);
@@ -239,12 +244,12 @@ public class QueryTests {
         // Check "or" on first
         Query query = firstQuery.or(secondQuery);
         Airport[] airports = Airport.selectAll(query);
-        JetwayAssertions.assertFeatures(airports, ValidationArrays.QUERY_BASIC_AIRPORTS, 0, 3, 4);
+        AssertionUtils.assertFeatures(airports, validation, ValidationFeatures.QUERY_AIRPORT_OR_INDICES);
 
         // Check "or" on second (other way round)
         query = secondQuery.or(firstQuery);
         airports = Airport.selectAll(query);
-        JetwayAssertions.assertFeatures(airports, ValidationArrays.QUERY_BASIC_AIRPORTS, 0, 3, 4);
+        AssertionUtils.assertFeatures(airports, validation, ValidationFeatures.QUERY_AIRPORT_OR_INDICES);
     }
 
     /**
@@ -259,8 +264,9 @@ public class QueryTests {
 
         // Check (FIELD_ELEVATION >= 12 AND LATITUDE < 50) AND LONGITUDE > -170
 
-        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/query_basic.xml"));
-        JetwayTesting.initializeJetway(source);
+        Airport[] validation = ValidationFeatures.QUERY_AIRPORTS;
+        AIXMSource source = AIXMUtils.createSourceForFeatures(Airport.AIXM_FILE, validation);
+        TestUtils.initializeJetway(source);
 
         Query firstQuery = Query.whereGreaterThanEquals(Airport.class, Airport.FIELD_ELEVATION, 12);
         Query secondQuery = Query.whereLessThan(Airport.class, Airport.LATITUDE, 50);
@@ -269,7 +275,7 @@ public class QueryTests {
         Query andQuery = firstQuery.and(secondQuery);
         Query query = andQuery.and(thirdQuery);
         Airport[] airports = Airport.selectAll(query);
-        JetwayAssertions.assertFeatures(airports, ValidationArrays.QUERY_BASIC_AIRPORTS, 1, 2);
+        AssertionUtils.assertFeatures(airports, validation, ValidationFeatures.QUERY_AIRPORT_AND_AND_INDICES);
     }
 
     /**
@@ -284,8 +290,9 @@ public class QueryTests {
 
         // Check (FIELD_ELEVATION > 12 AND LATITUDE < 50) OR LONGITUDE > -160
 
-        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/query_basic.xml"));
-        JetwayTesting.initializeJetway(source);
+        Airport[] validation = ValidationFeatures.QUERY_AIRPORTS;
+        AIXMSource source = AIXMUtils.createSourceForFeatures(Airport.AIXM_FILE, validation);
+        TestUtils.initializeJetway(source);
 
         Query firstQuery = Query.whereGreaterThan(Airport.class, Airport.FIELD_ELEVATION, 12);
         Query secondQuery = Query.whereLessThan(Airport.class, Airport.LATITUDE, 50);
@@ -294,7 +301,7 @@ public class QueryTests {
         Query andQuery = firstQuery.and(secondQuery);
         Query query = andQuery.or(thirdQuery);
         Airport[] airports = Airport.selectAll(query);
-        JetwayAssertions.assertFeatures(airports, ValidationArrays.QUERY_BASIC_AIRPORTS, 0, 2, 3);
+        AssertionUtils.assertFeatures(airports, validation, ValidationFeatures.QUERY_AIRPORT_AND_OR_INDICES);
     }
 
     /**
@@ -307,19 +314,20 @@ public class QueryTests {
     @Test
     public void testOrAnd() {
 
-        // Check (FIELD_ELEVATION < 12 OR LATITUDE > 44) AND SERVED_CITY = "FIRST CITY"
+        // Check (FIELD_ELEVATION < 12 OR LATITUDE > 44) AND SERVED_CITY = "CITY 1"
 
-        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/query_basic.xml"));
-        JetwayTesting.initializeJetway(source);
+        Airport[] validation = ValidationFeatures.QUERY_AIRPORTS;
+        AIXMSource source = AIXMUtils.createSourceForFeatures(Airport.AIXM_FILE, validation);
+        TestUtils.initializeJetway(source);
 
         Query firstQuery = Query.whereLessThan(Airport.class, Airport.FIELD_ELEVATION, 12);
         Query secondQuery = Query.whereGreaterThan(Airport.class, Airport.LATITUDE, 44);
-        Query thirdQuery = Query.whereEquals(Airport.class, Airport.SERVED_CITY, "FIRST CITY");
+        Query thirdQuery = Query.whereEquals(Airport.class, Airport.SERVED_CITY, "CITY 1");
 
         Query orQuery = firstQuery.or(secondQuery);
         Query query = orQuery.and(thirdQuery);
         Airport[] airports = Airport.selectAll(query);
-        JetwayAssertions.assertFeatures(airports, ValidationArrays.QUERY_BASIC_AIRPORTS, 0, 2);
+        AssertionUtils.assertFeatures(airports, validation, ValidationFeatures.QUERY_AIRPORT_OR_AND_INDICES);
     }
 
     /**
@@ -332,19 +340,20 @@ public class QueryTests {
     @Test
     public void testOrOr() {
 
-        // Check (FIELD_ELEVATION < 12 OR LATITUDE > 48) OR SERVED_CITY = "FIRST CITY"
+        // Check (FIELD_ELEVATION < 12 OR LATITUDE > 48) OR SERVED_CITY = "CITY 1"
 
-        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/query_basic.xml"));
-        JetwayTesting.initializeJetway(source);
+        Airport[] validation = ValidationFeatures.QUERY_AIRPORTS;
+        AIXMSource source = AIXMUtils.createSourceForFeatures(Airport.AIXM_FILE, validation);
+        TestUtils.initializeJetway(source);
 
         Query firstQuery = Query.whereLessThan(Airport.class, Airport.FIELD_ELEVATION, 12);
         Query secondQuery = Query.whereGreaterThan(Airport.class, Airport.LATITUDE, 48);
-        Query thirdQuery = Query.whereEquals(Airport.class, Airport.SERVED_CITY, "FIRST CITY");
+        Query thirdQuery = Query.whereEquals(Airport.class, Airport.SERVED_CITY, "CITY 1");
 
         Query orQuery = firstQuery.or(secondQuery);
         Query query = orQuery.or(thirdQuery);
         Airport[] airports = Airport.selectAll(query);
-        JetwayAssertions.assertFeatures(airports, ValidationArrays.QUERY_BASIC_AIRPORTS, 0, 2, 4);
+        AssertionUtils.assertFeatures(airports, validation, ValidationFeatures.QUERY_AIRPORT_OR_OR_INDICES);
     }
 
     /**
@@ -354,12 +363,13 @@ public class QueryTests {
     @Test
     public void testStringEscaping() {
 
-        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/query_basic.xml"));
-        JetwayTesting.initializeJetway(source);
+        Airport[] validation = ValidationFeatures.QUERY_AIRPORTS;
+        AIXMSource source = AIXMUtils.createSourceForFeatures(Airport.AIXM_FILE, validation);
+        TestUtils.initializeJetway(source);
 
         // Check that all airports are present
         Airport[] airports = Airport.selectAll(null);
-        JetwayAssertions.assertFeatures(airports, ValidationArrays.QUERY_BASIC_AIRPORTS, 0, 1, 2, 3, 4);
+        AssertionUtils.assertFeatures(airports, validation, ValidationFeatures.QUERY_AIRPORT_ALL_INDICES);
 
         // Test query containing a reserved character - "
         // and check that the result is empty and does not throw an error
@@ -369,31 +379,45 @@ public class QueryTests {
     }
 
     /**
-     * This method ensures that all features in the {@code query_nested.xml}
-     * file are correctly recognized by Jetway.  This allows for easier
-     * bug-finding when errors arise.  If this test fails, the error is most
-     * likely in the loader itself.  If other tests fail when this one passes,
-     * the error is most likely in the query functionality.
+     * This method ensures that all nested query features are correctly recognized
+     * by Jetway.  This allows for easier bug-finding when errors arise.  If this
+     * test fails, the error is most likely in the loader itself.  If other tests
+     * fail when this one passes, the error is most likely in the query functionality.
      */
     @Test
     public void testAllNested() {
 
         // Make sure assertions are correct by selecting all
 
-        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/query_nested.xml"));
-        JetwayTesting.initializeJetway(source);
+        Airport[] validationAirports = ValidationFeatures.QUERY_NESTED_AIRPORTS;
+        Runway[] validationRunways = ValidationFeatures.QUERY_NESTED_RUNWAYS;
+        RunwayEnd[] validationRunwayEnds = ValidationFeatures.QUERY_NESTED_RUNWAY_ENDS;
+        RunwayDirection[] validationRunwayDirections = ValidationFeatures.QUERY_NESTED_RUNWAY_DIRECTIONS;
+        Feature[] features = FeatureUtils.merge(
+                validationAirports,
+                validationRunways,
+                validationRunwayEnds,
+                validationRunwayDirections
+        );
+
+        AIXMSource source = AIXMUtils.createSourceForFeatures(Airport.AIXM_FILE, features);
+        TestUtils.initializeJetway(source);
 
         Airport[] airports = Airport.selectAll(null);
-        JetwayAssertions.assertFeatures(airports, ValidationArrays.QUERY_NESTED_AIRPORTS, 0);
+        AssertionUtils.assertFeatures(airports, validationAirports,
+                ValidationFeatures.QUERY_NESTED_AIRPORT_ALL_INDICES);
 
         Runway[] runways = Runway.selectAll(null);
-        JetwayAssertions.assertFeatures(runways, ValidationArrays.QUERY_NESTED_RUNWAYS, 0, 1, 2);
+        AssertionUtils.assertFeatures(runways, validationRunways,
+                ValidationFeatures.QUERY_NESTED_RUNWAY_ALL_INDICES);
 
         RunwayEnd[] runwayEnds = RunwayEnd.selectAll(null);
-        JetwayAssertions.assertFeatures(runwayEnds, ValidationArrays.QUERY_NESTED_RUNWAY_ENDS, 0, 1);
+        AssertionUtils.assertFeatures(runwayEnds, validationRunwayEnds,
+                ValidationFeatures.QUERY_NESTED_RUNWAY_END_ALL_INDICES);
 
         RunwayDirection[] runwayDirections = RunwayDirection.selectAll(null);
-        JetwayAssertions.assertFeatures(runwayDirections, ValidationArrays.QUERY_NESTED_RUNWAY_DIRECTIONS, 0);
+        AssertionUtils.assertFeatures(runwayDirections, validationRunwayDirections,
+                ValidationFeatures.QUERY_NESTED_RUNWAY_DIRECTION_ALL_INDICES);
     }
 
     /**
@@ -404,39 +428,36 @@ public class QueryTests {
     @Test
     public void testNestedFeatures() {
 
-        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, LoadTests.class.getResourceAsStream("/aixm/query_nested.xml"));
-        JetwayTesting.initializeJetway(source);
+        Airport[] validationAirports = ValidationFeatures.QUERY_NESTED_AIRPORTS;
+        Runway[] validationRunways = ValidationFeatures.QUERY_NESTED_RUNWAYS;
+        RunwayEnd[] validationRunwayEnds = ValidationFeatures.QUERY_NESTED_RUNWAY_ENDS;
+        RunwayDirection[] validationRunwayDirections = ValidationFeatures.QUERY_NESTED_RUNWAY_DIRECTIONS;
+        Feature[] features = FeatureUtils.merge(
+                validationAirports,
+                validationRunways,
+                validationRunwayEnds,
+                validationRunwayDirections
+        );
+
+        AIXMSource source = AIXMUtils.createSourceForFeatures(Airport.AIXM_FILE, features);
+        TestUtils.initializeJetway(source);
 
         Airport[] airports = Airport.selectAll(null);
-        JetwayAssertions.assertFeatures(airports, ValidationArrays.QUERY_NESTED_AIRPORTS, 0);
+        AssertionUtils.assertFeatures(airports, validationAirports,
+                ValidationFeatures.QUERY_NESTED_AIRPORT_ALL_INDICES);
 
         // Select runways where LENGTH >= 10000
-        Airport airport = Airport.select(Query.whereEquals(Airport.class, Airport.ID, "AH_0000001"));
+        Airport airport = airports[0];
 
         Query query = Query.whereGreaterThanEquals(Runway.class, Runway.LENGTH, 10000);
         Runway[] runways = airport.getRunways(query);
-        JetwayAssertions.assertFeatures(runways, ValidationArrays.QUERY_NESTED_RUNWAYS, 1, 2);
+        AssertionUtils.assertFeatures(runways, validationRunways,
+                ValidationFeatures.QUERY_NESTED_RUNWAY_GREATER_THAN_EQUALS_INDICES);
 
         // Select runway ends where DESIGNATOR = 05
         query = Query.whereEquals(RunwayEnd.class, RunwayEnd.DESIGNATOR, "05");
         RunwayEnd[] runwayEnds = airport.getRunwayEnds(query);
-        JetwayAssertions.assertFeatures(runwayEnds, ValidationArrays.QUERY_NESTED_RUNWAY_ENDS, 0);
-
-        // Select runway directions where LATITUDE > 60 (should be empty)
-        RunwayEnd runwayEnd = RunwayEnd.select(Query.whereEquals(RunwayEnd.class, RunwayEnd.ID, "RWY_BASE_END_0000001_1"));
-
-        query = Query.whereGreaterThan(RunwayDirection.class, RunwayDirection.LATITUDE, 60);
-        RunwayDirection[] runwayDirections = runwayEnd.getRunwayDirections(query);
-        assertNotNull(runwayDirections);
-        assertEquals(0, runwayDirections.length);
-
-        // Select runway directions where LATITUDE < 60
-        query = Query.whereLessThan(RunwayDirection.class, RunwayDirection.LATITUDE, 60);
-        runwayDirections = runwayEnd.getRunwayDirections(query);
-        JetwayAssertions.assertFeatures(runwayDirections, ValidationArrays.QUERY_NESTED_RUNWAY_DIRECTIONS, 0);
-
-        // Select runway direction from runway end using getRunwayDirection()
-        RunwayDirection runwayDirection = runwayEnd.getRunwayDirection();
-        JetwayAssertions.assertFeature(runwayDirection, ValidationArrays.QUERY_NESTED_RUNWAY_DIRECTIONS[0]);
+        AssertionUtils.assertFeatures(runwayEnds, validationRunwayEnds,
+                ValidationFeatures.QUERY_NESTED_RUNWAY_END_EQUALS_INDICES);
     }
 }

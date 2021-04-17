@@ -42,7 +42,7 @@ public class RunwayEnd implements NestedFeature {
     public static final String AIRPORT_ID = "airportId";
     public static final String DESIGNATOR = "Designator";
 
-    private RunwayDirection[] runwayDirections;
+    private RunwayDirection runwayDirection;
 
     @DatabaseColumn(name = ID, type = DatabaseType.STRING)
     @DatabasePrimaryKey
@@ -73,9 +73,9 @@ public class RunwayEnd implements NestedFeature {
     @Override
     public void cacheDependencies() {
 
-        // Load and cache runway directions
-        Query runwayDirectionQuery = Query.whereEquals(RunwayDirection.class, RunwayDirection.RUNWAY_END_ID, id);
-        runwayDirections = RunwayDirection.selectAll(runwayDirectionQuery);
+        // Load and cache runway direction
+        Query query = Query.whereEquals(RunwayDirection.class, RunwayDirection.RUNWAY_END_ID, id);
+        runwayDirection = RunwayDirection.select(query);
     }
 
     @Override
@@ -89,60 +89,24 @@ public class RunwayEnd implements NestedFeature {
     }
 
     /**
-     * This method selects a single runway direction for this
+     * This method selects the runway direction for this
      * runway end from the database.
-     * <p>
-     * Since each runway end should only have a single runway direction,
-     * this method should always return the same value, and is simply
-     * a shortcut for the following:
-     *
-     * <pre>
-     *     getRunwayDirections()[0]
-     * </pre>
-     *
-     * @return The array of runways
-     */
-    public RunwayDirection getRunwayDirection() {
-
-        return getRunwayDirections()[0];
-    }
-
-    /**
-     * This method selects all runway directions for this runway end from
-     * the database and returns them.
      * <p>
      * This method also caches its result, so calling this method
      * more than once will not result in more database calls.
      *
-     * @return The array of runway directions
+     * @return The {@link RunwayDirection} for this end
      */
-    public RunwayDirection[] getRunwayDirections() {
+    public RunwayDirection getRunwayDirection() {
 
         // Check if cached value exists
-        if (runwayDirections == null) {
+        if (runwayDirection == null) {
 
             Query query = Query.whereEquals(RunwayDirection.class, RunwayDirection.RUNWAY_END_ID, id);
-            runwayDirections = RunwayDirection.selectAll(query);
+            runwayDirection = RunwayDirection.select(query);
         }
 
-        return runwayDirections;
-    }
-
-    /**
-     * This method selects all runway directions for this runway end that
-     * fit the {@link Query} from the database and returns them.
-     * <p>
-     * Unlike {@link #getRunwayDirections()}, this method does
-     * not cache its result, so calling this method will result in
-     * further database calls, even if the same {@link Query} is used.
-     *
-     * @param query the {@link Query} to use
-     * @return The array of runway directions
-     */
-    public RunwayDirection[] getRunwayDirections(Query query) {
-
-        Query fullQuery = query.and(Query.whereEquals(RunwayDirection.class, RunwayDirection.RUNWAY_END_ID, id));
-        return RunwayDirection.selectAll(fullQuery);
+        return runwayDirection;
     }
 
     /**

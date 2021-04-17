@@ -1,0 +1,9 @@
+<!--suppress ALL -->
+<aixm:extension>
+    <apt:RunwayDirectionExtension gml:id="RUNWAY_DIRECTION_{runwaydirection.baseReciprocal}_END_EXTENSION_{runwaydirection.id}">
+        <apt:ElevatedPoint gml:id="RUNWAY_DIRECTION_{runwaydirection.baseReciprocal}_END_ELEVATED_POINT_{runwaydirection.id}"
+                           srsName="urn:ogc:def:crs:OGC:1.3:CRS83">
+            <gml:pos>{runwaydirection.longitude} {runwaydirection.latitude}</gml:pos>
+        </apt:ElevatedPoint>
+    </apt:RunwayDirectionExtension>
+</aixm:extension>

@@ -25,7 +25,7 @@ import static org.junit.Assert.*;
  *
  * @author Christopher Lutz
  */
-public class JetwayAssertions {
+public class AssertionUtils {
 
     /**
      * This method checks that the given features match the expected features
@@ -61,7 +61,7 @@ public class JetwayAssertions {
      * as specified by the indices given, regardless of order
      * <p>
      * For example, let {@code values} be {@code [8, 0, 2]}, {@code expected}'
-     * be {@code [0, 2, 5, 8, 13]}, and {@code expectedIndices} by {@link [0, 1, 3]}.
+     * be {@code [0, 2, 5, 8, 13]}, and {@code expectedIndices} by {@code [0, 1, 3]}.
      * <p>
      * The actual expected features are those selected by the {@code expectedIndices} array.
      * So for the example that would be {@code [0, 2, 8]}, since those are the values

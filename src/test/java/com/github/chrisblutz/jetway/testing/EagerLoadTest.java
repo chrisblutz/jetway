@@ -19,11 +19,12 @@ import com.github.chrisblutz.jetway.Jetway;
 import com.github.chrisblutz.jetway.aixm.source.AIXMSource;
 import com.github.chrisblutz.jetway.database.Database;
 import com.github.chrisblutz.jetway.features.Airport;
+import com.github.chrisblutz.jetway.features.Feature;
 import com.github.chrisblutz.jetway.features.Runway;
-import com.github.chrisblutz.jetway.testing.utils.JetwayAssertions;
-import com.github.chrisblutz.jetway.testing.utils.JetwayTesting;
-import com.github.chrisblutz.jetway.testing.utils.TemplateUtils;
-import com.github.chrisblutz.jetway.testing.utils.ValidationArrays;
+import com.github.chrisblutz.jetway.testing.utils.AIXMUtils;
+import com.github.chrisblutz.jetway.testing.utils.AssertionUtils;
+import com.github.chrisblutz.jetway.testing.utils.TestUtils;
+import com.github.chrisblutz.jetway.testing.utils.ValidationFeatures;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,31 +52,33 @@ public class EagerLoadTest {
     @Test
     public void testLoadEagerAirport() {
 
-        String template = TemplateUtils.loadResourceAsString("/aixm/eager_template.xml");
-        template = replaceTemplateFields(template, 1);
+        Airport validationAirport = ValidationFeatures.EAGER_AIRPORT;
+        Runway validationRunway = ValidationFeatures.EAGER_RUNWAY_1;
+        Feature[] features = new Feature[]{validationAirport, validationRunway};
 
-        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, template);
+        AIXMSource source = AIXMUtils.createSourceForFeatures(Airport.AIXM_FILE, features);
         Database.enableEagerLoading(true);
-        JetwayTesting.initializeJetway(source);
+        TestUtils.initializeJetway(source);
 
         // Eager-load airport
         Airport airport = Airport.select(null);
-        JetwayAssertions.assertFeature(airport, ValidationArrays.EAGER_LOADING_AIRPORT);
+        AssertionUtils.assertFeature(airport, ValidationFeatures.EAGER_AIRPORT);
 
         // Reset Jetway so we can load the new data
         Jetway.reset();
 
-        template = TemplateUtils.loadResourceAsString("/aixm/eager_template.xml");
-        template = replaceTemplateFields(template, 2);
+        Airport validationAirportNew = ValidationFeatures.EAGER_AIRPORT;
+        Runway validationRunwayNew = ValidationFeatures.EAGER_RUNWAY_2;
+        features = new Feature[]{validationAirportNew, validationRunwayNew};
 
-        source = JetwayTesting.constructSource(Airport.AIXM_FILE, template);
-        JetwayTesting.initializeJetway(source);
+        source = AIXMUtils.createSourceForFeatures(Airport.AIXM_FILE, features);
+        TestUtils.initializeJetway(source);
 
         // Get runway (since we used eager loading, it should still be the first one)
         Runway[] runways = airport.getRunways();
         Assert.assertEquals(1, runways.length);
-        Runway runway = runways[0];
-        JetwayAssertions.assertFeature(runway, ValidationArrays.EAGER_LOADING_RUNWAYS[0]);
+        Assert.assertEquals(1, runways.length);
+        AssertionUtils.assertFeature(runways[0], ValidationFeatures.EAGER_RUNWAY_1);
     }
 
     /**
@@ -84,36 +87,30 @@ public class EagerLoadTest {
     @Test
     public void testLoadLazyAirport() {
 
-        String template = TemplateUtils.loadResourceAsString("/aixm/eager_template.xml");
-        template = replaceTemplateFields(template, 1);
+        Airport validationAirport = ValidationFeatures.EAGER_AIRPORT;
+        Runway validationRunway = ValidationFeatures.EAGER_RUNWAY_1;
+        Feature[] features = new Feature[]{validationAirport, validationRunway};
 
-        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, template);
-        JetwayTesting.initializeJetway(source);
+        AIXMSource source = AIXMUtils.createSourceForFeatures(Airport.AIXM_FILE, features);
+        TestUtils.initializeJetway(source);
 
         // Lazy-load airport
         Airport airport = Airport.select(null);
-        JetwayAssertions.assertFeature(airport, ValidationArrays.EAGER_LOADING_AIRPORT);
+        AssertionUtils.assertFeature(airport, ValidationFeatures.EAGER_AIRPORT);
 
         // Reset Jetway so we can load the new data
         Jetway.reset();
 
-        template = TemplateUtils.loadResourceAsString("/aixm/eager_template.xml");
-        template = replaceTemplateFields(template, 2);
+        Airport validationAirportNew = ValidationFeatures.EAGER_AIRPORT;
+        Runway validationRunwayNew = ValidationFeatures.EAGER_RUNWAY_2;
+        features = new Feature[]{validationAirportNew, validationRunwayNew};
 
-        source = JetwayTesting.constructSource(Airport.AIXM_FILE, template);
-        JetwayTesting.initializeJetway(source);
+        source = AIXMUtils.createSourceForFeatures(Airport.AIXM_FILE, features);
+        TestUtils.initializeJetway(source);
 
         // Get runway (since we used lazy loading, it should be the second one since we've reloaded)
         Runway[] runways = airport.getRunways();
         Assert.assertEquals(1, runways.length);
-        Runway runway = runways[0];
-        JetwayAssertions.assertFeature(runway, ValidationArrays.EAGER_LOADING_RUNWAYS[1]);
-    }
-
-    private String replaceTemplateFields(String template, int runwayDesignator) {
-
-        template = template.replaceAll("\\{runway\\.designator}", Integer.toString(runwayDesignator));
-
-        return template;
+        AssertionUtils.assertFeature(runways[0], ValidationFeatures.EAGER_RUNWAY_2);
     }
 }

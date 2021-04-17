@@ -20,6 +20,8 @@ import com.github.chrisblutz.jetway.testing.RangeEnforcementTests;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -29,19 +31,37 @@ import java.util.stream.Collectors;
  */
 public class TemplateUtils {
 
+    private static final Map<String, String> fileTemplates = new HashMap<>();
+
     /**
-     * This method loads a resource as a stream using {@link Class#getResourceAsStream(String)},
-     * then loads that stream into a {@link String}.
+     * This method loads AIXM template files into strings for use in unit testing.
+     * <p>
+     * Files are assumed to be in the {@code /aixm/templates/} resource folder and
+     * should have the {@code .xml} file extension.  To load a file at
+     * {@code /aixm/templates/airport.xml}, the {@code filename} parameter
+     * would be {@code airport}.
      *
-     * @param name the resource to load
-     * @return The resource loaded as a {@link String}.
+     * @param filename the file name to load
+     * @return The string containing the file's contents
      */
-    public static String loadResourceAsString(String name) {
+    public static String getAIXMFileTemplate(String filename) {
 
-        InputStream stream = RangeEnforcementTests.class.getResourceAsStream(name);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+        if (!fileTemplates.containsKey(filename)) {
 
-        // Join all lines with newline characters
-        return reader.lines().collect(Collectors.joining("\n"));
+            // Load resource as stream
+            InputStream stream = RangeEnforcementTests.class.getResourceAsStream("/aixm/templates/" + filename + ".xml");
+
+            // Check that the stream exists, then create a reader for it
+            assert stream != null;
+            BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+
+            // Join all lines with newline characters
+            String fileContents = reader.lines().collect(Collectors.joining("\n"));
+
+            // Store contents
+            fileTemplates.put(filename, fileContents);
+        }
+
+        return fileTemplates.get(filename);
     }
 }

@@ -20,16 +20,17 @@ import com.github.chrisblutz.jetway.aixm.source.AIXMSource;
 import com.github.chrisblutz.jetway.database.enforcement.Enforcement;
 import com.github.chrisblutz.jetway.exceptions.JetwayException;
 import com.github.chrisblutz.jetway.features.Airport;
-import com.github.chrisblutz.jetway.testing.utils.JetwayAssertions;
-import com.github.chrisblutz.jetway.testing.utils.JetwayTesting;
-import com.github.chrisblutz.jetway.testing.utils.TemplateUtils;
-import com.github.chrisblutz.jetway.testing.utils.ValidationArrays;
+import com.github.chrisblutz.jetway.testing.utils.AIXMUtils;
+import com.github.chrisblutz.jetway.testing.utils.AssertionUtils;
+import com.github.chrisblutz.jetway.testing.utils.TestUtils;
+import com.github.chrisblutz.jetway.testing.utils.ValidationFeatures;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * This class handles testing of basic AIXM feature-loading
@@ -54,15 +55,13 @@ public class RangeEnforcementTests {
     @Test
     public void testCurrentLoad() {
 
-        String template = TemplateUtils.loadResourceAsString("/aixm/range_valid_template.xml");
-        template = replaceTemplateFields(template);
-
-        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, template);
-
-        JetwayTesting.initializeJetway(source, false, Enforcement.STRICT, true);
+        Airport validation = ValidationFeatures.BASIC_NO_EXTENSION_AIRPORT;
+        AIXMSource source = AIXMUtils.createSourceForFeatures(Airport.AIXM_FILE, validation);
+        TestUtils.initializeJetway(source, false, Enforcement.STRICT, true);
 
         Airport[] airports = Airport.selectAll(null);
-        JetwayAssertions.assertFeatures(airports, ValidationArrays.LOAD_REBUILD_INITIAL_AIRPORTS, 0);
+        assertEquals(1, airports.length);
+        AssertionUtils.assertFeature(airports[0], validation);
     }
 
     /**
@@ -71,12 +70,10 @@ public class RangeEnforcementTests {
     @Test(expected = JetwayException.class)
     public void testPastLoad() {
 
-        String template = TemplateUtils.loadResourceAsString("/aixm/range_invalid_past_template.xml");
-        template = replaceTemplateFields(template);
+        Airport validation = ValidationFeatures.BASIC_NO_EXTENSION_AIRPORT;
+        AIXMSource source = AIXMUtils.createSourceForFeatures(Airport.AIXM_FILE, getPastTime(), validation);
 
-        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, template);
-
-        JetwayTesting.initializeJetway(source, false, Enforcement.STRICT, true);
+        TestUtils.initializeJetway(source, false, Enforcement.STRICT, true);
     }
 
     /**
@@ -85,12 +82,10 @@ public class RangeEnforcementTests {
     @Test(expected = JetwayException.class)
     public void testFutureLoad() {
 
-        String template = TemplateUtils.loadResourceAsString("/aixm/range_invalid_future_template.xml");
-        template = replaceTemplateFields(template);
+        Airport validation = ValidationFeatures.BASIC_NO_EXTENSION_AIRPORT;
+        AIXMSource source = AIXMUtils.createSourceForFeatures(Airport.AIXM_FILE, getFutureTime(), validation);
 
-        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, template);
-
-        JetwayTesting.initializeJetway(source, false, Enforcement.STRICT, true);
+        TestUtils.initializeJetway(source, false, Enforcement.STRICT, true);
     }
 
     /**
@@ -99,15 +94,14 @@ public class RangeEnforcementTests {
     @Test
     public void testPastLoadLenient() {
 
-        String template = TemplateUtils.loadResourceAsString("/aixm/range_invalid_past_template.xml");
-        template = replaceTemplateFields(template);
+        Airport validation = ValidationFeatures.BASIC_NO_EXTENSION_AIRPORT;
+        AIXMSource source = AIXMUtils.createSourceForFeatures(Airport.AIXM_FILE, getPastTime(), validation);
 
-        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, template);
-
-        JetwayTesting.initializeJetway(source, false, Enforcement.LENIENT, true);
+        TestUtils.initializeJetway(source, false, Enforcement.LENIENT, true);
 
         Airport[] airports = Airport.selectAll(null);
-        JetwayAssertions.assertFeatures(airports, ValidationArrays.LOAD_REBUILD_INITIAL_AIRPORTS, 0);
+        assertEquals(1, airports.length);
+        AssertionUtils.assertFeature(airports[0], validation);
     }
 
     /**
@@ -116,15 +110,36 @@ public class RangeEnforcementTests {
     @Test
     public void testFutureLoadLenient() {
 
-        String template = TemplateUtils.loadResourceAsString("/aixm/range_invalid_future_template.xml");
-        template = replaceTemplateFields(template);
+        Airport validation = ValidationFeatures.BASIC_NO_EXTENSION_AIRPORT;
+        AIXMSource source = AIXMUtils.createSourceForFeatures(Airport.AIXM_FILE, getFutureTime(), validation);
 
-        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, template);
-
-        JetwayTesting.initializeJetway(source, false, Enforcement.LENIENT, true);
+        TestUtils.initializeJetway(source, false, Enforcement.LENIENT, true);
 
         Airport[] airports = Airport.selectAll(null);
-        JetwayAssertions.assertFeatures(airports, ValidationArrays.LOAD_REBUILD_INITIAL_AIRPORTS, 0);
+        assertEquals(1, airports.length);
+        AssertionUtils.assertFeature(airports[0], validation);
+    }
+
+    /**
+     * This method tests using a range from the past when the database has prior data.
+     */
+    @Test(expected = JetwayException.class)
+    public void testPastLoadWithPrior() {
+
+        // Load old data into database intentionally
+        Airport validation = ValidationFeatures.BASIC_NO_EXTENSION_AIRPORT;
+        AIXMSource source = AIXMUtils.createSourceForFeatures(Airport.AIXM_FILE, getPastTime(), validation);
+
+        TestUtils.initializeJetway(source, false, Enforcement.IGNORE, true);
+
+        // Reset Jetway so it is ready to load the next attempt
+        Jetway.reset();
+
+        // Now attempt to load old data, and it should fail with strict enforcement
+        Airport validationNew = ValidationFeatures.BASIC_NO_EXTENSION_AIRPORT_OTHER;
+        source = AIXMUtils.createSourceForFeatures(Airport.AIXM_FILE, getPastTime(), validationNew);
+
+        TestUtils.initializeJetway(source, false, Enforcement.STRICT, false);
     }
 
     /**
@@ -134,38 +149,19 @@ public class RangeEnforcementTests {
     public void testFutureLoadWithPrior() {
 
         // Load old data into database intentionally
-        String template = TemplateUtils.loadResourceAsString("/aixm/range_invalid_future_template.xml");
-        template = replaceTemplateFields(template);
+        Airport validation = ValidationFeatures.BASIC_NO_EXTENSION_AIRPORT;
+        AIXMSource source = AIXMUtils.createSourceForFeatures(Airport.AIXM_FILE, getPastTime(), validation);
 
-        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, template);
-
-        JetwayTesting.initializeJetway(source, false, Enforcement.IGNORE, true);
+        TestUtils.initializeJetway(source, false, Enforcement.IGNORE, true);
 
         // Reset Jetway so it is ready to load the next attempt
         Jetway.reset();
 
-        // Now attempt to load it again, and it should fail with strict enforcement
-        template = TemplateUtils.loadResourceAsString("/aixm/range_invalid_future_template.xml");
-        template = replaceTemplateFields(template);
+        // Now attempt to load future data, and it should fail with strict enforcement
+        Airport validationNew = ValidationFeatures.BASIC_NO_EXTENSION_AIRPORT_OTHER;
+        source = AIXMUtils.createSourceForFeatures(Airport.AIXM_FILE, getFutureTime(), validationNew);
 
-        source = JetwayTesting.constructSource(Airport.AIXM_FILE, template);
-
-        JetwayTesting.initializeJetway(source, false, Enforcement.STRICT, false);
-    }
-
-    /**
-     * This method tests using a range from the future when the database has no prior metadata.
-     */
-    @Test(expected = JetwayException.class)
-    public void testFutureLoadWithoutPrior() {
-
-        String template = TemplateUtils.loadResourceAsString("/aixm/range_invalid_future_template.xml");
-        template = replaceTemplateFields(template);
-
-        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, template);
-
-        // Tell Jetway to clear any metadata before loading
-        JetwayTesting.initializeJetway(source, false, Enforcement.STRICT, true);
+        TestUtils.initializeJetway(source, false, Enforcement.STRICT, false);
     }
 
     /**
@@ -174,31 +170,29 @@ public class RangeEnforcementTests {
     @Test
     public void testExisting() {
 
-        String template = TemplateUtils.loadResourceAsString("/aixm/range_valid_template.xml");
-        template = replaceTemplateFields(template);
-
-        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, template);
+        Airport validation = ValidationFeatures.BASIC_NO_EXTENSION_AIRPORT;
+        AIXMSource source = AIXMUtils.createSourceForFeatures(Airport.AIXM_FILE, validation);
 
         // Tell Jetway to clear any metadata before loading
-        JetwayTesting.initializeJetway(source, true, Enforcement.STRICT, true);
+        TestUtils.initializeJetway(source, true, Enforcement.STRICT, true);
 
         Airport[] airports = Airport.selectAll(null);
-        JetwayAssertions.assertFeatures(airports, ValidationArrays.LOAD_REBUILD_INITIAL_AIRPORTS, 0);
+        assertEquals(1, airports.length);
+        AssertionUtils.assertFeature(airports[0], validation);
 
         // Reset Jetway so it is ready to load the next attempt
         Jetway.reset();
 
         // Attempt to load new data (shouldn't load since current data is valid)
-        template = TemplateUtils.loadResourceAsString("/aixm/range_valid_new_template.xml");
-        template = replaceTemplateFields(template);
-
-        source = JetwayTesting.constructSource(Airport.AIXM_FILE, template);
+        Airport validationNew = ValidationFeatures.BASIC_NO_EXTENSION_AIRPORT_OTHER;
+        source = AIXMUtils.createSourceForFeatures(Airport.AIXM_FILE, validationNew);
 
         // Tell Jetway to clear any metadata before loading
-        JetwayTesting.initializeJetway(source, false, Enforcement.STRICT, false);
+        TestUtils.initializeJetway(source, false, Enforcement.STRICT, false);
 
         airports = Airport.selectAll(null);
-        JetwayAssertions.assertFeatures(airports, ValidationArrays.LOAD_REBUILD_INITIAL_AIRPORTS, 0);
+        assertEquals(1, airports.length);
+        AssertionUtils.assertFeature(airports[0], validation);
     }
 
     /**
@@ -207,43 +201,40 @@ public class RangeEnforcementTests {
     @Test
     public void testExistingOld() {
 
-        String template = TemplateUtils.loadResourceAsString("/aixm/range_invalid_past_template.xml");
-        template = replaceTemplateFields(template);
-
-        AIXMSource source = JetwayTesting.constructSource(Airport.AIXM_FILE, template);
+        Airport validation = ValidationFeatures.BASIC_NO_EXTENSION_AIRPORT;
+        AIXMSource source = AIXMUtils.createSourceForFeatures(Airport.AIXM_FILE, getPastTime(), validation);
 
         // Tell Jetway to clear any metadata before loading
-        JetwayTesting.initializeJetway(source, true, Enforcement.IGNORE, true);
+        TestUtils.initializeJetway(source, true, Enforcement.IGNORE, true);
 
         Airport[] airports = Airport.selectAll(null);
-        JetwayAssertions.assertFeatures(airports, ValidationArrays.LOAD_REBUILD_INITIAL_AIRPORTS, 0);
+        assertEquals(1, airports.length);
+        AssertionUtils.assertFeature(airports[0], validation);
 
         // Reset Jetway so it is ready to load the next attempt
         Jetway.reset();
 
         // Attempt to load new data (should load since current data is invalid)
-        template = TemplateUtils.loadResourceAsString("/aixm/range_valid_new_template.xml");
-        template = replaceTemplateFields(template);
-
-        source = JetwayTesting.constructSource(Airport.AIXM_FILE, template);
+        Airport validationNew = ValidationFeatures.BASIC_NO_EXTENSION_AIRPORT_OTHER;
+        source = AIXMUtils.createSourceForFeatures(Airport.AIXM_FILE, validationNew);
 
         // Tell Jetway to clear any metadata before loading
-        JetwayTesting.initializeJetway(source, false, Enforcement.STRICT, false);
+        TestUtils.initializeJetway(source, false, Enforcement.STRICT, false);
 
         airports = Airport.selectAll(null);
-        JetwayAssertions.assertFeatures(airports, ValidationArrays.LOAD_REBUILD_FINAL_AIRPORTS, 0);
+        assertEquals(1, airports.length);
+        AssertionUtils.assertFeature(airports[0], validationNew);
     }
 
-    private String replaceTemplateFields(String template) {
+    private ZonedDateTime getPastTime() {
 
-        ZonedDateTime past = ZonedDateTime.now().minus(29, ChronoUnit.DAYS);
-        ZonedDateTime current = ZonedDateTime.now().minus(1, ChronoUnit.HOURS);
-        ZonedDateTime future = ZonedDateTime.now().plus(29, ChronoUnit.DAYS);
+        // Current time minus 29 days (outside validity window)
+        return ZonedDateTime.now().minus(29, ChronoUnit.DAYS);
+    }
 
-        template = template.replace("{past}", past.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
-        template = template.replace("{current}", current.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
-        template = template.replace("{future}", future.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+    private ZonedDateTime getFutureTime() {
 
-        return template;
+        // Current time plus 29 days (outside validity window)
+        return ZonedDateTime.now().plus(29, ChronoUnit.DAYS);
     }
 }

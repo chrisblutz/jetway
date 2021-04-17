@@ -1,0 +1,17 @@
+<!--suppress ALL -->
+<aixm:extension>
+    <apt:AirportHeliportExtension gml:id="AIRPORT_HELIPORT_EXTENSION_{airport.id}">
+        <apt:airportSiteNumber>{airport.siteNumber}</apt:airportSiteNumber>
+        <apt:landSize>{airport.landArea}</apt:landSize>
+        <apt:countyName>{airport.county}</apt:countyName>
+        <apt:stateName>{airport.state}</apt:stateName>
+        <apt:ownershipType>{airport.ownership}</apt:ownershipType>
+        <apt:numberOfSingleEngineAircraft>{airport.numberOfSingleEngineAircraft}</apt:numberOfSingleEngineAircraft>
+        <apt:numberOfMultiEngineAircraft>{airport.numberOfMultiEngineAircraft}</apt:numberOfMultiEngineAircraft>
+        <apt:numberOfJetEngineAircraft>{airport.numberOfJetEngineAircraft}</apt:numberOfJetEngineAircraft>
+        <apt:numberOfHelicopter>{airport.numberOfHelicopters}</apt:numberOfHelicopter>
+        <apt:numberOfOperationalGlider>{airport.numberOfGliders}</apt:numberOfOperationalGlider>
+        <apt:numberOfMilitaryAircraft>{airport.numberOfMilitaryAircraft}</apt:numberOfMilitaryAircraft>
+        <apt:numberOfUltralightAircraft>{airport.numberOfUltralightAircraft}</apt:numberOfUltralightAircraft>
+    </apt:AirportHeliportExtension>
+</aixm:extension>

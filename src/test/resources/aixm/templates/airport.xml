@@ -1,0 +1,25 @@
+<!--suppress ALL -->
+<faa:Member>
+    <aixm:AirportHeliport gml:id="AH_{airport.id}">
+        <aixm:timeSlice>
+            <aixm:AirportHeliportTimeSlice gml:id="AIRPORT_HELIPORT_TS_{airport.id}">
+                <aixm:name>{airport.name}</aixm:name>
+                <aixm:designator>{airport.iataDesignator}</aixm:designator>
+                <aixm:locationIndicatorICAO>{airport.icao}</aixm:locationIndicatorICAO>
+                <aixm:privateUse>{airport.privateUseOnly}</aixm:privateUse>
+                <aixm:fieldElevation uom="FT">{airport.fieldElevation}</aixm:fieldElevation>
+                <aixm:ARP>
+                    <aixm:ElevatedPoint gml:id="AIRPORT_HELIPORT_ELEVATED_POINT_ARP_{airport.id}" srsName="urn:ogc:def:crs:OGC:1.3:CRS83">
+                        <gml:pos>{airport.longitude} {airport.latitude}</gml:pos>
+                    </aixm:ElevatedPoint>
+                </aixm:ARP>
+                <aixm:servedCity>
+                    <aixm:City gml:id="AIRPORT_HELIPORT_CITY_PROPERTY_{airport.id}">
+                        <aixm:name>{airport.servedCity}</aixm:name>
+                    </aixm:City>
+                </aixm:servedCity>
+                {airport.extension}
+            </aixm:AirportHeliportTimeSlice>
+        </aixm:timeSlice>
+    </aixm:AirportHeliport>
+</faa:Member>

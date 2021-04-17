@@ -17,14 +17,9 @@ package com.github.chrisblutz.jetway.testing.utils;
 
 import com.github.chrisblutz.jetway.Jetway;
 import com.github.chrisblutz.jetway.aixm.source.AIXMSource;
-import com.github.chrisblutz.jetway.aixm.source.AIXMStreamSource;
 import com.github.chrisblutz.jetway.database.Database;
 import com.github.chrisblutz.jetway.database.enforcement.Enforcement;
 import com.github.chrisblutz.jetway.database.managers.MySQLDatabaseManager;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 
 /**
  * This method provides general-purpose
@@ -32,38 +27,7 @@ import java.nio.charset.StandardCharsets;
  *
  * @author Christopher Lutz
  */
-public class JetwayTesting {
-
-    /**
-     * This method constructs a new {@link AIXMSource} using
-     * the specified {@link InputStream} for the given feature file name.
-     *
-     * @param feature the feature file name
-     * @param stream  the {@link InputStream} for the feature
-     * @return The constructed {@link AIXMSource}
-     */
-    public static AIXMSource constructSource(String feature, InputStream stream) {
-
-        AIXMStreamSource source = new AIXMStreamSource();
-        source.addStream(feature, stream);
-        return source;
-    }
-
-    /**
-     * This method constructs a new {@link AIXMSource} using
-     * the specified {@link String} for the given feature file name.
-     *
-     * @param feature the feature file name
-     * @param string  the {@link String} for the feature
-     * @return The constructed {@link AIXMSource}
-     */
-    public static AIXMSource constructSource(String feature, String string) {
-
-        // Convert string into byte array stream
-        AIXMStreamSource source = new AIXMStreamSource();
-        source.addStream(feature, new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8)));
-        return source;
-    }
+public class TestUtils {
 
     /**
      * This method initializes Jetway and forces it to

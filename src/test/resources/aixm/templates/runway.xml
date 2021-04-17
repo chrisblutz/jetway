@@ -1,0 +1,14 @@
+<!--suppress ALL -->
+<faa:Member>
+    <aixm:Runway gml:id="RWY_{runway.id}">
+        <aixm:timeSlice>
+            <aixm:RunwayTimeSlice gml:id="RUNWAY_TIME_SLICE_{runway.id}">
+                <aixm:designator>{runway.designator}</aixm:designator>
+                <aixm:lengthStrip uom="FT">{runway.length}</aixm:lengthStrip>
+                <aixm:widthStrip uom="FT">{runway.width}</aixm:widthStrip>
+                <aixm:associatedAirportHeliport
+                        xlink:href="#/faa:SubscriberFile/faa:Member/aixm:AirportHeliport%5B@gml:id='{runway.airportId}'%5D"/>
+            </aixm:RunwayTimeSlice>
+        </aixm:timeSlice>
+    </aixm:Runway>
+</faa:Member>

@@ -1,0 +1,12 @@
+<!--suppress ALL -->
+<faa:Member>
+    <aixm:RunwayDirection gml:id="RWY_DIRECTION_{runwaydirection.baseReciprocal}_END_{runwaydirection.id}">
+        <aixm:timeSlice>
+            <aixm:RunwayDirectionTimeSlice gml:id="RWY_DIRECTION_{runwaydirection.baseReciprocal}_TS_{runwaydirection.id}">
+                <aixm:usedRunway
+                        xlink:href="#/faa:SubscriberFile/faa:Member/aixm:RUNWAY%5B@gml:id='{runwaydirection.runwayEndId}'%5D"/>
+                {runwaydirection.extension}
+            </aixm:RunwayDirectionTimeSlice>
+        </aixm:timeSlice>
+    </aixm:RunwayDirection>
+</faa:Member>
